@@ -11,7 +11,7 @@
             <q-card-section>
               <div class="text-center q-pt-lg">
                 <div class="col text-h6 ellipsis">
-                  Log in
+                  {{ t('LOGIN_PAGE.TITLE')}}
                 </div>
               </div>
             </q-card-section>
@@ -22,7 +22,7 @@
                 <q-input
                   filled
                   v-model="username"
-                  :label="t('username')"
+                  :label="t('LOGIN_PAGE.USERNAME')"
                   lazy-rules
                 />
   
@@ -30,13 +30,13 @@
                   type="password"
                   filled
                   v-model="password"
-                  :label="t('password')"
+                  :label="t('LOGIN_PAGE.PASSWORD')"
                   lazy-rules
   
                 />
   
                 <div>
-                  <q-btn :label="t('login')" @click="doLogin" type="button" color="primary"/>
+                  <q-btn :label="t('LOGIN_PAGE.BUTTONS.LOGIN')" @click="doLogin" type="button" color="primary"/>
                 </div>
               </q-form>
             </q-card-section>
@@ -61,6 +61,7 @@ import apputil from 'src/boot/apputil'
   export default defineComponent({
     name: "LoginPage",
     setup() {
+      const t = (text) => AppUtil.translate(text)
       const $q = useQuasar()
       const router = useRouter()
       const username = ref('')
@@ -75,11 +76,11 @@ import apputil from 'src/boot/apputil'
           const res = await AuthenticationService.login(username.value, password.value)
           if(res) {
             $q.loading.hide()
-            AppUtil.notify('Logged in')
+            AppUtil.notify(t('LOGIN_PAGE.LOGIN_SUCCESS_MESSAGE'))
             router.push("/")
           } else {
             console.log("Login fail")
-            AppUtil.notify('Invalid username or password', true)
+            AppUtil.notify(t('LOGIN_PAGE.LOGIN_FAILURE_MESSAGE'), true)
             $q.loading.hide()
           }
       } 
@@ -96,7 +97,7 @@ import apputil from 'src/boot/apputil'
       })
       return {
         router,  
-        t: (text) => AppUtil.translate(text),
+        t,
         username,
         password,
         doLogin
@@ -108,6 +109,7 @@ import apputil from 'src/boot/apputil'
   <style>
   
   .bg-image {
+    /* background-image: linear-gradient(135deg, #7028e4 0%, #e5b2ca 100%); */
     background-image: linear-gradient(135deg, #7028e4 0%, #e5b2ca 100%);
   }
   </style>

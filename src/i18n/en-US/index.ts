@@ -20,13 +20,18 @@ export default {
     DEFAULT_ERROR_MESSAGE_TITLE: 'Error'
   },
   LOGIN_PAGE: {
+    TITLE: 'Login',
     EMAIL: 'Mail',
     PROFILE_TITLE: 'Profile',
-    PASSWORD: 'Password',
     USERNAME: 'Username',
+    PASSWORD: 'Password',
     WHERE_FROM: 'Where you are from (not required)',
-    LOGIN: 'Login',
-    LOGIN_FAIL_TITLE: 'Login failure',
+    BUTTONS: {
+      LOGIN: 'Login',
+    },    
+    LOGIN_SUCCESS_MESSAGE: 'Logged in',
+    LOGIN_FAILURE_TITLE: 'Login failure',
+    LOGIN_FAILURE_MESSAGE: 'Invalid username or password'
   },
   BUTTON: {
     OK: 'Ok',
@@ -138,9 +143,9 @@ export default {
   MAP_PAGE: {
     SET_OPTIONS: 'Set Options',
     OVERLAYS: 'Overlays',
-    TEMPERATURE: 'Temperature',
-    RAINFALL: 'Rainfall',
-    PRECIPITATION: 'Precipitation'
+    // TEMPERATURE: 'Temperature',
+    // RAINFALL: 'Rainfall',
+    // PRECIPITATION: 'Precipitation'
   },
   BASE_CONTROLS: {
     ATTACH_FILE: 'Attach',

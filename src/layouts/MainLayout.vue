@@ -536,6 +536,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { useEngagementStore } from 'src/stores/engagement-store';
 import { DOCTYPES } from 'src/enums';
 import { AuthenticationService } from 'src/services/AuthenticationService';
+import { TechnicalAnalysisService } from 'src/services/TechnicalAnalysisService';
 
 export default defineComponent({
   // name: 'LayoutName',
@@ -614,7 +615,7 @@ export default defineComponent({
     new DocTypeService('Engagement').get_list(cfg).then((recs) => {
       engagements.value = recs
     })
- 
+
     const logout = async () => {      
       const res = await AuthenticationService.logout()
       if(res){
@@ -643,7 +644,7 @@ export default defineComponent({
       engagements,
       dashboards,
       navigateEngagement,
-      navigate
+      navigate,
     }
   }
 })
