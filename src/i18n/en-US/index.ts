@@ -17,7 +17,8 @@ export default {
     CONNECTION_INTERRUPTED: 'Error: connection interrupted!',
     SERVER_ERROR: 'Server error',
     DEFAULT_INFO_MESSAGE_TITLE: 'Info',
-    DEFAULT_ERROR_MESSAGE_TITLE: 'Error'
+    DEFAULT_ERROR_MESSAGE_TITLE: 'Error',
+    GENERAL_ERROR: 'Error occurred',
   },
   LOGIN_PAGE: {
     TITLE: 'Login',
@@ -31,7 +32,7 @@ export default {
     },    
     LOGIN_SUCCESS_MESSAGE: 'Logged in',
     LOGIN_FAILURE_TITLE: 'Login failure',
-    LOGIN_FAILURE_MESSAGE: 'Invalid username or password'
+    LOGIN_FAILURE_MESSAGE: 'Invalid username or password', 
   },
   BUTTON: {
     OK: 'Ok',
@@ -71,6 +72,8 @@ export default {
     REQUIRED: 'This field is required.',
     VALID_EMAIL: 'Enter a valid e-mail address.',
     VALID_TIMEZONE: 'Enter a valid timezone.',
+    VALIDATION_ERRORS: 'Form contains errors',
+    MANDATORY_FIELD_ERRORS: 'Mandatory fields missing'
   },
   MAIN_LAYOUT: {
     HEADER: {
@@ -127,7 +130,9 @@ export default {
   },
   FORM_VIEW_PAGE: {
     DETAILS_TAB_TITLE: 'Basic Details',
-    NEW_DOCTYPE: 'new'
+    NEW_DOCTYPE: 'new',
+    SAVE_SUCCESS_MESSAGE: 'Record saved successfully',
+    SAVE_ERROR_MESSAGE: 'Record was not saved'
   },
   REPORT_VIEW_PAGE: {
     BUTTON: {

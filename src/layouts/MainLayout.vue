@@ -524,8 +524,7 @@ function toggleLeftDrawer() {
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue'
 import { useQuasar } from 'quasar'
-import NotificationList from '../components/NotificationList.vue'
-import { useI18n } from 'vue-i18n'
+import NotificationList from '../components/NotificationList.vue' 
 import EssentialLink, { EssentialLinkProps } from 'components/EssentialLink.vue';
 import { AppUtil } from 'src/utils/app';
 import AboutDialog from 'src/components/AboutDialog.vue';
@@ -546,38 +545,24 @@ export default defineComponent({
     AboutDialog
   },
   setup() {
-    const { t } = useI18n()
+    const t = (text) => AppUtil.translate(text) 
     const router = useRouter()
     const route = useRoute()
     const leftDrawer = ref(false) 
     const notificationsCount = ref(5)
     const leftDrawerOpen = ref(false)
-    const user = ref(AppUtil.getCurrentUser())  
+    const user = ref(AppUtil.get_current_user())  
     const aboutDlgVisible = ref(false)
     const engagementStore = useEngagementStore()
-    const navigate = (path: string, params: object={}) => AppUtil.routeToPath(path, params)
+    const navigate = (path: string, params: object={}) => AppUtil.route_to_path(path, params)
 
     const userInitials = ref()
-    userInitials.value = AppUtil.getCurrentUserInitials() 
+    userInitials.value = AppUtil.get_current_user_initials() 
 
-    const navigateEngagement = (engagement) => { 
-      engagementStore.setCurrentEngagement(engagement)
-      if(engagement.has_data_forms){
-        console.log("Navigating")
-        //router.push({ name: 'wizard', params: { doctype: 'Engagement', docname: engagement.name }})
-        //AppUtil.routeToPath(`/engage/${engagement.name}`)
-        AppUtil.routeToPath(`/list/${DOCTYPES.ENGAGEMENT_ENTRY}?engagement=${engagement.name}`)
-
-        //router.push({ path: `/engage/${engagement.name}`}) //, params: { doctype: 'Engagement', docname: engagement.name` }})
-        //router.push({ path: '/engage/', params: { doctype: 'Engagement', docname: engagement.name }})
-        //router.push({ path:`/engage/${engagement.name}` }) // -> /user/eduardo
-        // router.push({
-        //   name: 'wizard',
-        //   query: {
-        //     ...route.query,
-        //     //...query,
-        //   },
-        // })
+    const navigateEngagement = (engagement) => {  
+      engagementStore.set_current_engagement(engagement)
+      if(engagement.has_data_forms){ 
+        AppUtil.route_to_path(`/list/${DOCTYPES.ENGAGEMENT_ENTRY}`, {}, { 'engagement': engagement.name })
       }      
       return {}
     }
@@ -604,7 +589,7 @@ export default defineComponent({
 
     const dashboards = ref([])
     
-    DashboardService.getDashboards().then((recs)=> { 
+    DashboardService.get_dashboards().then((recs)=> { 
       dashboards.value = recs
     })
 
@@ -619,10 +604,10 @@ export default defineComponent({
     const logout = async () => {      
       const res = await AuthenticationService.logout()
       if(res){
-        AppUtil.notify("Logged out")
-        AppUtil.routeToPath("/login")
+        // AppUtil.notify("Logged out")
+        AppUtil.route_to_path("/login")
       } else {
-        AppUtil.notify("Error occurred", true)
+        AppUtil.notify_error(t('GLOBAL.SERVER_ERROR'))
       }
     }
 

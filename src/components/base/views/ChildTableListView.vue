@@ -1,7 +1,7 @@
 <!--https://v0-17.quasar-framework.org/components/datatable.html-->
 <template> 
     <!-- <div class="scroll overflow-auto"> -->
-    <div style="max-width: 90vw;" class="scroll">      
+    <div style="width: 90%;" class="scroll">      
       <!-- v-model:pagination="pagination" -->
       <q-table class="q-pa-sm"
         :dense="$q.screen.lt.md"
@@ -183,7 +183,7 @@ export default defineComponent({
         query['parent'] = props.parent
         query['parentfield'] = props.parentfield
       }
-      config.filters = AppUtil.makeFilters(query)
+      config.filters = AppUtil.make_filters(query)
       config.order_by='name ASC'    
      
       // update total rows count. Get the count from backend
@@ -264,6 +264,7 @@ export default defineComponent({
     return {
       t: (text) => AppUtil.translate(text),
       nav: (row) => {
+        debugger;
         if(props.doctype != DOCTYPES.ENGAGEMENT_ENTRY){
           return `/form/${props.doctype}/${row.name}`
         }

@@ -258,22 +258,22 @@ export default defineComponent({
 
     const query = route.query 
 
-    // VectorService.getAdminZero().then((data) => { 
+    // VectorService.get_admin_zero().then((data) => { 
     //   adminZeroFeatures = data 
     //   adminZeroNames = parseAdmins(data)
     //   adminZeroOptions.value = adminZeroNames
     // })
-    // VectorService.getAdminOne().then((data) => {
+    // VectorService.get_admin_one().then((data) => {
     //   adminOneFeatures = data 
     //   adminOneNames = parseAdmins(data)
     //   adminOneOptions.value = adminOneNames
     // })
-    // VectorService.getAdminTwo().then((data) => { 
+    // VectorService.get_admin_two().then((data) => { 
     //   adminTwoFeatures = data
     //   adminTwoNames = parseAdmins(data)
     //   adminTwoOptions.value = adminTwoNames
     // })
-    // VectorService.getAdminThree().then((data) => {
+    // VectorService.get_admin_three().then((data) => {
     //   adminThreeFeatures = data 
     //   adminThreeNames = parseAdmins(data)
     //   adminThreeOptions.value = adminThreeNames
@@ -329,14 +329,14 @@ export default defineComponent({
 
     watchEffect(() => {
        if (mapRef.value) { 
-          VectorService.getStates()
+          VectorService.get_states()
           .then((states) => {
             mapRef.value.setDatasource(states, null, 'Maryland States')
             }
           )
           //map.setDatasource(null, 'https://api.npoint.io/fdbc5b08a7e7eccb6052')
           
-          VectorService.getAdminZero().then((data) => { 
+          VectorService.get_admin_zero().then((data) => { 
               adminZeroFeatures = data 
               adminZeroNames = parseAdmins(data)
               adminZeroOptions.value = adminZeroNames 
@@ -348,7 +348,7 @@ export default defineComponent({
               AppUtil.notify(AppUtil.translate('Select a County, Sub-County or Ward'), false, 'center')
             })
  
-          VectorService.getAdminOne().then((data) => {
+          VectorService.get_admin_one().then((data) => {
             adminOneFeatures = data 
             adminOneNames = parseAdmins(data)
             adminOneOptions.value = adminOneNames
@@ -356,7 +356,7 @@ export default defineComponent({
               mapRef.value.setDatasource(data, null, 'Counties')
             }
           })
-          VectorService.getAdminTwo().then((data) => { 
+          VectorService.get_admin_two().then((data) => { 
             adminTwoFeatures = data
             adminTwoNames = parseAdmins(data)
             adminTwoOptions.value = adminTwoNames
@@ -364,7 +364,7 @@ export default defineComponent({
               mapRef.value.setDatasource(data, null, 'Sub-Counties')
             }  
           })
-          VectorService.getAdminThree().then((data) => {
+          VectorService.get_admin_three().then((data) => {
             adminThreeFeatures = data 
             adminThreeNames = parseAdmins(data)
             adminThreeOptions.value = adminThreeNames
@@ -503,7 +503,7 @@ export default defineComponent({
     }
 
     //  onMounted(() => {
-    //     VectorService.getStates().then((states) => { 
+    //     VectorService.get_states().then((states) => { 
     //       mapRef.value.setDatasource(states)
     //     })      
     //  })

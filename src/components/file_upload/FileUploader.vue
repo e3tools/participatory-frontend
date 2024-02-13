@@ -257,7 +257,7 @@
 import { AppUtil } from 'src/utils/app'
 import { defineAsyncComponent } from 'vue'
 import { defineComponent, computed, ref } from 'vue'
-import { getHeaders } from 'src/utils/api'
+import { get_headers } from 'src/utils/api'
 export default defineComponent({
   name: 'FileUploader',
   props: {
@@ -386,7 +386,7 @@ export default defineComponent({
     const upload_via_file_browser = () => {
       let selected_file = file_browser.value.selected_node
       if(!selected_file.value) {
-        AppUtil.showMessage(__('FILE_UPLOADER.CLICK_A_FILE_TO_SELECT'))
+        AppUtil.show_message(__('FILE_UPLOADER.CLICK_A_FILE_TO_SELECT'))
         return Promise.reject()
       }
       return upload_file({
@@ -397,7 +397,7 @@ export default defineComponent({
     const upload_via_web_link = () => {
       let file_url = web_link.value.url
       if(!file_url){
-        AppUtil.showMessage(__('FILE_UPLOADER.INVALID_URL'))
+        AppUtil.show_message(__('FILE_UPLOADER.INVALID_URL'))
       }
       return upload_file({
         file_url
@@ -464,11 +464,11 @@ export default defineComponent({
           }
         }
 
-        xhr.open('POST', AppUtil.makeFrappeAppAPIEndpoint('upload_file', false));
+        xhr.open('POST', AppUtil.make_frappe_api_endpoint('upload_file', false));
         xhr.setRequestHeader('Accept', 'application/json')
-        xhr.setRequestHeader('X-Frappe-CSRF-Token', AppUtil.getCSRFToken())
+        xhr.setRequestHeader('X-Frappe-CSRF-Token', AppUtil.get_csrf_token())
 
-        const headers = getHeaders({})
+        const headers = get_headers({})
         for (const [key, value] of Object.entries(headers)) {
           xhr.setRequestHeader(key, value)
         }

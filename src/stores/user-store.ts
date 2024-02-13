@@ -4,26 +4,26 @@ import { readonly, ref } from 'vue'
 
 export const useUserStore = defineStore('user', () => {
   
-  const currentUser = ref(LocalStorage.getItem('frappeUser') || {})
+  const current_user = ref(LocalStorage.getItem('frappeUser') || {})
 
-  const setUser = (userData: object) => {
+  const set_user = (userData: object) => {
     const copyOfData = extend(true, {}, userData)
     LocalStorage.set('frappeUser', copyOfData)
-    currentUser.value = copyOfData;
+    current_user.value = copyOfData;
     return true
   }
 
   return {
-    currentUser: readonly(currentUser), //only setUser method can modify it
+    current_user: readonly(current_user), //only set_user method can modify it
     getUser: () => {
-      return currentUser.value
+      return current_user.value
     },
-    setUser,
+    set_user,
     setPhotoURL(url: string | null) {
-      currentUser.value.avatar = url
+      current_user.value.avatar = url
     },
     removeUser(){
-      return setUser({})
+      return set_user({})
     }
   }
 })

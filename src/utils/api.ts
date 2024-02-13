@@ -1,22 +1,14 @@
-// const get_api_endpoint = (url) => {
-//   let backend = 'http://127.0.0.1:8003/api/method';
-//   return `${backend}/${url}`;
-// };
-
-// export { get_api_endpoint };
-
-import { doRequest } from '../utils/axios'
+import { do_request } from '../utils/axios'
 import { AuthenticationService } from 'src/services/AuthenticationService';
-//import { doRequest } from "../utils/fetch";
 
  /**
    * Get updated headers
    */
-const getHeaders = (headers) => {
-  const token = AuthenticationService.getLoggedInUserToken();
+const get_headers = (headers: object) => {
+  const token = AuthenticationService.get_loggedIn_user_token();
   headers.Authorization = `token ${token}`;
   headers.Accept = 'application/json'
-  //headers['X-Frappe-CSRF-Token'] = AuthenticationService.getCSRFToken();
+  //headers['X-Frappe-CSRF-Token'] = AuthenticationService.get_csrf_token();
   return headers
 }
 
@@ -28,7 +20,7 @@ const getHeaders = (headers) => {
  * @param data_property Property of the response that contains data from server
  * @returns
  */
-const makeRequest = async (
+const make_request = async (
   url: string,
   method = 'POST',
   body: object = {},
@@ -38,12 +30,11 @@ const makeRequest = async (
    /**
    * Get updated headers
    */
-  headers = getHeaders(headers)
-  return doRequest(url,
+  headers = get_headers(headers)
+  return do_request(url,
     method,
     body,
     headers,
     data_property)
 };
-
-export { makeRequest, getHeaders };
+export { make_request, get_headers };

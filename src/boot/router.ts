@@ -8,7 +8,7 @@ export default boot(async ({ app, router/*, ...*/ }) => {
   router.beforeEach((to, from, next) => {     
     if (to.meta.requiresAuth) {
       //const token = localStorage.getItem('token');
-      const token = AppUtil.getCurrentUser()
+      const token = AppUtil.get_current_user()
       if (token) {
         // User is authenticated, proceed to the route
         next();

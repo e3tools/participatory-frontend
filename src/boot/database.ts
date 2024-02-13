@@ -15,6 +15,8 @@ import {
   IDBDeleteParam,
 } from 'src/interfaces';
 
+import { URLS } from 'src/enums';
+
 // See https://frappeframework.com/docs/user/en/api/rest
 
 // "async" is optional
@@ -147,22 +149,12 @@ const database = class Database {
    * @returns
    */
   async get_list(
-    config: IDBReadParam
-    //doctype: string,
-    // filters: Array<string> = [],
-    // or_filters: Array<string> = [],
-    // fields: Array<string> = ['name'],
-    // order_by = 'modified DESC',
-    // limit = 1000
+    config: IDBReadParam,
+    get_global_count: boolean=false 
   ) {
     return await this.db.get_list(
-      config
-      //doctype,
-      //   filters,
-      //   or_filters,
-      //   fields,
-      //   order_by,
-      //   limit
+      config,
+      get_global_count 
     );
   }
 
@@ -199,7 +191,7 @@ const database = class Database {
 
 export default boot(async ({ app } /* { app, router, ... } */) => {
   // something to do
-  const remoteUrl = 'http://127.0.0.1:8000'; // appConfig.domain
+  const remoteUrl = URLS.BACKEND; // appConfig.domain
   app.config.globalProperties.$remoteUrl = remoteUrl;
   app.config.globalProperties.$db = new database(remoteUrl);
 });

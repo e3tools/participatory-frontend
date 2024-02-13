@@ -40,7 +40,7 @@ export default defineComponent({
     const charts = ref([])
     const loading = ref(true)
     const db = new DocTypeService("Dashboard Chart")
-    DashboardService.getDashboardCharts(props.dashboard).then((items) => {
+    DashboardService.get_dashboard_charts(props.dashboard).then((items) => {
       if(items.length == 0){
         loading.value = false
       }

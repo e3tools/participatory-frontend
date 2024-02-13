@@ -7,23 +7,23 @@ import { adminThree } from 'src/data/admin3_ke';
 class VectorService {
   // constructor() { }
 
-  static async getStates() {
+  static async get_states() {
     return statesData;
   }
 
-  static async getAdminZero() {
+  static async get_admin_zero() {
     return adminZero;
   }
 
-  static async getAdminOne() {
+  static async get_admin_one() {
     return adminOne;
   }
 
-  static async getAdminTwo() {
+  static async get_admin_two() {
     return adminTwo;
   }
 
-  static async getAdminThree() {
+  static async get_admin_three() {
     return adminThree;
   }
 }

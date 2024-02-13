@@ -136,8 +136,8 @@ export default defineComponent({
         query['parent'] = props.parent
         query['parentfield'] = props.parentfield
       }
-      config.filters = AppUtil.makeFilters(query)
-      config.order_by='name ASC'    
+      config.filters = AppUtil.make_filters(query)
+      config.order_by='modified DESC'    
      
       // update total rows count. Get the count from backend
       pagination.value.rowsNumber = 306
@@ -153,8 +153,8 @@ export default defineComponent({
       }
 
       if(!props.ischildtable){
-        // get data from server
-        rows.value = await db.get_list(config)
+        // get data from server 
+        [rows.value, pagination.value.rowsNumber] = await db.get_list(config, true);
       }
       else { 
         rows.value = props.parentdoc?.__islocal ? [] : props.parentdoc?.[props.parentfield]
@@ -205,7 +205,7 @@ export default defineComponent({
     // await loadInitialData()
     return {
       t: (text) => AppUtil.translate(text),
-      navBtnAdd: () => {
+      navBtnAdd: () => { 
         if(props.doctype != DOCTYPES.ENGAGEMENT_ENTRY){
           return `/form/${props.doctype}/new`
         }

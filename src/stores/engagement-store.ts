@@ -42,14 +42,14 @@ export const useEngagementStore = defineStore('engagement', () => {
       "Map": {}
   })
 
-  const makeTempEngagementEntry = async () => {
+  const make_temp_ngagement_entry = async () => {
     const svc = new DocTypeService(`${DOCTYPES.ENGAGEMENT_ENTRY}`)
-    const curr_engagement = getCurrentEngagement()
+    const curr_engagement = get_current_engagement()
 
     const new_doc = await svc.new_doc({})
     new_doc.engagement = curr_engagement.name
     new_doc.engagement_name = curr_engagement.engagement_name
-    new_doc.entered_by = AppUtil.getCurrentUser().name
+    new_doc.entered_by = AppUtil.get_current_user().name
     new_doc.entered_on = new Date()
     new_doc.status = "Draft"
 
@@ -60,7 +60,7 @@ export const useEngagementStore = defineStore('engagement', () => {
    * Set the current engagement after it has been selected from the main menu
    * @param engagement 
    */
-  const setCurrentEngagement = (engagement: string) => { 
+  const set_current_engagement = (engagement: string) => { 
     engagementStore.value.CurrentEngagement = engagement
   }
 
@@ -68,7 +68,7 @@ export const useEngagementStore = defineStore('engagement', () => {
    * Retrieve last selected engagement
    * @returns 
    */
-  const getCurrentEngagement = () => { 
+  const get_current_engagement = () => { 
     return engagementStore.value.CurrentEngagement
   }
 
@@ -78,8 +78,8 @@ export const useEngagementStore = defineStore('engagement', () => {
    * @param doctype 
    * @param data 
    */
-  const setSurveyFormData = (engagement: string, doctype: string, data:object, ) => {
-    _setFormValue(engagement, SURVEY, doctype, data)
+  const set_survey_form_data = (engagement: string, doctype: string, data:object, ) => {
+    _set_form_value(engagement, SURVEY, doctype, data)
   }
 
   /**
@@ -88,8 +88,8 @@ export const useEngagementStore = defineStore('engagement', () => {
    * @param doctype 
    * @returns 
    */
-  const getSurveyFormData = (engagement: string, doctype: string) => {
-    return _getFormValue(engagement, SURVEY, doctype)
+  const get_survey_form_data = (engagement: string, doctype: string) => {
+    return _get_form_value(engagement, SURVEY, doctype)
   }
 
   /**
@@ -99,7 +99,7 @@ export const useEngagementStore = defineStore('engagement', () => {
    * @param doctype 
    * @param data 
    */
-  const _setFormValue = (engagement: string, engagement_type: string, doctype: string, data:object, ) => {
+  const _set_form_value = (engagement: string, engagement_type: string, doctype: string, data:object, ) => {
     if(!(engagement_type in engagementStore.value)){ 
       engagementStore.value[engagement_type] = {}
     }
@@ -115,7 +115,7 @@ export const useEngagementStore = defineStore('engagement', () => {
   /**
    * Get Form values from store
    */
-  const _getFormValue = (engagement: string, engagement_type: string, doctype: string) => {
+  const _get_form_value = (engagement: string, engagement_type: string, doctype: string) => {
     return engagementStore.value[engagement_type][engagement][doctype]
   }
 
@@ -124,8 +124,8 @@ export const useEngagementStore = defineStore('engagement', () => {
    * @param engagement 
    * @returns 
    */
-  const getSurveyEngagementEntryData = (engagement: string) => {
-    return _getValueByEngagementType(engagement, SURVEY)
+  const get_survey_engagement_entry_data = (engagement: string) => {
+    return _get_value_by_engagement_type(engagement, SURVEY)
   }
 
   /**
@@ -134,8 +134,8 @@ export const useEngagementStore = defineStore('engagement', () => {
    * @param data 
    * @returns 
    */
-  const setSurveyEngagementEntryData = (engagement: string, data: object) => {
-    return _setValueByEngagementType(engagement, SURVEY, data)
+  const set_survey_engagement_entry_data = (engagement: string, data: object) => {
+    return _set_Value_by_engagement_type(engagement, SURVEY, data)
   }
 
   /**
@@ -144,7 +144,7 @@ export const useEngagementStore = defineStore('engagement', () => {
    * @param engagement_type 
    * @returns 
    */
-  const _getValueByEngagementType = (engagement: string, engagement_type: string ) => {
+  const _get_value_by_engagement_type = (engagement: string, engagement_type: string ) => {
     return engagementStore.value[engagement_type][engagement]
   }
   
@@ -155,18 +155,18 @@ export const useEngagementStore = defineStore('engagement', () => {
    * @param data 
    * @returns 
    */
-  const _setValueByEngagementType = (engagement: string, engagement_type: string, data: object ) => {
+  const _set_Value_by_engagement_type = (engagement: string, engagement_type: string, data: object ) => {
     return engagementStore.value[engagement_type][engagement] = data
   }
 
   return { 
-    getSurveyFormData,
-    setSurveyFormData,
-    getSurveyEngagementEntryData,
-    setSurveyEngagementEntryData,
-    getCurrentEngagement,
-    setCurrentEngagement,
-    makeTempEngagementEntry
+    get_survey_form_data,
+    set_survey_form_data,
+    get_survey_engagement_entry_data,
+    set_survey_engagement_entry_data,
+    get_current_engagement,
+    set_current_engagement,
+    make_temp_ngagement_entry
   }
 }, 
 {persist: true} 

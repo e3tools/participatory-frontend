@@ -14,8 +14,7 @@
 </template>
 
 <script lang="ts"> 
-import { defineAsyncComponent, ref } from 'vue';
-import { defineComponent } from 'vue'
+import { defineAsyncComponent, defineComponent, ref } from 'vue';
 export default defineComponent({
    name: 'WbChildTable',
    props: ['doctype', 'parentdoc', 'parenttype', 'parent', 'parentfield'],
@@ -32,5 +31,5 @@ export default defineComponent({
       }
     }
    }
-})
+});
 </script>

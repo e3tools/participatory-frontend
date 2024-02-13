@@ -38,7 +38,7 @@ export default defineComponent({
     // const $frappe = new frappe.Frappe()
     const userService = new UserService()
     const name = ref(null)
-    const db = AppUtil.getDB()
+    const db = AppUtil.get_db()
 
     const options = ['One', 'Two', 'Three']
     const countries = ref([])
@@ -51,7 +51,7 @@ export default defineComponent({
                 })
   
     const get_list = async () => {      
-      // let rep = await AppUtil.getDB().get_list(
+      // let rep = await AppUtil.get_db().get_list(
       //   'Country', 
       //   null, //filters
       //   [['name', 'like', 'Ke%'], ['country_name', 'like', 'al%']],//or_filters,

@@ -4,23 +4,29 @@
   <!---When there is more than 1 Tab break-->
   <q-card class="q-pa-sm" v-if="tabs.length > 1">
     <q-tabs 
-      v-model="tab"
+      v-model="selectedTab"
       dense
       class="text-grey"
-      active-color="primary"
-      indicator-color="primary"
+      active-color="primary text-white"
+      active-bg-color="info"
+      indicator-color="secondary"
       align="justify"
-      narrow-indicator       
+      narrow-indicator
+      vertical   
     >
-      <q-tab v-for="tb in tabs" :name="tb.fieldname" :label="tb.label" :key="tb.fieldname">
+      <q-tab v-for="(tb, idx) in tabs" :name="tb.fieldname" :label="(idx + 1) + '. ' + tb.label" :key="tb.fieldname"
+          no-caps  
+      >
         <!-- <q-badge v-if="validators.formHasError" color="red" floating>{{validators.errCount}}</q-badge> -->
       </q-tab>
     </q-tabs>
 
     <q-separator />
 
-    <q-tab-panels v-model="tab" animated>
-      <q-tab-panel keep-alive v-for="tb in tabs" :name="tb.fieldname" :key="tb.fieldname">  
+    <q-tab-panels v-model="selectedTab" animated>
+      <q-tab-panel keep-alive v-for="tb in tabs" :name="tb.fieldname" :key="tb.fieldname"
+          class="q-gutter-sm"
+      >  
         <suspense>
           <keep-alive>
             <component v-for="field in getTabFields(tb.fieldname)" :key="field.name"
@@ -32,11 +38,11 @@
               :v-show="setVisibility(field)" 
               :readonly="setReadonly(field)"
               v-bind="field"
-              :label="field.label"
+              :label="field.reqd ? field.label + '*' : field.label"
               v-bind:options="field.options"
               :class="setClass(field)" 
+              :label-color="field.reqd ? 'accent' : null"
               :rules="setRequired(field)"
-              v-bind:rules3="[ val => val && val.length > 0 || 'Please type something']"
               :columns="field.fieldtype=='Table' ? [] : field.columns"
               :parenttype="setParentProp(field, 'parenttype')"
               :parentfield="setParentProp(field, 'parentfield')"
@@ -86,11 +92,11 @@
             v-show="setVisibility(field)" 
             :readonly="setReadonly(field)"
             v-bind="field"
-            :label="field.label"
+            :label="field.reqd ? field.label + ' *' : field.label"
+            :label-color="field.reqd ? 'accent' : null"
             v-bind:options="field.options"
             :class="setClass(field)"
             :rules="setRequired(field)"
-            v-bind:rules3="[ val => val && val.length > 0 || 'Please type something']"
             :columns="field.fieldtype=='Table' ? [] : field.columns"
             :parenttype="setParentProp(field, 'parenttype')"
             :parentfield="setParentProp(field, 'parentfield')"
@@ -143,14 +149,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+
+import { defineComponent, ref, computed, onMounted} from 'vue'
 import { useComponentMap } from '../../../composables/ComponentMap' 
-import { useI18n } from 'vue-i18n'
 import { AppUtil } from 'src/utils/app'
 import { DocTypeService } from 'src/services/DocTypeService'
-import { computed } from 'vue'
 import { useEngagementStore } from 'src/stores/engagement-store'
-import { onMounted } from 'vue'
 
 export default defineComponent({
   name: 'FrappeUIGenerator',
@@ -173,16 +177,17 @@ export default defineComponent({
     const db = new DocTypeService(props.doctype) 
     const engagementStore = useEngagementStore()
 
+    const selectedTab = ref(null)
+
     const loadDocTypeDef = async () => { 
-      doctype_def.value = await db.get_doctype() 
+      doctype_def.value = await db.get_doctype()
+      const tbname = tabs.value.length > 0 ? tabs.value[0].fieldname : '' 
+      selectedTab.value = tbname
     }
     onMounted(async () => {
        await loadDocTypeDef()
     })
  
-    console.log("Getting doctype FrappeUI")
-    //doctype_def.value = await db.get_doctype()
-    console.log("Retrieved doctype FrappeUI")
     if(props.doc && props.doc !== undefined){
       formData.value = props.doc
     } else {
@@ -212,7 +217,11 @@ export default defineComponent({
 
     const setRequired = (field: object) => {
       let rules = []
-      if(field.reqd){
+      if(getNonInputFieldsTypes().includes(field.fieldtype)){        
+        return rules;
+      }
+      
+      if(field.reqd){ 
         if(isNumericField(field)){
           rules = [val => val !== null && val !== '' || t('VALIDATION.REQUIRED')]
         }
@@ -220,6 +229,13 @@ export default defineComponent({
           rules = [val => val && val.length > 0 || t('VALIDATION.REQUIRED')]
         }
       }
+      return rules
+    }
+
+    const getNonInputFieldsTypes = () => {
+      return [
+        "Table"
+      ]
     }
 
     const setParentProp = (field: object, propName: string) => {
@@ -278,25 +294,50 @@ export default defineComponent({
      */
     const getValues = () => {
       //get values for child tables
-      childTables.value.forEach((el: object) => {
-        debugger
+      childTables.value.forEach((el: object) => { 
         formData.value[el.fieldname] = fieldRefs.value[el.fieldname]?.getRows()
       })
       return formData.value
     }
 
-    const tabs = computed(() => {
-      let tabs = doctype_def.value.fields.filter((itm)=>itm.fieldtype == 'Tab Break')
-      if(doctype_def.value.fields.length > 0){
-        //check if the first field is a Tab Break, if not, insert a new Tab Break
-        if(doctype_def.value.fields[0].fieldtype != 'Tab Break'){
-          tabs.splice(0, 0, {
-            'fieldtype': 'Tab Break',
-            'fieldname': 'DEFAULT_TAB',
-            'label': t('FORM_VIEW_PAGE.DETAILS_TAB_TITLE')
-          })
+    /**
+     * Validate required form fields
+     */
+    const validateForm = () => {
+      const vals = getValues()
+      const error_fields = []
+      //Check against the required fields
+      const fields = formFields.value;
+      for(let i=0; i < fields.length; i++) {
+        const field = fields[i]
+        if(field.reqd && !vals[field.fieldname]) {
+          error_fields.push(field.label)          
         }
       }
+      if(error_fields.length > 0){
+        const msg = t('VALIDATION.MANDATORY_FIELD_ERRORS') + '\r\n' + error_fields.join('\r\n');
+        AppUtil.show_error(msg);
+      }
+      return [error_fields.length == 0,  error_fields];
+    }
+
+    const tabs = computed(() => {
+      let tabs = doctype_def.value.fields.filter((itm)=>itm.fieldtype == 'Tab Break')  
+      if(doctype_def.value.fields.length > 0){ 
+        let non_custom_fields = doctype_def.value.fields.filter((itm)=>itm.name.indexOf('-') == -1)
+        //check if the first field is a Tab Break, if not, insert a new Tab Break
+        let first_field = non_custom_fields.length > 0 ? non_custom_fields[0] : null;
+        if(first_field && first_field.fieldtype != 'Tab Break'){
+          if(first_field.name.indexOf('-') == -1){
+            //custom fields have names of the form DocType-field_name
+            tabs.splice(0, 0, {
+              'fieldtype': 'Tab Break',
+              'fieldname': 'DEFAULT_TAB',
+              'label': t('FORM_VIEW_PAGE.DETAILS_TAB_TITLE')
+            })
+          }
+        }
+      } 
       return tabs
     }) 
 
@@ -305,8 +346,8 @@ export default defineComponent({
       return grids
     })
 
-    const tbname = tabs.value.length > 0 ? tabs.value[0].fieldname : ''
-    const tab = ref(tbname) // ref('basic_details_tab')
+    // const tbname = tabs.value.length > 0 ? tabs.value[0].fieldname : ''
+    // const selectedTab = ref(tbname) // ref('basic_details_tab')
     
     const onUpdateValue = (field: string, value: object) => {
       debugger
@@ -338,13 +379,12 @@ export default defineComponent({
     const onFocus = (evt) => {
       console.log("Focused: ", evt)
       selectedField.value = evt
-      // const tmp = doctype_def.value
-      // doctype_def.value = tmp 
     } 
     return {  
       t,
       selectedField,
       getValues,
+      validateForm,
       onFocus,
       componentMap,
       doctype_def,
@@ -360,7 +400,7 @@ export default defineComponent({
       fieldRefs,
       tabs,
       childTables,
-      tab, //: tabs.value.length > 0 ? ref(tabs.value[0].fieldname) : ref(null), // ref('DEFAULT_TAB'), 
+      selectedTab,
       validators: ref({}),
       getTabFields: ((tabName: string) => {
         let tabFields = []
@@ -368,7 +408,7 @@ export default defineComponent({
         let start_copy = tabName == 'DEFAULT_TAB' ? true : false
         
         for(var i = 0; i < doctype_def.value.fields.length; i++){
-          let element = doctype_def.value.fields[i]
+          let element = doctype_def.value.fields[i];
           if(!start_copy){
             start_copy = element.fieldname == tabName //start copy when we finally locate the tab field we are interested in inside the array            
           }

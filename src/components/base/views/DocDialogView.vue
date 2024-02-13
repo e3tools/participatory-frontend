@@ -112,12 +112,7 @@ export default defineComponent({
           router.go(0)
         } else {
           $q.loading.hide()
-        }
-        // if(props.docname){
-        //   return await db.update_doc(values, formValues.value.name) 
-        // } else { 
-        //   return await db.create_doc(values)
-        // }
+        } 
       }
       return false
     }

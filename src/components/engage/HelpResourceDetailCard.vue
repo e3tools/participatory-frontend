@@ -53,7 +53,7 @@ export default defineComponent({
     })
     return {
       t: (text) => AppUtil.translate(text),
-      makeURL: (url) => AppUtil.makeBackendURL(url),
+      makeURL: (url) => AppUtil.make_backend_url(url),
       doc,
       // encode: (text) => {
       //   return $(text).encode(text).text()

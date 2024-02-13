@@ -43,7 +43,7 @@
 import { defineComponent, ref } from 'vue'
 import { AppUtil } from 'src/utils/app'; 
 import { computed } from 'vue';
-import { makeRequest } from 'src/utils/api';
+import { make_request } from 'src/utils/api';
 import { APPS } from 'src/enums'
 import { defineAsyncComponent } from 'vue';
 
@@ -87,8 +87,8 @@ export default defineComponent({
       var object = {};
       formData.forEach((value, key) => object[key] = value);
       var json = JSON.stringify(object); 
-      const res = await makeRequest(
-        AppUtil.makeFrappeAppAPIEndpoint('do_upload'),
+      const res = await make_request(
+        AppUtil.make_frappe_api_endpoint('do_upload'),
         'POST',
         formData,
         { 
@@ -108,10 +108,10 @@ export default defineComponent({
         if(rejectedEntries.length > 0){
           switch(rejectedEntries[0].failedPropValidation){
             case 'accept':              
-              AppUtil.showError(AppUtil.translate('BASE_CONTROLS.INVALID_FILE_TYPES'))
+              AppUtil.show_error(AppUtil.translate('BASE_CONTROLS.INVALID_FILE_TYPES'))
               break
             case 'max-file-size':
-              AppUtil.showError(AppUtil.translate('BASE_CONTROLS.MAX_FILE_SIZE_EXCEEDED'))
+              AppUtil.show_error(AppUtil.translate('BASE_CONTROLS.MAX_FILE_SIZE_EXCEEDED'))
               break;
           }
         }

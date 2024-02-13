@@ -1,4 +1,4 @@
-// import { getCurrentInstance } from "vue"
+// import { get_current_instance } from "vue"
 import { useQuasar } from 'quasar';
 import { Dialog } from 'quasar';
 import { stringify } from 'querystring';
@@ -11,7 +11,7 @@ import {
 } from 'typescript';
 import { useRouter } from 'vue-router';
 import { Notify } from 'quasar';
-import { APPS } from 'src/enums';
+import { APPS, URLS } from 'src/enums';
 
 String.prototype.format = function (...args) {
   // Storing arguments into an array
@@ -32,7 +32,7 @@ String.prototype.format = function (...args) {
 //  * @returns a proxy object. the objects needs to be destructured before using it
 //  */
 // const getGlobalVariables = () => {
-//     const { proxy } = getCurrentInstance()
+//     const { proxy } = get_current_instance()
 //     return proxy
 // }
 
@@ -44,15 +44,15 @@ const AppUtil = class AppUtil {
   // constructor() {
   // }
 
-  static backendURL = 'http://127.0.0.1:8000';
+  static backendURL = URLS.BACKEND;
 
   /**
    * Get app instance from which we can access globar variables
    * @returns
    */
-  static getCurrentInstance() {
+  static get_current_instance() {
     const store = useCurrentInstanceStore();
-    const { proxy } = store.getCurrentInstance();
+    const { proxy } = store.get_current_instance();
     return proxy;
   }
 
@@ -60,8 +60,8 @@ const AppUtil = class AppUtil {
    * Get Backend database instance
    * @returns
    */
-  static getDB() {
-    const proxy = this.getCurrentInstance();
+  static get_db() {
+    const proxy = this.get_current_instance();
     return proxy ? proxy.$db : null;
   }
 
@@ -69,8 +69,8 @@ const AppUtil = class AppUtil {
    * Get translator library
    * @returns
    */
-  static getTranslator() {
-    const proxy = this.getCurrentInstance();
+  static get_translator() {
+    const proxy = this.get_current_instance();
     return proxy ? proxy.$t : null;
   }
 
@@ -78,7 +78,7 @@ const AppUtil = class AppUtil {
    * Translate text
    */
   static translate(text: string, params: object={}) {
-    const $t = this.getTranslator();   
+    const $t = this.get_translator();   
     const res = $t(text);
     if(params) {
       res.format(params)
@@ -94,67 +94,67 @@ const AppUtil = class AppUtil {
    * Show message to user
    * @param title
    * @param message
-   * @param onOK
-   * @param onCancel
-   * @param onDismiss
+   * @param on_ok
+   * @param on_cancel
+   * @param on_dismiss
    */
-  static showMessage(
+  static show_message(
     message: string,
     title: '',
-    onOK = null,
-    onCancel = null,
-    onDismiss = null
+    on_oK = null,
+    on_cancel = null,
+    on_dismiss = null
   ) {
     if (!title) {
       title = this.translate('GLOBAL.DEFAULT_INFO_MESSAGE_TITLE');
     }
-    this._showDialog(title, message, onOK, onCancel, onDismiss, false, false);
+    this._show_dialog(title, message, on_oK, on_cancel, on_dismiss, false, false);
   }
 
   /**
    * Show error message
    * @param title
    * @param message
-   * @param onOK
-   * @param onCancel
-   * @param onDismiss
+   * @param on_oK
+   * @param on_cancel
+   * @param on_dismiss
    */
-  static showError(
+  static show_error(
     message: string,
     title = '',
-    onOK = null,
-    onCancel = null,
-    onDismiss = null
+    on_oK = null,
+    on_cancel = null,
+    on_dismiss = null
   ) {
     if (title === '' || !title) {
       title = this.translate('GLOBAL.DEFAULT_ERROR_MESSAGE_TITLE');
     }
-    this._showDialog(title, message, onOK, onCancel, onDismiss, true, false);
+    this._show_dialog(title, message, on_oK, on_cancel, on_dismiss, true, false);
   }
 
-  static confirm(message: string, title: '', onOK = null, onCancel = null) {
+  static confirm(message: string, title: '', on_ok = null, on_cancel = null) {
     if (title === '' || !title) {
       title = this.translate('GLOBAL.DEFAULT_ERROR_MESSAGE_TITLE');
     }
-    this._showDialog(title, message, onOK, onCancel, null, false, true);
+    this._show_dialog(title, message, on_ok, on_cancel, null, false, true);
   }
   /**
    * Display message. Attempt to make use of Quasar dialog
    * @param title
    * @param message
-   * @param onOK
-   * @param onCancel
-   * @param onDismiss
-   * @param isError
+   * @param on_ok
+   * @param on_cancel
+   * @param on_dismiss
+   * @param is_error
    */
-  static _showDialog(
+  static _show_dialog(
     title: string,
     message: string,
-    onOK = null,
-    onCancel = null,
-    onDismiss = null,
-    isError = false,
-    isConfirm = false
+    on_oK = null,
+    on_cancel = null,
+    on_dismiss = null,
+    is_error = false,
+    is_confirm = false
   ) {
     // const $t = AppUtil.translate
 
@@ -163,25 +163,25 @@ const AppUtil = class AppUtil {
     const dlg = Dialog.create({
       title: title,
       message: message,
-      color: isError ? 'negative' : 'primary',
+      color: is_error ? 'negative' : 'primary',
       //class: 'bg-negative',
       html: true,
       ok: this.translate('BUTTON.OK'),
-      cancel: isConfirm ? AppUtil.translate('BUTTON.CANCEL') : null,
+      cancel: is_confirm ? AppUtil.translate('BUTTON.CANCEL') : null,
     })
       .onOk(() => {
-        if (onOK) {
-          onOK();
+        if(on_ok) {
+          on_oK();
         }
       })
       .onCancel(() => {
-        if (onCancel) {
-          onCancel();
+        if(on_cancel) {
+          on_cancel();
         }
       })
       .onDismiss(() => {
-        if (onDismiss) {
-          onDismiss();
+        if(on_dismiss) {
+          on_dismiss();
         }
       });
   }
@@ -214,7 +214,7 @@ const AppUtil = class AppUtil {
       message,
       position,
       avatar: 'info',
-      multiLine: false,
+      multiLine: true,
       // actions: twoActions
       //   ? [
       //       { label: 'Reply', color: buttonColor, handler: () => { /* console.log('wooow') */ } },
@@ -227,25 +227,45 @@ const AppUtil = class AppUtil {
       timeout: timeout, // Math.random() * 5000 + 3000
     })
   }
+
+  /**
+   * Show error notification
+   * @param message 
+   * @param position 
+   * @param timeout 
+   */
+  static notify_error = (message: string, position: | "top-left"
+  | "top-right"
+  | "bottom-left"
+  | "bottom-right"
+  | "top"
+  | "bottom"
+  | "left"
+  | "right"
+  | "center" = 'bottom', timeout=3000) => {
+
+    this.notify(message, true, position); 
+  }
+
   /**
    * Retrieve current user details
    */
-  static getCurrentUser = () => {
-    return AuthenticationService.getLoggedInUser();
+  static get_current_user = () => {
+    return AuthenticationService.get_current_user();
   };
 
   /**
    * Retrieve current CSRF Token
    */
-  static getCSRFToken = () => {
-    return AuthenticationService.getCSRFToken();
+  static get_csrf_token = () => {
+    return AuthenticationService.get_csrf_token();
   };
 
   /**
    * Get initials for the currently logged in user
    */
-  static getCurrentUserInitials = () => {
-    const user = this.getCurrentUser();
+  static get_current_user_initials = () => {
+    const user = this.get_current_user();
     if (!user) {
       return '';
     }
@@ -282,12 +302,12 @@ const AppUtil = class AppUtil {
     return is_src_array ? dst_array : dst_array[0];
   };
 
-  static routeToPath = (
+  static route_to_path = (
     path: string,
     params: object = {},
-    query = ''
+    query: object = {}
   ) => {
-    const router = AppUtil.getCurrentInstance().$router;
+    const router = AppUtil.get_current_instance().$router;
 
     router.push({ path, params, query })
           .then(() => {
@@ -296,12 +316,12 @@ const AppUtil = class AppUtil {
     //router.push({path: path, params: params, query: queryString })
   };
 
-  static routeToName = (
+  static route_to_name = (
     name: string,
     params: object = {},
     queryString = ''
   ) => {
-    const router = AppUtil.getCurrentInstance().$router;
+    const router = AppUtil.get_current_instance().$router;
     router.push({ name: name, params: params, query: queryString })
       .then(() => {
         router.go(0)
@@ -312,7 +332,7 @@ const AppUtil = class AppUtil {
    * Construct db parameters based on query string values
    * @param queryString
    */
-  static makeFilters = (queryString: object) => {
+  static make_filters = (queryString: object) => {
     const filters = [];
     for (const key in queryString) {
       filters.push([key, '=', queryString[key]]);
@@ -324,15 +344,15 @@ const AppUtil = class AppUtil {
    * Construct a backend url
    * @param url
    */
-  static makeBackendURL = (url: string) => {
+  static make_backend_url = (url: string) => {
     return `${this.backendURL}/${url}`;
   };
 
-  static makeFrappeAppAPIEndpoint = (endpoint: string, include_custom_app: boolean = true) => {
+  static make_frappe_api_endpoint = (endpoint: string, include_custom_app: boolean = true) => {
     if(include_custom_app){
-      return `${this.makeBackendURL('')}api/method/${APPS.FRAPPE_CUSTOM_APP}.api.${endpoint}`; 
+      return `${this.make_backend_url('')}api/method/${APPS.FRAPPE_CUSTOM_APP}.api.${endpoint}`; 
     }
-    return `${this.makeBackendURL('')}api/method/${endpoint}`; 
+    return `${this.make_backend_url('')}api/method/${endpoint}`; 
   }
 
   /**

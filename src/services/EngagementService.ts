@@ -12,12 +12,12 @@ class EngagementService {
     /**
      * Get list of draft engagement entries associated with currently logged in user
     */
-    static async getDraftEngagementEntries(engagement_name: string) {
+    static async get_draft_engagement_entries(engagement_name: string) {
         const cfg = {} as IDBReadParam
         cfg.filters = [
                         ["status", "=", "Draft"], 
                         ["engagement", "=", engagement_name], 
-                        ["entered_by", "=", AppUtil.getCurrentUser().name]
+                        ["entered_by", "=", AppUtil.get_current_user().name]
                     ]
         const res = await this.doctypeService.get_list(cfg)
         return res
@@ -27,16 +27,16 @@ class EngagementService {
      * Get a merged record of all doctype entries linked to a specific engagement entry
      * @param engagement_name 
      */
-    static async getEngagementEntryRecord(engagement_entry_name: string) {
-        return await this.backend.callAPIEndPoint("get_engagement_entry_records", { "engagement_entry_name": engagement_entry_name })
+    static async get_engagement_entry_record(engagement_entry_name: string) {
+        return await this.backend.call_api_endpoint("get_engagement_entry_records", { "engagement_entry_name": engagement_entry_name })
     }
 
-    static async saveEngagementEntry(data: object) {
-        return await this.backend.callAPIEndPoint("save_engagement_entry", { "entry": data })
+    static async save_engagement_entry(data: object) {
+        return await this.backend.call_api_endpoint("save_engagement_entry", { "entry": data })
     }
 
     static async discard_draft_engagement_entry(name: object) {
-        return await this.backend.callAPIEndPoint("discard_draft_engagement_entry", { "engagement_entry_name": name })
+        return await this.backend.call_api_endpoint("discard_draft_engagement_entry", { "engagement_entry_name": name })
     }
 }
 

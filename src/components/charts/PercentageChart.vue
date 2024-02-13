@@ -62,7 +62,7 @@ export default defineComponent({
           containLabel: true
         },
     })
-    DashboardService.getChartData(props.chart.chart).then((data) => {
+    DashboardService.get_chart_data(props.chart.chart).then((data) => {
       //transform data
       let totalData = 0
       //convert to percentage. First get the total values

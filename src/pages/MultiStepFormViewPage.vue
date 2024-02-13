@@ -9,15 +9,20 @@
       header-nav
       animated
       keep-alive
+      vertical
+      done-color2="deep-orange"
+      active-color="accent"
+      inactive-color="secondary"
     >
       <q-step 
           v-for="form in engagementTemplate.items" :key="form.name"
           :name="form.idx"
           :title="form.display_name"
           icon="settings"
+          :prefix="form.idx"
           :done="step > 1"  
       > 
-        <div class="text-h6 q-pa-sm">{{ form.introduction }} </div>
+        <div class="text-caption q-pa-sm">{{ form.introduction }} </div>
         <suspense>
           <template #default>
             <doc-form 
@@ -39,9 +44,6 @@
           </template>
         </suspense>
 
-      </q-step>
-
-      <template v-slot:navigation>
         <q-stepper-navigation>
           <q-btn
             no-caps
@@ -59,7 +61,27 @@
             class="q-ml-sm"
           />
         </q-stepper-navigation>
-      </template>
+      </q-step>
+
+      <!-- <template v-slot:navigation>
+        <q-stepper-navigation>
+          <q-btn
+            no-caps
+            @click="onContinueStep" 
+            color="primary"
+            :label="step === engagementTemplate.items.length ? t('BUTTON.FINISH') : t('BUTTON.CONTINUE')"
+          />
+          <q-btn
+            v-if="step > 1"
+            flat
+            no-caps
+            color="primary"
+            @click="onBackStep"
+            :label="t('BUTTON.BACK')"
+            class="q-ml-sm"
+          />
+        </q-stepper-navigation>
+      </template> -->
     </q-stepper>
   </q-page>
 </template>
@@ -94,37 +116,46 @@ export default defineComponent({
     const engagement = ref(null)
     const engagementTemplate = ref({ items: [] }) 
     const loading = ref(true)
+    const t = (text) => AppUtil.translate(text)
  
     onBeforeMount(() => {
       $q.loading.hide()
     })
 
     const onContinueStep = async () => {
-      //AppUtil.routeToPath(`/list/${DOCTYPES.ENGAGEMENT_ENTRY}`)       
+      //AppUtil.route_to_path(`/list/${DOCTYPES.ENGAGEMENT_ENTRY}`)       
       const key = `form${step.value}`   
       const form = formRefs.value[key]
       const valid = await form.validate()
       if(valid){
         const vals = await form.getValues()
         const doctype = await form.getDocType()
-        engagementStore.setSurveyFormData(engagement.value.name, doctype, vals) 
+        engagementStore.set_survey_form_data(engagement.value.name, doctype, vals) 
         if(step.value == engagementTemplate.value.items.length){
           //is the last step. submit data  
-          const vals = engagementStore.getSurveyEngagementEntryData(engagement.value.name)
-          const drafts = await EngagementService.getDraftEngagementEntries(engagement.value.name)
+          const vals = engagementStore.get_survey_engagement_entry_data(engagement.value.name)
+          const drafts = await EngagementService.get_draft_engagement_entries(engagement.value.name)
           if(drafts && drafts.length > 0){
             vals[`${DOCTYPES.ENGAGEMENT_ENTRY}`] = drafts[0]
           }
           $q.loading.show({})
           vals['Engagement'] = engagement.value
-          const res = await EngagementService.saveEngagementEntry(vals)
+          const res = await EngagementService.save_engagement_entry(vals)
           $q.loading.hide()
-          AppUtil.routeToPath(`/list/${DOCTYPES.ENGAGEMENT_ENTRY}?engagement=${engagement.value.name}`)
+          if(res){
+            AppUtil.notify(t('FORM_VIEW_PAGE.SAVE_SUCCESS_MESSAGE'), false, 'bottom');
+            AppUtil.route_to_path(`/list/${DOCTYPES.ENGAGEMENT_ENTRY}`, {}, { 'engagement': engagement.value.name })
+          }
+          else {
+            AppUtil.show_error(t('FORM_VIEW_PAGE.SAVE_ERROR_MESSAGE'));
+          }
         }
         else { 
           // continue with next step
           stepperRef.value.next()
         } 
+      } else {
+        AppUtil.show_error(t('VALIDATION.VALIDATION_ERRORS'));
       }
     }
 
@@ -133,9 +164,9 @@ export default defineComponent({
     }
 
     const loadEngagementEntryData = async (engagementName, entry) => {
-      EngagementService.getEngagementEntryRecord(entry).then((data) => {
+      EngagementService.get_engagement_entry_record(entry).then((data) => {
         docs.value = data
-        engagementStore.setSurveyEngagementEntryData(engagementName, data)
+        engagementStore.set_survey_engagement_entry_data(engagementName, data)
         loading.value = false
       })
     }
@@ -148,15 +179,15 @@ export default defineComponent({
         return
       }
       // If its a new entry, check if there is another draft
-      let records = await EngagementService.getDraftEngagementEntries(engagement.value.name)
+      let records = await EngagementService.get_draft_engagement_entries(engagement.value.name)
       if(records.length > 0){
         AppUtil.confirm("There is a draft record. Do you want to open it?", '', () => {
             //load draft record
             docs.value[`${DOCTYPES.ENGAGEMENT_ENTRY}`] = records[0]
-            engagementStore.setSurveyFormData(engagement.value.name, `${DOCTYPES.ENGAGEMENT_ENTRY}`, records[0])
-            EngagementService.getEngagementEntryRecord(records[0].name).then((data) => {
+            engagementStore.set_survey_form_data(engagement.value.name, `${DOCTYPES.ENGAGEMENT_ENTRY}`, records[0])
+            EngagementService.get_engagement_entry_record(records[0].name).then((data) => {
               docs.value = data
-              engagementStore.setSurveyEngagementEntryData(engagement.value.name, data)
+              engagementStore.set_survey_engagement_entry_data(engagement.value.name, data)
               loading.value = false
             })
           }, 

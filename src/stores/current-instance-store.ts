@@ -2,19 +2,19 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 export const useCurrentInstanceStore = defineStore('component', () => {
-  const currentInstance = ref({})
+  const current_instance = ref({})
 
-  const setCurrentInstance = (proxy: object) => {
-    currentInstance.value = proxy
+  const set_current_instance = (proxy: object) => {
+    current_instance.value = proxy
   }
 
-  const getCurrentInstance = () => {
-    return currentInstance.value
+  const get_current_instance = () => {
+    return current_instance.value
   }
 
   return {
-    currentInstance,
-    setCurrentInstance,
-    getCurrentInstance
+    current_instance,
+    set_current_instance,
+    get_current_instance
   }
 });

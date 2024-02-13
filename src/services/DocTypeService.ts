@@ -3,7 +3,7 @@ import { IDBReadParam } from '../interfaces';
 
 class DocTypeService {
   constructor(doctype: string) {
-    this.db = AppUtil.getDB();
+    this.db = AppUtil.get_db();
     this.doctype = doctype;
   }
 
@@ -78,14 +78,14 @@ class DocTypeService {
    * @param config 
    * @returns 
    */
-  async get_list(config: IDBReadParam) {
+  async get_list(config: IDBReadParam, get_global_count=false) {
     if(!config.doctype){
       config.doctype = this.doctype
     }
     if(!config.fields){
       config.fields = ['name']
     }
-    return await this.db.get_list(config);
+    return await this.db.get_list(config, get_global_count);
   }
 }
 

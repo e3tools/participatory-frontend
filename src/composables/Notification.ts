@@ -1,13 +1,13 @@
-import { getCurrentInstance, onMounted } from "vue";
+import { get_current_instance, onMounted } from "vue";
 import { useCurrentInstanceStore } from "src/stores/current-instance-store";
 
 export const useNotification = () => {
     
     onMounted(() => { 
-        const currentInstance = getCurrentInstance()
+        const currentInstance = get_current_instance()
 
         const store = useCurrentInstanceStore()
 
-        store.setCurrentInstance(currentInstance)
+        store.set_current_instance(currentInstance)
     })
 }

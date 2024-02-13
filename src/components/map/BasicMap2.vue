@@ -232,7 +232,7 @@ export default defineComponent({
     }
 
     const onLocationError = (e) => {
-      AppUtil.showError('Location error')
+      AppUtil.show_error('Location error')
     }
 
     onMounted(() => {

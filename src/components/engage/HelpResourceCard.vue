@@ -70,7 +70,7 @@ export default defineComponent({
   setup(props) {
    console.log('data:', props.doc)
     const getImageURL = (url: string) => { 
-      return AppUtil.makeBackendURL(url)
+      return AppUtil.make_backend_url(url)
       // let imageUrl = new URL(`../../assets/images/${url}`, import.meta.url).href
       // if(!url){
       //   imageUrl = new URL(`../../assets/images/document.png`, import.meta.url).href

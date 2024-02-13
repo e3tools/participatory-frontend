@@ -9,8 +9,8 @@ class DashboardService {
   /**
    * Get list of dashboards
    */
-  static async getDashboards() {
-    const res = await this.backend.callAPIEndPoint('get_dashboards');
+  static async get_dashboards() {
+    const res = await this.backend.call_api_endpoint('get_dashboards');
     return res;
   }
 
@@ -18,15 +18,15 @@ class DashboardService {
    * Get list of charts that make up the dashboard
    * @param dashboard_name name of the dashboard
    */
-  static async getDashboardCharts(dashboard_name: string) {
-    const res = await this.backend.callAPIEndPoint('get_dashboard_charts', {
+  static async get_dashboard_charts(dashboard_name: string) {
+    const res = await this.backend.call_api_endpoint('get_dashboard_charts', {
       dashboard_name: dashboard_name,
     });
     return res;
   }
 
-  static async getChartData(chart_name: string) {
-    const res = await this.backend.callAPIEndPoint('get_dashboard_chart', {
+  static async get_chart_data(chart_name: string) {
+    const res = await this.backend.call_api_endpoint('get_dashboard_chart', {
       chart_name: chart_name,
       chart: null,
       no_cache: null,

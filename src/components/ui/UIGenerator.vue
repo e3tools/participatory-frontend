@@ -30,7 +30,6 @@ export default defineComponent({
   props: ['doctype', 'docname', 'doc'],
   setup() {
       const formRef = ref(null)
-
       /**
        * Return form values
       */
@@ -41,7 +40,8 @@ export default defineComponent({
       return {
         formRef,
         getValues,
-        childTables: formRef.value?.childTables
+        childTables: formRef.value?.childTables,
+        validateForm: () => { return formRef.value?.validateForm() },
       }
     }
 })

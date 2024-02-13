@@ -90,9 +90,9 @@ import apputil from 'src/boot/apputil'
       })
 
       onMounted(() => {
-        const user = AppUtil.getCurrentUser()
+        const user = AppUtil.get_current_user()
         if(user) {
-          AppUtil.routeToPath('/')
+          AppUtil.route_to_path('/')
         }
       })
       return {

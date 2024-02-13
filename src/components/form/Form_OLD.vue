@@ -24,7 +24,7 @@ import WbData from './controls/Data.vue';
 import WbSelect from './controls/Select.vue';
 
 // import frappe from '../../boot/frappe'
-import { getCurrentInstance } from 'vue';
+import { get_current_instance } from 'vue';
 
 export default defineComponent({
   name: 'WbForm',
@@ -43,7 +43,7 @@ export default defineComponent({
                     pwd: '123'
                 })
 
-    const { proxy } = getCurrentInstance();//get global variables
+    const { proxy } = get_current_instance();//get global variables
     const resp = async () => {
       let rep = await proxy.$frappe.get_list({
          doctype: 'Country', 

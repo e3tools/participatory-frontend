@@ -13,23 +13,7 @@
         <!-- <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" /> -->
       </div>
     <!-- </form> -->
-  </q-form>
-
-  <!-- <Suspense>
-    <ui-generator :doctype="doctype" :docname="docname" />    
-  </Suspense>
-  <div>
-    <q-btn label="Submit" type="submit" color="primary" @click="validate"/>
-    <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
-  </div> -->
-  <!-- <q-form ref="myForm" class="q-gutter-md" @submit.prevent="onSubmit">
-    <wb-data label="First name" v-model="formValues.first_name" />
-    <wb-data label="Middle name" v-model="formValues.middle_name" />  
-    <div>
-      <q-btn label="Submit" type="submit" color="primary" @click="validate"/>
-      <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
-    </div>
-  </q-form> -->
+  </q-form> 
 </template>
 
 <script lang="ts">
@@ -39,7 +23,6 @@ import { useQuasar } from 'quasar';
 import { onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { AppUtil } from 'src/utils/app';
-import { isPropertySignature, preProcessFile } from 'typescript';
 
 export default defineComponent({
   name: 'DocForm',
@@ -79,8 +62,19 @@ export default defineComponent({
       return props.doctype
     }
 
+    const validate_OLD = async () => {  
+      const res = await formContainer.value.validate(false)
+      if(!res){
+        console.log("Form has errors")
+      }
+      return res
+    }
+
     const validate = async () => {  
-      const res = await formContainer.value.validate(false)      
+      const [res, fields] = await myForm.value.validateForm()
+      if(!res){ 
+        AppUtil.notify_error(AppUtil.translate('VALIDATION.VALIDATION_ERRORS'))
+      } 
       return res 
     }
 
@@ -115,7 +109,6 @@ export default defineComponent({
       console.log('About to submit')
       evt.target.submit()       
     }
-
     
     return {
       t: (text) => AppUtil.translate(text),

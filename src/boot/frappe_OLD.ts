@@ -1,4 +1,5 @@
 import { boot } from 'quasar/wrappers'
+import { URLS } from 'src/enums'
 
 // See https://frappeframework.com/docs/user/en/api/rest
 
@@ -49,7 +50,7 @@ const Frappe = class Frappe {
   /**
    * Get updated headers
    */
-  getHeaders() {
+  get_headers() {
     const token = JSON.parse(localStorage.getItem('frappeUser')).token
     this.headers.Authorization = `token ${token}`
   }
@@ -61,9 +62,9 @@ const Frappe = class Frappe {
    * @param body JSON object
    * @returns 
    */
-  async makeRequest(url:string, method:string, body:object = {}) {
+  async make_request(url:string, method:string, body:object = {}) {
     try {
-      this.getHeaders()
+      this.get_headers()
       const payload = {
         method,
         headers: this.headers
@@ -73,7 +74,7 @@ const Frappe = class Frappe {
       }
 
       const res = await fetch(url, payload)
-      return await this.handleResponse(res)
+      return await this.handle_response(res)
     } catch (error) {
       console.log(error)
     }
@@ -84,7 +85,7 @@ const Frappe = class Frappe {
    * @param res Response object
    * @returns 
    */
-  async handleResponse(res:object) {
+  async handle_response(res:object) {
     if (res.status == 200) {
       const data = await res.json()
       return await { status_code: res.status, data: data.data }
@@ -100,7 +101,7 @@ const Frappe = class Frappe {
    * @returns An object
    */
   async get_doc(doctype:string, docname:string) {
-    return await this.makeRequest(
+    return await this.make_request(
       `${this.resource_url}/${doctype}/${docname}`,
       'GET'
     ) 
@@ -115,7 +116,7 @@ const Frappe = class Frappe {
    * @returns 
    */
   async update_doc(doctype:string, docname:string, data:object) {
-    return await this.makeRequest(
+    return await this.make_request(
       `${this.resource_url}/${doctype}/${docname}`,
       'PUT',
       JSON.stringify(data)
@@ -129,7 +130,7 @@ const Frappe = class Frappe {
    * @returns 
    */
   async new_doc(doctype:string, data:object) {
-    return await this.makeRequest(
+    return await this.make_request(
       `${this.resource_url}/${doctype}`,
       'POST',
       JSON.stringify(data)
@@ -143,7 +144,7 @@ const Frappe = class Frappe {
    * @returns 
    */
   async delete_doc(doctype:string, docname:string) {
-    return await this.makeRequest(
+    return await this.make_request(
       `${this.resource_url}/${doctype}/${docname}`,
       'DELETE'
     )
@@ -185,7 +186,7 @@ const Frappe = class Frappe {
     if (limit) {
        url = url + `&limit=${limit}`
     }
-    return await this.makeRequest(`${url}`, 'GET')
+    return await this.make_request(`${url}`, 'GET')
   }
 
  /**
@@ -212,7 +213,7 @@ const Frappe = class Frappe {
     letterhead = letterhead ? letterhead : 'No Letterhead'
     lang = lang ? lang : 'en'
 
-    this.getHeaders()
+    this.get_headers()
     const url = `${this.resource_url}/frappe.utils.print_format.download_pdf?doctype=${doctype}&docname=${docname}&format=${format}&no_letterhead=${no_letterhead}&letterhead=${letterhead}&settings=%7B%7D&lang=${lang}`
     const res = await fetch(url, {
       method: 'GET',
@@ -230,7 +231,7 @@ const Frappe = class Frappe {
 
 export default boot(async ({ app } /* { app, router, ... } */) => {
   // something to do
-  const remoteUrl = 'http://127.0.0.1:8000' // appConfig.domain
+  const remoteUrl = URLS.BACKEND; // appConfig.domain
   app.config.globalProperties.$remoteUrl = remoteUrl
   app.config.globalProperties.$frappe = new Frappe(remoteUrl)
 })

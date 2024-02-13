@@ -13,7 +13,7 @@
  * @param data_property Property of the response that contains data from server
  * @returns
  */
-const doRequest = async (
+const do_request = async (
   url: string,
   method = 'POST',
   body: object = {},
@@ -35,7 +35,7 @@ const doRequest = async (
       const message = `An error has occured: ${res.status}`;
       throw new Error(message);
     }
-    return await handleResponse(res, data_property);
+    return await handle_response(res, data_property);
   } catch (error) {
     debugger;
     console.log(error);
@@ -48,7 +48,7 @@ const doRequest = async (
  * @param data_property Property of the response that contains data from server
  * @returns
  */
-const handleResponse = async (res: object, data_property: string) => {
+const handle_response = async (res: object, data_property: string) => {
   if (res.status == 200) {
     const data = await res.json();
     return await { status_code: res.status, data: data[data_property] };
@@ -57,4 +57,4 @@ const handleResponse = async (res: object, data_property: string) => {
   }
 };
 
-export { doRequest };
+export { do_request };

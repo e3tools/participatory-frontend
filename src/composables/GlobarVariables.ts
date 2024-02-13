@@ -3,10 +3,10 @@ import { useCurrentInstanceStore } from 'src/stores/current-instance-store';
 
 export const useGlobalVariables = () => {
     onMounted(() => { 
-        const currentInstance = getCurrentInstance()
+        const current_instance = getCurrentInstance()
 
         const store = useCurrentInstanceStore()
 
-        store.setCurrentInstance(currentInstance)
+        store.set_current_instance(current_instance)
     })
 }

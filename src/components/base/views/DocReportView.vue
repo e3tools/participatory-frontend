@@ -130,7 +130,7 @@ export default defineComponent({
        query['parent'] = props.parent
        query['parentfield'] = props.parentfield
      }
-     config.filters = AppUtil.makeFilters(query)
+     config.filters = AppUtil.make_filters(query)
      config.order_by='name ASC'    
     
      // update total rows count. Get the count from backend
@@ -205,10 +205,10 @@ export default defineComponent({
      rows,
      onRequest,
      onExport: (e) => {
-      AppUtil.showMessage('Export as CSV')
+      AppUtil.show_message('Export as CSV')
      },
      onPrint: (e) => {
-      AppUtil.showMessage('Print list. Ensure you have a printer')
+      AppUtil.show_message('Print list. Ensure you have a printer')
      }
    }
  }

@@ -32,9 +32,9 @@ export default defineComponent({
     const messages = ref([])
 
     const getNotifications = async () => {
-      const currentUser = AppUtil.getCurrentUser()
+      const currentUser = AppUtil.get_current_user()
       const param = {}
-      const data = await AppUtil.getDB().get_list({
+      const data = await AppUtil.get_db().get_list({
             doctype:'Activity Log', 
             filters:[['status', '=', 'Success'], ['user', '=', currentUser.name]],
             or_filters:[],

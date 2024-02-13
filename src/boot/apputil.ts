@@ -14,7 +14,7 @@ export default boot(async (/*{ app, router, ... }*/) => {
       constructor() {
         const $q = useQuasar();
       }
-      showMessage(
+      show_message(
         title: string,
         message: string,
         onOK = null,
@@ -24,7 +24,7 @@ export default boot(async (/*{ app, router, ... }*/) => {
         this._showDialog(message, title, onOK, onCancel, onDismiss);
       }
 
-      showError(
+      show_error(
         title: string,
         message: string,
         onOK = null,
@@ -80,7 +80,7 @@ export default {
       const $q = useQuasar();
     }
 
-    showMessage(
+    show_message(
       title: string,
       message: string,
       onOK = null,
@@ -90,7 +90,7 @@ export default {
       this._showDialog(title, message, onOK, onCancel, onDismiss);
     }
 
-    showError(
+    show_error(
       title: string,
       message: string,
       onOK = null,

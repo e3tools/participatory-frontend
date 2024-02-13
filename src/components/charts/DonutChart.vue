@@ -81,7 +81,7 @@ export default defineComponent({
         //   containLabel: true
         // },
     })
-    DashboardService.getChartData(props.chart.chart).then((data) => {
+    DashboardService.get_chart_data(props.chart.chart).then((data) => {
       //transform data
       // data.labels.forEach((label: string) => {
       //   options.value.xAxis.data.push(label)

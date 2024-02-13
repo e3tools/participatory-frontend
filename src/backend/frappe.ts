@@ -8,8 +8,8 @@ import {
   IDBDeleteParam,
 } from '../utils/database';
 
-import { makeRequest } from 'src/utils/api';
-import { APPS } from 'src/enums';
+import { make_request } from 'src/utils/api';
+import { APPS, URLS } from 'src/enums'; 
 
 // See https://frappeframework.com/docs/user/en/api/rest
 
@@ -66,7 +66,7 @@ const Frappe = class Frappe {
    * @param endpoint. API Endpoint name without prefix i.e non-fully qualified
    * @param method. Either GET/POST/PUT/DELETE
    */
-  async callAPIEndPoint(endpoint: string, data: object = {}, method: 'POST') {
+  async call_api_endpoint(endpoint: string, data: object = {}, method: 'POST') {
     return await this._makeRequest(
       `${this.url}/api/method/${this.frappe_custom_app}.api.${endpoint}`,
       method,
@@ -78,8 +78,8 @@ const Frappe = class Frappe {
   /**
    * Get updated headers
    */
-  // getHeaders() {
-  //   const token = AuthenticationService.getLoggedInUserToken();
+  // get_headers() {
+  //   const token = AuthenticationService.get_loggedIn_user_token();
   //   this.headers.Authorization = `token ${token}`;
   // }
 
@@ -97,8 +97,8 @@ const Frappe = class Frappe {
     body: object = {},
     data_property = 'data'
   ) {
-    //this.getHeaders();
-    const res = await makeRequest(
+    //this.get_headers();
+    const res = await make_request(
       url,
       method,
       body,
@@ -281,17 +281,20 @@ const Frappe = class Frappe {
    * @param limit_page_length Number of records to return. Pass a positive number. To retrieve all, pass 0
    * @returns
    */
-  async get_list(config: IDBReadParam) {
+  async get_list(config: IDBReadParam, get_global_count=false) {
     let url = `${this.resource_url}/${config.doctype}`;
     const fields = config.fields || 'name';
+    let filters = {}
     if (fields) {
       // url = url + '?fields=' + fields
       url = url + '?fields=' + JSON.stringify(fields);
     }
     if (config.filters) {
+      filters = JSON.stringify(config.filters);
       url = url + '&filters=' + JSON.stringify(config.filters);
     }
     if (config.or_filters) {
+      filters = JSON.stringify(config.or_filters);
       url = url + '&or_filters=' + JSON.stringify(config.or_filters);
     }
     if (config.order_by) {
@@ -301,7 +304,12 @@ const Frappe = class Frappe {
       url = url + `&limit_start=${config.limit_start || 0}`;
       url = url + `&limit_page_length=${config.limit_page_length}`;
     }
-    return await this._makeRequest(`${url}`, 'GET');
+    const docs = await this._makeRequest(`${url}`, 'GET');
+    let total_count = docs.length
+    if(get_global_count){
+      total_count = await this.call_api_endpoint('get_count', { filters, doctype: config.doctype, fields: ['name'] }, 'POST');
+    }
+    return get_global_count ? [docs, total_count] : docs
   }
 
   /**
@@ -328,7 +336,7 @@ const Frappe = class Frappe {
     letterhead = letterhead ? letterhead : 'No Letterhead';
     lang = lang ? lang : 'en';
 
-    //this.getHeaders();
+    //this.get_headers();
     const url = `${this.resource_url}/frappe.utils.print_format.download_pdf?doctype=${doctype}&docname=${docname}&format=${format}&no_letterhead=${no_letterhead}&letterhead=${letterhead}&settings=%7B%7D&lang=${lang}`;
     const res = await fetch(url, {
       method: 'GET',
@@ -346,7 +354,7 @@ const Frappe = class Frappe {
 
 // export default boot(async ({ app } /* { app, router, ... } */) => {
 //   // something to do
-//   const remoteUrl = 'http://127.0.0.1:8000' // appConfig.domain
+//   const remoteUrl = URLS.BACKEND; // appConfig.domain
 //   app.config.globalProperties.$remoteUrl = remoteUrl
 //   app.config.globalProperties.$frappe = new Frappe(remoteUrl)
 // })

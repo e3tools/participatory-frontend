@@ -14,12 +14,12 @@ class AuthenticationService {
       usr: username,
       pwd: password,
     };
-    const user = await AppUtil.getDB().login(auth);
+    const user = await AppUtil.get_db().login(auth);
     if (user && !user.status_code) {
-      this._onLoginSuccess(user);
+      this._on_login_success(user);
       return user;
     } else {
-      this._onLoginFailure(user);
+      this._on_login_failure(user);
     }
     return null;
   }
@@ -28,9 +28,9 @@ class AuthenticationService {
    * Called when login is successful
    * @param res User object
    */
-  static async _onLoginSuccess(user: object) {
+  static async _on_login_success(user: object) {
     const store = useUserStore();
-    store.setUser(user);
+    store.set_user(user);
     // localStorage.setItem('frappeUser', JSON.stringify({
     //     token: user.token,
     //     userData: user.data
@@ -40,17 +40,17 @@ class AuthenticationService {
   /**
    * Called when login failed
    */
-  static async _onLoginFailure(user: object) {
+  static async _on_login_failure(user: object) {
     const store = useUserStore();
     store.removeUser();
     const title = AppUtil.translate('LOGIN_PAGE.LOGIN_FAIL_TITLE');
-    AppUtil.showError(user.text, title);
+    AppUtil.show_error(user.text, title);
   }
 
   /**
    * Retrieve current user data without token
    */
-  static getLoggedInUser() {
+  static get_current_user() {
     const user_val = this.store.getUser();
     return user_val ? user_val?.data : {};
   }
@@ -58,7 +58,7 @@ class AuthenticationService {
   /**
    * Retrieve current user data without token
    */
-  static getLoggedInUserToken() {
+  static get_loggedIn_user_token() {
     const user_val = this.store.getUser();
     return user_val ? user_val?.token : {};
   }
@@ -66,7 +66,7 @@ class AuthenticationService {
    /**
    * Retrieve current user data without token
    */
-   static getCSRFToken() { 
+   static get_csrf_token() { 
     const user_val = this.store.getUser();
     return user_val ? user_val?.token : {};
   }

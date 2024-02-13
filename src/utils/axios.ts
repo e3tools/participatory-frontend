@@ -8,7 +8,7 @@ import { AppUtil } from '../utils/app'
  * @param data_property Property of the response that contains data from server
  * @returns
  */
-const doRequest = async (
+const do_request = async (
   url: string,
   method = 'POST',
   body: object = {},
@@ -37,9 +37,9 @@ const doRequest = async (
     .catch(error => {
       console.log(error)  
       const message = JSON.parse(JSON.parse(error.response.data._server_messages)[0]).message
-      AppUtil.showError(message)      
+      AppUtil.show_error(message)      
     }) 
-    return await handleResponse(res, data_property);
+    return await handle_response(res, data_property);
      
   } catch (error) { 
     console.log(error);
@@ -52,7 +52,7 @@ const doRequest = async (
  * @param data_property Property of the response that contains data from server
  * @returns
  */
-const handleResponse = async (res: object, data_property: string) => {
+const handle_response = async (res: object, data_property: string) => {
   if (res.status == 200) {
     const data = await res.data;
     return await { status_code: res.status, data: data[data_property] };
@@ -61,4 +61,4 @@ const handleResponse = async (res: object, data_property: string) => {
   }
 };
 
-export { doRequest };
+export { do_request };
