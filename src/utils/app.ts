@@ -101,35 +101,35 @@ const AppUtil = class AppUtil {
   static show_message(
     message: string,
     title: '',
-    on_oK = null,
+    on_ok = null,
     on_cancel = null,
     on_dismiss = null
   ) {
     if (!title) {
       title = this.translate('GLOBAL.DEFAULT_INFO_MESSAGE_TITLE');
     }
-    this._show_dialog(title, message, on_oK, on_cancel, on_dismiss, false, false);
+    this._show_dialog(title, message, on_ok, on_cancel, on_dismiss, false, false);
   }
 
   /**
    * Show error message
    * @param title
    * @param message
-   * @param on_oK
+   * @param on_ok
    * @param on_cancel
    * @param on_dismiss
    */
   static show_error(
     message: string,
     title = '',
-    on_oK = null,
+    on_ok = null,
     on_cancel = null,
     on_dismiss = null
   ) {
     if (title === '' || !title) {
       title = this.translate('GLOBAL.DEFAULT_ERROR_MESSAGE_TITLE');
     }
-    this._show_dialog(title, message, on_oK, on_cancel, on_dismiss, true, false);
+    this._show_dialog(title, message, on_ok, on_cancel, on_dismiss, true, false);
   }
 
   static confirm(message: string, title: '', on_ok = null, on_cancel = null) {
@@ -150,7 +150,7 @@ const AppUtil = class AppUtil {
   static _show_dialog(
     title: string,
     message: string,
-    on_oK = null,
+    on_ok = null,
     on_cancel = null,
     on_dismiss = null,
     is_error = false,
@@ -171,7 +171,7 @@ const AppUtil = class AppUtil {
     })
       .onOk(() => {
         if(on_ok) {
-          on_oK();
+          on_ok();
         }
       })
       .onCancel(() => {

@@ -238,6 +238,26 @@
           </q-list>
         </q-expansion-item>
         
+
+        <q-expansion-item
+          icon="dashboard"
+          :label="t('MAIN_LAYOUT.NAVIGATOR.DIAGNOSTICS_TITLE')"
+        >
+          <q-list class="q-pl-lg">
+            <q-item v-for="analysis in analyses" :key="analysis.name"
+               :to="`/map?${analysis.name}`" 
+               active-class="q-item-no-link-highlighting">                
+               <q-item-section avatar>
+                <q-icon name="streetview" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ analysis.name }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-expansion-item>
+
+
         <q-expansion-item
           icon="troubleshoot"
           :label="t('MAIN_LAYOUT.NAVIGATOR.DIAGNOSTICS_TITLE')"
@@ -593,6 +613,11 @@ export default defineComponent({
       dashboards.value = recs
     })
 
+    const analyses = ref([])
+    TechnicalAnalysisService.getAnalyses().then((recs) => {
+      analyses.value = recs
+    })
+
     const engagements = ref([])
     let cfg = {} as IDBReadParam
     cfg.filters = [['status', '=', 'Open'], ['is_published', '=', 1]]
@@ -628,6 +653,7 @@ export default defineComponent({
       toggleAboutDlg,
       engagements,
       dashboards,
+      analyses,
       navigateEngagement,
       navigate,
     }

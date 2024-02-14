@@ -226,7 +226,7 @@ const RASTER = 'raster'
 
 export default defineComponent({
   name: 'MapPage',
-  props: ['maptype'],
+  props: ['maptype', 'analysis'],
   components: {
     'basic-map': defineAsyncComponent(() => import('components/map/BasicMap.vue')),
     MapStatisticsDialog
@@ -255,8 +255,15 @@ export default defineComponent({
     const adminOne = ref(null)
     const adminTwo = ref(null)
     const adminThree = ref(null)
+    const analysis = ref(null)
+    const query = route.query
 
-    const query = route.query 
+    if (props.analysis) {
+      //If there is a query
+      const analysis = TechnicalAnalysisService.get_analysis(props.analysis).then((doc) => {
+
+      })
+    }
 
     // VectorService.get_admin_zero().then((data) => { 
     //   adminZeroFeatures = data 

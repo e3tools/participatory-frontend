@@ -114,7 +114,7 @@ const routes: RouteRecordRaw[] = [
       }],    
   },
   {
-    path: '/map',
+    path: '/map/:analysis',
     component: () => import('layouts/MainLayout.vue'),
     children: [{
         name: 'map',

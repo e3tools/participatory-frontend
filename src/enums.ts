@@ -7,7 +7,7 @@ const APPS = {
 }
 
 const URLS = {
-    BACKEND: "http://192.168.101.5:8000"
+    BACKEND: "http://192.168.1.111:8003"
 }
 export {
     DOCTYPES,
