@@ -211,6 +211,7 @@ import { onMounted } from 'vue';
 import { defineAsyncComponent, defineComponent, ref}  from 'vue';  
 import { VectorService } from '../services/VectorService'
 import { RasterService } from '../services/RasterService'
+import { TechnicalAnalysisService } from 'src/services/TechnicalAnalysisService';
 import { useRoute } from 'vue-router';
 
 import { watchEffect } from 'vue'; 
@@ -220,6 +221,7 @@ import { Dialog } from 'quasar';
 import MapStatisticsDialog from '../components/map/MapStatisticsDialog.vue';
 import SummaryImg from '../assets/images/pp3.jpeg'
 import ExampleComponent from '../components/ExampleComponent.vue'
+import { ILegendItem } from '../interfaces'
 
 const VECTOR = 'vector'
 const RASTER = 'raster'
@@ -261,7 +263,22 @@ export default defineComponent({
     if (props.analysis) {
       //If there is a query
       const analysis = TechnicalAnalysisService.get_analysis(props.analysis).then((doc) => {
+        mapRef.value.setDatasource(JSON.parse(doc.geom), null, doc.name)
 
+        let legends = []
+        for(let i=0; i < doc.legend.length; i++){
+          let cfg = {} as ILegendItem
+
+          item_type: typeof LEGEND_TYPE,
+  lower_val: object,
+  upper_val: object,
+  label: string,
+  color: string
+
+          cfg.item_type = LEGEND_TYPE.TEXT
+          cfg.lower_val =     
+        }
+        mapRef.value.addLegend2()
       })
     }
 
@@ -338,7 +355,7 @@ export default defineComponent({
        if (mapRef.value) { 
           VectorService.get_states()
           .then((states) => {
-            mapRef.value.setDatasource(states, null, 'Maryland States')
+              //mapRef.value.setDatasource(states, null, 'Maryland States')
             }
           )
           //map.setDatasource(null, 'https://api.npoint.io/fdbc5b08a7e7eccb6052')
@@ -379,8 +396,7 @@ export default defineComponent({
               mapRef.value.setDatasource(data, null, 'Wards')
               mapRef.value.addLegend()
             }
-          })
-          
+          })          
           // mapRef.value.addTileLayer()
       } else {
         // not mounted yet, or the element was unmounted (e.g. by v-if)

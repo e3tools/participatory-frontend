@@ -245,7 +245,7 @@
         >
           <q-list class="q-pl-lg">
             <q-item v-for="analysis in analyses" :key="analysis.name"
-               :to="`/map?${analysis.name}`" 
+               :to="`/map/${analysis.name}`" 
                active-class="q-item-no-link-highlighting">                
                <q-item-section avatar>
                 <q-icon name="streetview" />
@@ -614,7 +614,7 @@ export default defineComponent({
     })
 
     const analyses = ref([])
-    TechnicalAnalysisService.getAnalyses().then((recs) => {
+    TechnicalAnalysisService.get_analyses().then((recs) => {
       analyses.value = recs
     })
 

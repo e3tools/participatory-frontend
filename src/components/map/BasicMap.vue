@@ -12,7 +12,9 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { watchEffect } from 'vue'
 import { reactive, watch } from 'vue'  
-import { useRoute } from 'vue-router'
+import { useRoute } from 'vue-router' 
+import { ILegendItem } from '../../interfaces'
+import { LEGEND_TYPE } from '../../enums'
 
 const GEOJSON = 'geojson'
 
@@ -48,7 +50,7 @@ export default defineComponent({
       ),
       layers: []
     }
-
+  
     const initMap = () => {
      
 
@@ -406,6 +408,51 @@ export default defineComponent({
 
           labels.push(`<i style="background:${getColor(from + 1)}"></i> ${from}${to ? `&ndash;${to}` : '+'}`) 
         }
+        div.innerHTML = labels.join('<br>')
+        return div
+      }
+
+      legend.addTo(mapInstance)
+    }
+
+    const addLegend2 = (items: ILegendItem[]) => {
+      debugger;
+      const legend = L.control({ position: 'bottomright' })
+
+      const labels = []
+      legend.onAdd = (map) => {
+
+        const div = L.DomUtil.create('div', 'info legend')
+        const grades = [0, 10, 20, 50, 100, 200, 500, 1000]
+        //const labels = []
+        let from, to
+
+        items.forEach(el => {
+          let from = el.lower_val;
+          let to = el.upper_val;
+          let color = el.color;
+          switch(el.item_type) {
+            case LEGEND_TYPE.TEXT:
+              labels.push(`<i style="background:${color}"></i> ${from}${to ? `&ndash;${to}` : '+'}`) 
+              break
+            case LEGEND_TYPE.NUMERIC:
+              labels.push(`<i style="background:${color}"></i> ${from}${to ? `&ndash;${to}` : '+'}`) 
+              break
+            case LEGEND_TYPE.DATE:
+              labels.push(`<i style="background:${color}"></i> ${from}${to ? `&ndash;${to}` : '+'}`)   
+            break
+            default:
+              break  
+          }
+          // if(el.item_type == LEGEND_TYPE.TEXT){
+          // }
+        })
+        // for(let i =0; i < grades.length; i++){
+        //   from = grades[i]
+        //   to = grades[i+1]
+
+        //   labels.push(`<i style="background:${getColor(from + 1)}"></i> ${from}${to ? `&ndash;${to}` : '+'}`) 
+        // }
         div.innerHTML = labels.join('<br>')
         return div
       }

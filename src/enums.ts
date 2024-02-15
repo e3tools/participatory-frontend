@@ -9,8 +9,15 @@ const APPS = {
 const URLS = {
     BACKEND: "http://192.168.1.111:8003"
 }
+
+const LEGEND_TYPE = {
+    TEXT: 'Text',
+    NUMERIC: 'Numeric',
+    DATE: 'Date'
+}
 export {
     DOCTYPES,
     APPS,
-    URLS
+    URLS,
+    LEGEND_TYPE
 }

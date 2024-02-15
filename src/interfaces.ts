@@ -1,3 +1,6 @@
+import { ObjectHTMLAttributes } from "vue";
+import { LEGEND_TYPE } from '../src/enums'
+
 /**
  * Interface to use when deleting from database
  */
@@ -40,6 +43,14 @@ interface IDBUpdateParam extends IDBCreateParam {
 interface IDBDeleteParam {
   doctype: string;
   docname: string;
+}
+
+interface ILegendItem {
+  item_type: typeof LEGEND_TYPE,
+  lower_val: object,
+  upper_val: object,
+  label: string,
+  color: string
 }
 
 export {

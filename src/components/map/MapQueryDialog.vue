@@ -116,7 +116,7 @@ export default defineComponent({
     }
 
     const technical_analyses = ref([])
-    TechnicalAnalysisService.getAnalyses().then((recs) => {
+    TechnicalAnalysisService.get_analyses().then((recs) => {
       technical_analyses.value = recs
       recs.forEach(el => {
         visible_analyses.value[el.name] = false
