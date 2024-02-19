@@ -19,18 +19,17 @@
         <q-card-section class="q-pa-xs">
           <!-- <q-item-label class="text-overline">{{ t('MAP_PAGE.OVERLAYS') }}</q-item-label> -->
           
-          <q-list v-for="analysis in technical_analyses" :key="analysis.name">            
-            {{ console.log(analysis.name) }}
+          <q-list v-for="analysis in technical_analyses" :key="analysis.name">     
             <q-item-label header>{{ analysis.name }}</q-item-label> 
             <q-item dense >
               <q-item-section avatar>
                 <q-icon name="device_thermostat" />
               </q-item-section>
               <q-item-section>
-                <q-checkbox v-model="visible_analyses[analysis.name]" />
+                <q-checkbox v-model="visible_analyses[analysis.name]" @update:model-value ="toggle_analysis(analysis.name)" />
               </q-item-section>
               <q-item-section>
-                <q-slider color="teal" v-model="opacities[analysis.name]" :step="5" :min="0" :max="10" label />
+                <q-slider color="teal" v-model="opacities[analysis.name]" :step="0.1" :min="0" :max="1" label />
               </q-item-section>
             </q-item>
           </q-list>
@@ -104,13 +103,14 @@
 <script lang="ts">
 import { TechnicalAnalysisService } from 'src/services/TechnicalAnalysisService';
 import { AppUtil } from 'src/utils/app';
-import { displayPartsToString } from 'typescript';
-import { defineComponent, ref, watch, watchEffect } from 'vue'
+import { createOmittedExpression, displayPartsToString } from 'typescript';
+import { defineComponent, ref, watch, watchEffect, defineEmits } from 'vue'
 export default defineComponent({
   name: 'MapQueryDialog',
-  props: ['show'],
-  setup(props) {
+  props: ['show'], 
+  setup(props, ctx) {
     const display = ref(props.show)
+    const emit = defineEmits(['toggle-analysis'])
     const showWindow = (doShow) => {
       display.value = doShow
     }
@@ -128,17 +128,23 @@ export default defineComponent({
     const opacities = ref({}) 
 
     watch(visible_analyses.value, (newVal, oldVal) => {
-      console.log("Visible analysis changed3")
-      // if (selectAll.value) {
-      //   choice1.value = true;
-      //   choice2.value = true;
-      //   choice3.value = true;
-      // }
+      // console.log("Visible analysis changed3")
     }, { immediate: true});  
 
-    watch(opacities.value, (newVal, oldVal) => {
-      console.log("Opacities changed")
+    watch(opacities.value, (newVal, oldVal) => {  
+      if(opacities.value){
+        ctx.emit('update-opacity', opacities.value)
+      }
+      // for (const [key, value] of Object.entries(opacities.value)) {
+      //   // let mp = get_analysis(key);
+      //   // mp.layer.setOpacity(value);
+       
+      // }
     }, { immediate: true });
+
+    const toggle_analysis = (analysis_name: string) => { 
+      ctx.emit('toggle-analysis', analysis_name, visible_analyses.value[analysis_name])
+    }
 
     return {
       display,
@@ -152,7 +158,8 @@ export default defineComponent({
       showWindow,
       technical_analyses,
       visible_analyses,
-      opacities
+      opacities,
+      toggle_analysis
     }
   }
 })

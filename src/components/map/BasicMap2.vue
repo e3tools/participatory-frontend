@@ -12,12 +12,12 @@ import 'leaflet/dist/leaflet.css'
 
 export default defineComponent({
   name: 'BasicMap',
-  props: ['datasourceType', 'styleField', 'center'],
+  props: ['datasource_type', 'style_field', 'center'],
   setup(props) {
     // set center of map
     const center = props.center ? props.center : [-15.385229, 28.343006]
     let map = null
-    //let infoDiv = null
+    //let info_div = null
     const datasource = ref(null)
     let info = null;
     
@@ -79,16 +79,16 @@ export default defineComponent({
     const addInfoControl = () => {
       // control that shows info on hover
       const info = L.control()
-      let infoDiv = null
+      let info_div = null
 
       info.onAdd = (map) => {
-        infoDiv = L.DomUtil.create('div', 'info')
+        info_div = L.DomUtil.create('div', 'info')
         //this.update() 
       }
 
       info.update = (fProps) => {
         const contents = fProps ? `<b>${fProps.name}</b> <br />${fProps.density} people / mi <sup>2</sup>`: 'Hover over a state'
-        infoDiv.innerHTML = `<h4>US Population Density</h4> ${contents}`
+        info_div.innerHTML = `<h4>US Population Density</h4> ${contents}`
       }
 
       info.addTo(map)
@@ -98,16 +98,16 @@ export default defineComponent({
      * Set datasource
      * @param data 
      */
-    const setDatasource = (data) => {
+    const set_datasource = (data) => {
       datasource.value = data
       const loadGeoJson = (data) => { 
         datasource.value = L.geoJson(data, { 
-          style: styleFeature,
-          onEachFeature
+          style: style_feature,
+          on_each_feature
         }).addTo(map)
       }
 
-      if(props.datasourceType == 'geojson'){
+      if(props.datasource_type == 'geojson'){
         loadGeoJson(datasource.value)
       }   
     }
@@ -124,7 +124,7 @@ export default defineComponent({
      * Hightlight feature
      * @param e 
      */
-    const highlightFeature = (e) => {
+    const highlight_feature = (e) => {
       const layer = e.target
 
       layer.setStyle({
@@ -142,7 +142,7 @@ export default defineComponent({
      * Reset Highlight
      * @param e
      */
-    const resetHighlight = (e) => {
+    const reset_highlight = (e) => {
       datasource.value.resetStyle(e.target)
     }
 
@@ -150,7 +150,7 @@ export default defineComponent({
      * Zoom to feature
      * @param e 
      */
-    const zoomToFeature = (e) => {
+    const zoom_to_feature = (e) => {
       map.fitBounds(e.target.getBounds())
     }
 
@@ -159,15 +159,15 @@ export default defineComponent({
      * @param feature 
      * @param layer 
      */
-    const onEachFeature = (feature, layer) => {
+    const on_each_feature = (feature, layer) => {
       layer.on({
-        mouseover: highlightFeature,
-        mouseout: resetHighlight,
-        click: zoomToFeature
+        mouseover: highlight_feature,
+        mouseout: reset_highlight,
+        click: zoom_to_feature
       })
     }
  
-    const addLegend = () => {
+    const add_legend = () => {
       const legend = L.control({ position: 'bottomright' })
 
       legend.onAdd = (map) => {
@@ -181,7 +181,7 @@ export default defineComponent({
           from = grades[i]
           to = grades[i+1]
 
-          labels.push(`<i style="background:{getColor(from  + 1)}"></i> $${from}${to ? `&ndash;${to}` : '+'}`)
+          labels.push(`<i style="background:{get_color(from  + 1)}"></i> $${from}${to ? `&ndash;${to}` : '+'}`)
         }
         div.innerHTML = labels.join('<br>')
         return div
@@ -190,7 +190,7 @@ export default defineComponent({
       legend.addTo(map)
     }
 
-    const getColor = (val) => {
+    const get_color = (val) => {
       return val > 1000 ? '#800026' :
            val > 500  ? '#BD0026' :
            val > 200  ? '#E31A1C' :
@@ -200,9 +200,9 @@ export default defineComponent({
            val > 10   ? '#FED976' :
                         '#FFEDA0';
     }
-    const styleFeature = (feature) => {
+    const style_feature = (feature) => {
         return {
-          fillColor: getColor(feature.properties[props.styleField]),
+          fillColor: get_color(feature.properties[props.style_field]),
           weight: 2,
           opacity: 1,
           color: 'white',
@@ -244,7 +244,7 @@ export default defineComponent({
     return {
       datasource,
       //yourLocation, 
-      setDatasource
+      set_datasource
     }
   }
 })

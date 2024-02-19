@@ -1,21 +1,22 @@
 <template>
   <div class="q-pa-sm" :id="map_id">
-    <map-query-dialog ref="map_query_dialog"  @toggle-analysis="do_toggle" @update-opacity="update_opacity" />
+    <map-query-dialog ref="map_query_dialog"/>
   </div>  
 </template>
  
 <script lang="ts">
 
-import { defineAsyncComponent, defineComponent, onMounted, ref } from 'vue' 
+import { defineAsyncComponent, defineComponent, onMounted, ref } from 'vue'
+import { AppUtil } from 'src/utils/app'
 import L from 'leaflet' 
 import 'leaflet/dist/leaflet.css'
 import { watchEffect } from 'vue'
 import { reactive, watch } from 'vue'  
 import { useRoute } from 'vue-router' 
 import { ILegendItem } from '../../interfaces'
-import { LEGEND_TYPE, DATASOURCE, DATA_TYPE, OPERATOR } from '../../enums'
-import { alphaNum } from '@vuelidate/validators'
-import { TechnicalAnalysisService } from 'src/services/TechnicalAnalysisService'
+import { LEGEND_TYPE } from '../../enums'
+
+const GEOJSON = 'geojson'
 
 export default defineComponent({
   name: 'BasicMap',
@@ -23,10 +24,10 @@ export default defineComponent({
   components: {
     'map-query-dialog': defineAsyncComponent(()=> import('../map/MapQueryDialog.vue'))
   },
-  setup (props, ctx) {
+  setup (props) {
     const map_id = 'map-div'
     let layer_control_instance = null
-    let map_instance = null
+    let mapInstance = null
     let map_data = ref([]) 
     
     let datasource = ref({})
@@ -52,7 +53,9 @@ export default defineComponent({
     }
     
     let legend_items = []
-    const init_map = () => { 
+    const init_map = () => {
+     
+
       //create tile layer and add to map
       // const osm = L.tileLayer(
       //   `https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`,
@@ -109,7 +112,7 @@ export default defineComponent({
             current_layer.value.bringToFront();
         });
 
-        map_instance = map 
+        mapInstance = map 
     }
     
     // const changeBaseMap => (base_map) {
@@ -149,7 +152,7 @@ export default defineComponent({
         info_div.innerHTML = `<h4>Details</h4> ${contents}`
       }
 
-      info_control.addTo(map_instance)
+      info_control.addTo(mapInstance)
     } 
 
     const addMapQueryControl = () => {
@@ -179,8 +182,8 @@ export default defineComponent({
         }
       })
 
-      //map_instance.addControl(new map_query_control())
-      new map_query_control().addTo(map_instance)
+      //mapInstance.addControl(new map_query_control())
+      new map_query_control().addTo(mapInstance)
     }
 
     const fetchData = async (url) => {
@@ -199,8 +202,9 @@ export default defineComponent({
      * @param data 
      * @param url 
      */
-    const set_datasource = async (data=null, url=null, label='Dataset', data_type=DATA_TYPE.GEOJSON, style_field=null, legend_items: ILegendItem[]=[]) => { 
-      if(data && url){ 
+     const set_datasource = async (data=null, url=null, label='Dataset', data_type=GEOJSON) => {
+      console.log('set datasource')
+      if(data && url){
         throw('Data and URL cannot be supplied at the same time. Provide one or the other')
       }  
       data_label = label
@@ -208,98 +212,25 @@ export default defineComponent({
          return await fetchData('https://api.npoint.io/fdbc5b08a7e7eccb6052')
       }
       if(data){
-        map_data.value.push({ 'datatype': data_type, 'data': data, 'label': label, style_field, 'legend_items': legend_items });
+        map_data.value.push({ 'datatype': data_type, 'data': data, 'label': label })
       }
       else {
-        if(data_type == DATA_TYPE.GEOJSON){
-          const d = await fetchGeoJson()  
-          map_data.value.push({ 'datatype': data_type, 'data': data, 'label': label, style_field, 'legend_items': legend_items });
+        if(data_type == GEOJSON){
+          const d = await fetchGeoJson()
+          map_data.value.push({ 'datatype': data_type, 'data': data, 'label': label })
         }   
       }
     }
 
-    /**
-     * Construct Legend Items from analysis doctype
-     * @param analysis_doc 
-     */
-    const make_legend = (analysis_doc: object) => {
-      let legend_items = []
-      let analysis_type = analysis_doc?.analysis_type;
-      for(let i=0; i < analysis_doc?.legend.length; i++) {
-        let itm = analysis_doc.legend[i]
-        let cfg = {} as ILegendItem
-        cfg.color = itm.color
-        cfg.label = itm.label
-        cfg.operator = itm.operator
-        switch(analysis_type){
-          case LEGEND_TYPE.TEXT:
-            cfg.item_type = LEGEND_TYPE.TEXT
-            cfg.absolute_val = itm.alphatext_value
-            cfg.lower_val = itm.alphatext_value
-            cfg.upper_val = itm.alphatext_value    
-            break;
-          case LEGEND_TYPE.NUMERIC:
-            cfg.item_type = LEGEND_TYPE.NUMERIC
-            cfg.absolute_val = itm.numeric_value
-            cfg.lower_val = itm.lower_numeric
-            cfg.upper_val = itm.upper_numeric  
-            break;
-          case LEGEND_TYPE.DATE:
-            cfg.item_type = LEGEND_TYPE.DATE
-            cfg.absolute_val = itm.date_value
-            cfg.lower_val = itm.lower_date
-            cfg.upper_val = itm.upper_date    
-            break;
-        } 
-        legend_items.push(cfg)
-      }
-      return legend_items;
-    }
-
-    const get_analysis = (label: string) => {
-      let res = map_data.value?.filter(el => el.label == label);
-      return res?.length > 0 ? res[0] : null;
-    }
-    const analysis_exists = (label: string) => {
-      let res = get_analysis(label);
-      return res != null
-    }
-
-    const remove_analysis = (label: string) => {
-      let layers = layer_control_instance?._layers.slice(); 
-      for(let i=0; i < layers?.length; i++){
-        let layer = layers[i];
-        if(/*layer.name == label &&*/ layer.overlay){
-          layer_control_instance.removeLayer(layer.layer);
-        }
-      }
-
-      let items = map_data.value?.filter(el => el.label == label);
-      items.forEach((el)=> {
-        //remove the layer
-        if(el.layer){
-          if(map_instance.hasLayer(el.layer)){
-            console.log("Has layer")
-            map_instance.removeLayer(el.layer);  
-          }
-        }
-        if(el.legend){
-          map_instance.removeControl(el.legend);
-        }
-      })
-      //reset map_data to exclude the removed items
-      map_data.value =  map_data.value?.filter(el => el.label != label); 
-    }
-
     const add_geojson_layer = (data: object, label: '', addToControl=true) => {
-      let layer = null;
+      let layer = null
       if(data){
         try{
           // add to the map
           layer = L.geoJson(data, {
             on_each_feature: on_each_feature,
             style: style_feature
-          }).addTo(map_instance) 
+          }).addTo(mapInstance)
 
           if(addToControl){
             // Add to the layer control
@@ -309,59 +240,22 @@ export default defineComponent({
             )  
           }
           geojson_layer = layer
-          map_instance.fitBounds(layer.getBounds());
         } catch (err) {
             console.log(err, err.message)
         }
       }
       return layer
     }
-
-    const add_geojson_layer_GROUP = (data: object, label: '', addToControl=true) => {
-      let layer = null;
-      let layer_group = null;
-      if(data){
-        try{
-          // add to the map
-          // layer = L.geoJson(data, {
-          //   on_each_feature: on_each_feature,
-          //   style: style_feature
-          // }).addTo(map_instance)
-
-          
-
-          layer = L.geoJson(data, {
-            on_each_feature: on_each_feature,
-            style: style_feature
-          })
-
-          layer_group = L.layerGroup([layer]).addTo(map_instance);
-
-          if(addToControl){
-            // Add to the layer control
-            layer_control_instance.addOverlay(
-              layer_group,
-              label
-            )  
-          }
-          geojson_layer = layer_group
-          map_instance.fitBounds(layer.getBounds());
-        } catch (err) {
-            console.log(err, err.message)
-        }
-      }
-      return layer_group
-    }
     
-    const style_feature = (feature: object) => { 
-      return {
-        fillColor: get_color_v2(feature.properties[feature.style_field], feature.style_field), // get_color(feature.properties[feature.style_field]),
-        weight: 2,
-        opacity: 1,
-        color: 'white',
-        dashArray: '3',
-        fillOpacity: 0.9,// 0.7
-      }
+    const style_feature = (feature) => {
+        return {
+          fillColor: /*route.maptype == 'vector' ? */get_color(feature.properties[props.style_field]),// : '',
+          weight: 2,
+          opacity: 1,
+          color: 'white',
+          dashArray: '3',
+          fillOpacity: 0.9,// 0.7
+        }
     }
 
     const get_color = (val) => { 
@@ -375,48 +269,10 @@ export default defineComponent({
                         '#FFEDA0';
     }
 
-    const get_color_v2 = (val: object, analysis_name: string) => {
-      let map_info = get_analysis(analysis_name);
-      for(let i=0; i < map_info.legend_items.length; i++){
-        let itm = map_info.legend_items[i];
-        let match = match_legend_item(val, itm)
-        if(match) {
-          return itm.color;
-        }
-      }
-      return '#FFEDA0';
-    }
+    const getColor2 = (val) => {
+      for(let i=0; i < legend_items.length; i++){
 
-    const match_legend_item = (val: object, legend_item: ILegendItem) => {
-      const op = legend_item.operator;
-      let match = false; 
-      let absolute_val = legend_item.absolute_val;// val instanceof Date ? legend_item.date_val : !isNaN(val) ? legend_item.numeric_value : legend_item.alphatext_value.toString();
-      let lower_val = legend_item.lower_val;// val instanceof Date ? legend_item.lower_date : !isNaN(val) ? legend_item.lower_numeric : null;
-      let upper_val = legend_item.upper_val;// val instanceof Date ? legend_item.upper_date : !isNaN(val) ? legend_item.upper_numeric : null;
-
-      if(val instanceof String) {
-        if([OPERATOR.EQUALS, OPERATOR.IN, OPERATOR.LIKE].includes(op)){
-          match = absolute_val.indexOf(val) != 0
-        }
-        else if ([OPERATOR.NOT_EQUALS, OPERATOR.NOT_IN, OPERATOR.NOT_LIKE].includes(op)) {
-          match = absolute_val.indexOf(val) == -1;
-        }
-      } 
-      else {
-        if([OPERATOR.EQUALS, OPERATOR.GREATER_OR_EQUAL_TO, OPERATOR.LESS_OR_EQUAL_TO].includes(op)) {
-          match = absolute_val === val;
-        }
-        else if ([OPERATOR.LESS_THAN].includes(op)) {
-          match = val < absolute_val;
-        }
-        else if ([OPERATOR.GREATER_THAN].includes(op)) {
-          match = val > absolute_val;
-        }
-        else if ([OPERATOR.BETWEEN].includes(op)) {
-          match = lower_val <= val && val <= upper_val;
-        }
       }
-      return match;
     }
 
      /**
@@ -444,8 +300,8 @@ export default defineComponent({
     const get_feature = (id: string, feature: object) => {      
       let res = feature
       if(!feature && id){
-        for(var i=0; i < Object.keys(map_instance._layers).length; i++){
-          let el = Object.values(map_instance._layers)[i] 
+        for(var i=0; i < Object.keys(mapInstance._layers).length; i++){
+          let el = Object.values(mapInstance._layers)[i] 
           if(el.feature !== undefined && el.feature.properties.shapeID == id){
             res = el 
             break
@@ -460,8 +316,8 @@ export default defineComponent({
      */
     const select_feature = (id: string, layer: object) => {      
       // if(!layer && id){
-      //   for(var i=0; i < Object.keys(map_instance._layers).length; i++){
-      //     let el = Object.values(map_instance._layers)[i] 
+      //   for(var i=0; i < Object.keys(mapInstance._layers).length; i++){
+      //     let el = Object.values(mapInstance._layers)[i] 
       //     if(el.feature !== undefined && el.feature.properties.shapeID == id){
       //       layer = el 
       //       break
@@ -512,7 +368,7 @@ export default defineComponent({
      * @param e 
      */
     const _zoom_feature = (e) => {
-      map_instance.fitBounds(e.target.getBounds())
+      mapInstance.fitBounds(e.target.getBounds())
     }
 
     /**
@@ -521,14 +377,14 @@ export default defineComponent({
      */
      const zoom_to_feature = (feature: object) => {
       if(feature){
-        map_instance.fitBounds(feature.getBounds())
+        mapInstance.fitBounds(feature.getBounds())
       }
     }
 
     /**
      * Loop utility for each feature
      * @param feature 
-     * @param layer ]
+     * @param layer 
      */
     const on_each_feature = (feature, layer) => { 
       if(layer) {
@@ -564,18 +420,13 @@ export default defineComponent({
         return div
       }
 
-      legend.addTo(map_instance)
+      legend.addTo(mapInstance)
     }
 
-    const add_legend_v2 = (analysis_name: string, items: ILegendItem[], title:string) => { 
+    const add_legend_v2 = (items: ILegendItem[], title:string) => {
+      debugger;
       legend_items = items
-      const legend = L.control({ position: 'bottomright' });
-      map_data.value.forEach(el => {
-        if(el.label == analysis_name) {
-          el['legend_items'] = items;
-          el['legend'] = legend;
-        }
-      });     
+      const legend = L.control({ position: 'bottomright' })
 
       const labels = [`<strong>${title}</strong>`]
       legend.onAdd = (map) => {
@@ -614,7 +465,8 @@ export default defineComponent({
         div.innerHTML = labels.join('<br>')
         return div
       }
-      legend.addTo(map_instance)
+
+      legend.addTo(mapInstance)
     }
 
     const add_tile_layer = (url: '', layer: '') => {
@@ -631,7 +483,7 @@ export default defineComponent({
             layers: layer,
             transparent: true,
             format: 'image/png'
-        }).addTo(map_instance)  
+        }).addTo(mapInstance)  
     }
 
     const add_image_overlay = (url: '', layer: '', bounds: object) => {
@@ -648,7 +500,7 @@ export default defineComponent({
       var altText = 'Image of Newark, N.J. in 1922. Source: The University of Texas at Austin, UT Libraries Map Collection.';
       var latLngBounds = bounds// L.latLngBounds([[40.799311, -74.118464], [40.68202047785919, -74.33]]);
      if(image_overlay){
-        map_instance.removeLayer(image_overlay)
+        mapInstance.removeLayer(image_overlay)
      }
       image_overlay = L.image_overlay(url, latLngBounds, {
           //opacity: 1.0,
@@ -656,9 +508,9 @@ export default defineComponent({
           // alt: altText,
           interactive: true,
           crossOrigin: false
-      }).addTo(map_instance)  
-      //L.rectangle(latLngBounds).addTo(map_instance);
-      map_instance.fitBounds(latLngBounds);
+      }).addTo(mapInstance)  
+      //L.rectangle(latLngBounds).addTo(mapInstance);
+      mapInstance.fitBounds(latLngBounds);
       image_overlay.bringToFront();
     }
 
@@ -696,10 +548,9 @@ export default defineComponent({
       //if (Object.keys(map_data.value).length !== 0) {
       if (currVal.length !== 0) {
         // Add to the map 
-        map_data.value.forEach((el, idx) => { 
+        map_data.value.forEach((el) => { 
           if(el.datatype == 'geojson'){
-            let layer = add_geojson_layer(el['data'], el['label']);
-            map_data.value[idx]['layer'] = layer
+            add_geojson_layer(el['data'], el['label'])
           }  
         }) 
       }
@@ -708,49 +559,27 @@ export default defineComponent({
     const add_feature = (geojson_feature: object) => {
       if(geojson_layer){
         //If there is a current layer, remove
-        map_instance.removeLayer(geojson_layer)
+        mapInstance.removeLayer(geojson_layer)
         geojson_layer = null
       }
       const clone = Object.assign({}, geojson_feature);
       const geom = geojson_feature.geometry
       delete clone.geometry
-      var feature = {
+      var geojson_feature = {
           "type": "Feature",
           "properties": clone,
           "geometry": geom
       };
 
-      return add_geojson_layer(feature, '', false) 
+      return add_geojson_layer(geojson_feature, '', false) 
     }
-    
-    const add_analysis = (analysis_name: object) => { 
-      const analysis = TechnicalAnalysisService.get_analysis(analysis_name).then((doc) => {
-        // Check if it is vector or raster 
-        if(doc.datasource_type == DATASOURCE.VECTOR){
-          let legend_items = make_legend(doc);      
-          // The style_field is the analysis_name as the computation adds a new property analysi_name
-          remove_analysis(doc.analysis_name);
-          console.log("Adding: ", doc.analysis_name);
-          set_datasource(JSON.parse(doc.geom), null, doc.analysis_name, DATA_TYPE.GEOJSON, analysis_name, legend_items)
-          .then(res => {          
-            add_legend_v2(doc.analysis_name, legend_items, doc.analysis_name);
-          })          
-        }   
-        // if(analysis_doc.datasource_type == DATASOURCE.RASTER){
-
-        // }
-        // if(analysis_doc.datasource_type == DATASOURCE.TABULAR){
-
-        // }   
-      });  
-    }
-
+ 
     const map_query_dialog = ref(null)
     return {
       map_id,
       map_options,
       datasource: null,
-      get_map_instance: () => map_instance,
+      get_map_instance: () => mapInstance,
       layer_control_instance,
       set_datasource,
       add_tile_layer, 
@@ -761,25 +590,7 @@ export default defineComponent({
       add_legend,
       add_legend_v2,
       add_feature,
-      zoom_to_feature,
-      add_analysis,
-      do_toggle: function(analysis_name, show) {
-        //alert('Toggle clicked')
-        ctx.emit('toggle-analysis', analysis_name, show)
-      },
-      update_opacity: function(opacities: object){
-        //alert('opacity changing...')
-        //ctx.emit('update-opacity')
-        if(opacities) {
-          for (const [key, value] of Object.entries(opacities)) {
-            let mp = get_analysis(key);
-            //mp.layer.setOpacity(value);        
-            mp?.layer?.setStyle({ opacity: value });
-          }
-        }
-      },
-      analysis_exists,
-      remove_analysis
+      zoom_to_feature
     }
   }
 })

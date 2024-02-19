@@ -200,7 +200,13 @@
       /> 
     </div>
    
-    <basic-map ref="mapRef" datasourceType="geojson" styleField="density" :center="[0.35243520, 37.89184570312501]" />
+    <basic-map 
+      ref="mapRef" 
+      datasource_type="geojson" 
+      style_field="density" 
+      :center="[0.35243520, 37.89184570312501]"
+      @toggle-analysis="toggle_analysis"  
+   />
     <MapStatisticsDialog :show="true" />
   </q-page>
 </template>
@@ -222,6 +228,7 @@ import MapStatisticsDialog from '../components/map/MapStatisticsDialog.vue';
 import SummaryImg from '../assets/images/pp3.jpeg'
 import ExampleComponent from '../components/ExampleComponent.vue'
 import { ILegendItem } from '../interfaces'
+import { LEGEND_TYPE, ANALYSIS_TYPE } from '../enums'
 
 const VECTOR = 'vector'
 const RASTER = 'raster'
@@ -260,27 +267,39 @@ export default defineComponent({
     const analysis = ref(null)
     const query = route.query
 
-    if (props.analysis) {
-      //If there is a query
-      const analysis = TechnicalAnalysisService.get_analysis(props.analysis).then((doc) => {
-        mapRef.value.setDatasource(JSON.parse(doc.geom), null, doc.name)
-
-        let legends = []
-        for(let i=0; i < doc.legend.length; i++){
-          let cfg = {} as ILegendItem
-
-          item_type: typeof LEGEND_TYPE,
-  lower_val: object,
-  upper_val: object,
-  label: string,
-  color: string
-
-          cfg.item_type = LEGEND_TYPE.TEXT
-          cfg.lower_val =     
-        }
-        mapRef.value.addLegend2()
-      })
-    }
+    // if (props.analysis) {
+    //   //If there is a query
+    //   const analysis = TechnicalAnalysisService.get_analysis(props.analysis).then((doc) => {
+    //     mapRef.value.set_datasource(JSON.parse(doc.geom), null, doc.name) 
+    //     let legend_items = []
+    //     let analysis_type = doc.analysis_type
+    //     for(let i=0; i < doc.legend.length; i++) {
+    //       let itm = doc.legend[i]
+    //       let cfg = {} as ILegendItem
+    //       cfg.color = itm.color
+    //       cfg.label = itm.label
+    //       switch(analysis_type){
+    //         case LEGEND_TYPE.TEXT:
+    //           cfg.item_type = LEGEND_TYPE.TEXT
+    //           cfg.lower_val = itm.alphatext_value
+    //           cfg.upper_val = itm.alphatext_value    
+    //           break;
+    //         case LEGEND_TYPE.NUMERIC:
+    //           cfg.item_type = LEGEND_TYPE.NUMERIC
+    //           cfg.lower_val = itm.lower_numeric
+    //           cfg.upper_val = itm.upper_numeric  
+    //           break;
+    //         case LEGEND_TYPE.DATE:
+    //           cfg.item_type = LEGEND_TYPE.DATE
+    //           cfg.lower_val = itm.lower_date
+    //           cfg.upper_val = itm.upper_date    
+    //           break;
+    //       } 
+    //       legend_items.push(cfg)
+    //     }
+    //     mapRef.value.add_legend_v2(legend_items, doc.analysis_name)
+    //   })
+    // }
 
     // VectorService.get_admin_zero().then((data) => { 
     //   adminZeroFeatures = data 
@@ -355,17 +374,17 @@ export default defineComponent({
        if (mapRef.value) { 
           VectorService.get_states()
           .then((states) => {
-              //mapRef.value.setDatasource(states, null, 'Maryland States')
+              //mapRef.value.set_datasource(states, null, 'Maryland States')
             }
           )
-          //map.setDatasource(null, 'https://api.npoint.io/fdbc5b08a7e7eccb6052')
+          //map.set_datasource(null, 'https://api.npoint.io/fdbc5b08a7e7eccb6052')
           
           VectorService.get_admin_zero().then((data) => { 
               adminZeroFeatures = data 
               adminZeroNames = parseAdmins(data)
               adminZeroOptions.value = adminZeroNames 
               if(query.maptype == VECTOR){
-                mapRef.value.setDatasource(data, null, 'Kenya')
+                mapRef.value.set_datasource(data, null, 'Kenya')
               }
               loading.value = false
 
@@ -377,7 +396,7 @@ export default defineComponent({
             adminOneNames = parseAdmins(data)
             adminOneOptions.value = adminOneNames
             if(query.maptype == VECTOR){
-              mapRef.value.setDatasource(data, null, 'Counties')
+              mapRef.value.set_datasource(data, null, 'Counties')
             }
           })
           VectorService.get_admin_two().then((data) => { 
@@ -385,7 +404,7 @@ export default defineComponent({
             adminTwoNames = parseAdmins(data)
             adminTwoOptions.value = adminTwoNames
             if(query.maptype == VECTOR){
-              mapRef.value.setDatasource(data, null, 'Sub-Counties')
+              mapRef.value.set_datasource(data, null, 'Sub-Counties')
             }  
           })
           VectorService.get_admin_three().then((data) => {
@@ -393,11 +412,11 @@ export default defineComponent({
             adminThreeNames = parseAdmins(data)
             adminThreeOptions.value = adminThreeNames
             if(query.maptype == VECTOR){
-              mapRef.value.setDatasource(data, null, 'Wards')
-              mapRef.value.addLegend()
+              mapRef.value.set_datasource(data, null, 'Wards')
+              mapRef.value.add_legend()
             }
           })          
-          // mapRef.value.addTileLayer()
+          // mapRef.value.add_tile_layer()
       } else {
         // not mounted yet, or the element was unmounted (e.g. by v-if)
       }
@@ -415,14 +434,14 @@ export default defineComponent({
       adminThree.value = val
     }
 
-    const getMapInstance = () => {
-      return mapRef.value ? mapRef.value.getMapInstance() : null
+    const get_map_instance = () => {
+      return mapRef.value ? mapRef.value.get_map_instance() : null
     }
 
     const selectShape = (admin: object) => { 
       const mapComponent = mapRef.value
-      mapComponent.resetAllFeatureStyles()
-      let feature = mapComponent.selectFeature(admin.shapeID, null) 
+      mapComponent.reset_all_feature_styles()
+      let feature = mapComponent.select_feature(admin.shapeID, null) 
       let shape = null
       if(!feature){
         shape = adminZeroFeatures.features.filter(el => el.properties.shapeID == admin.shapeID)
@@ -433,14 +452,14 @@ export default defineComponent({
           shape = adminTwoFeatures.features.filter(el => el.properties.shapeID == admin.shapeID)
         }
         if(shape.length !== 0){ 
-          const layer = mapComponent.addFeature(shape[0])    
+          const layer = mapComponent.add_feature(shape[0])    
           //search again
-          feature = mapComponent.selectFeature(admin.shapeID, layer)
+          feature = mapComponent.select_feature(admin.shapeID, layer)
         }
       }
       if(feature){
-        //getMapInstance().fitBounds(feature.getBounds())
-        mapComponent.zoomToFeature(feature)
+        //get_map_instance().fitBounds(feature.getBounds())
+        mapComponent.zoom_to_feature(feature)
         //getRaster(feature).then((data) => {
         getRaster(shape?.[0], feature).then((data) => {
           console.log('Raster data: ', data)
@@ -485,8 +504,8 @@ export default defineComponent({
     const getRaster = async (shape: object, feature: object) => { 
       //const raster = await RasterService.getRainfall(feature.feature.geometry) 
       const raster = await RasterService.getRainfall(shape.geometry) 
-      mapRef.value.addImageOverlay(raster, raster, feature.getBounds())
-      //getMapInstance().fitBounds(feature.getBounds())
+      mapRef.value.add_image_overlay(raster, raster, feature.getBounds())
+      //get_map_instance().fitBounds(feature.getBounds())
       return raster
     }
 
@@ -525,9 +544,22 @@ export default defineComponent({
       })
     }
 
+    const toggle_analysis = (val: string, show: boolean) => { 
+      if(show){
+        //check if the layer exists or not
+        let exists = mapRef.value.analysis_exists(val)
+        if(exists) {
+          mapRef.value.remove_analysis(val) //remove the layer first to allow for redraw
+        }
+        mapRef.value.add_analysis(val);
+      } else {
+        mapRef.value.remove_analysis(val)
+      }      
+    }
+
     //  onMounted(() => {
     //     VectorService.get_states().then((states) => { 
-    //       mapRef.value.setDatasource(states)
+    //       mapRef.value.set_datasource(states)
     //     })      
     //  })
      return {
@@ -547,7 +579,8 @@ export default defineComponent({
       setModelAdminOne,
       setModelAdminTwo,
       setModelAdminThree,
-      selectShape
+      selectShape,
+      toggle_analysis
      }
   }
 })
