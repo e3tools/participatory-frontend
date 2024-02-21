@@ -729,8 +729,7 @@ export default defineComponent({
         if(doc.datasource_type == DATASOURCE.VECTOR){
           let legend_items = make_legend(doc);      
           // The style_field is the analysis_name as the computation adds a new property analysi_name
-          remove_analysis(doc.analysis_name);
-          console.log("Adding: ", doc.analysis_name);
+          remove_analysis(doc.analysis_name); 
           set_datasource(JSON.parse(doc.geom), null, doc.analysis_name, DATA_TYPE.GEOJSON, analysis_name, legend_items)
           .then(res => {          
             add_legend_v2(doc.analysis_name, legend_items, doc.analysis_name);
