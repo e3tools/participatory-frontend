@@ -1,6 +1,13 @@
 <template>
   <div>
-    <q-dialog v-model="display">
+    <q-dialog v-model="display" :style="card_style">
+      
+      <q-bar class="bg-primary text-white" v-touch-pan.mouse="onPan">
+        <div>Dragme</div>
+        <q-space></q-space>
+        <!-- <q-btn dense flat icon="close" @click="hideSelf()"></q-btn> -->
+      </q-bar>
+      
       <q-card style="width: 300px;" class="q-px-sm q-pb-sm">        
         <q-toolbar>
           <q-avatar>
@@ -15,6 +22,10 @@
         <!-- <q-card-section>
           <div class="text-h6"></div>
         </q-card-section> -->
+
+        <q-card-section>
+          <vector-select ref="vector_select_ref" @select-admin="select_admin" />
+        </q-card-section>
 
         <q-card-section class="q-pa-xs">
           <!-- <q-item-label class="text-overline">{{ t('MAP_PAGE.OVERLAYS') }}</q-item-label> -->
@@ -104,11 +115,20 @@
 import { TechnicalAnalysisService } from 'src/services/TechnicalAnalysisService';
 import { AppUtil } from 'src/utils/app';
 import { createOmittedExpression, displayPartsToString } from 'typescript';
+import { computed } from 'vue';
+import { defineAsyncComponent } from 'vue';
 import { defineComponent, ref, watch, watchEffect, defineEmits } from 'vue'
 export default defineComponent({
   name: 'MapQueryDialog',
+  components: {
+    'vector-select': defineAsyncComponent(()=> import('../map/VectorSelect.vue'))
+  },
   props: ['show'], 
   setup(props, ctx) {
+    let card_pos = {
+      x: 0,
+      y: 0
+    }
     const display = ref(props.show)
     const emit = defineEmits(['toggle-analysis'])
     const showWindow = (doShow) => {
@@ -126,6 +146,7 @@ export default defineComponent({
 
     const visible_analyses = ref({})
     const opacities = ref({}) 
+    const vector_select_ref = ref(null);
 
     watch(visible_analyses.value, (newVal, oldVal) => {
       // console.log("Visible analysis changed3")
@@ -142,10 +163,26 @@ export default defineComponent({
       // }
     }, { immediate: true });
 
-    const toggle_analysis = (analysis_name: string) => { 
-      ctx.emit('toggle-analysis', analysis_name, visible_analyses.value[analysis_name])
+    const get_selected_admin = () => {
+      return vector_select_ref.value.get_selected_admin();
     }
 
+    const toggle_analysis = (analysis_name: string) => {  
+      const selected_admin = get_selected_admin()
+      ctx.emit('toggle-analysis', analysis_name, visible_analyses.value[analysis_name], selected_admin.name, selected_admin.level)
+    } 
+    const onPan = (evt) => {
+      card_pos = {
+        x: card_pos.x + evt.delta.x,
+        y: card_pos.y + evt.delta.y
+      }
+    }
+
+    const card_style = computed(() => { 
+      return {
+        transform: `translate(${card_pos.x}px, ${card_pos.y}px)`
+      } 
+    })
     return {
       display,
       temperature: ref(false),
@@ -159,7 +196,15 @@ export default defineComponent({
       technical_analyses,
       visible_analyses,
       opacities,
-      toggle_analysis
+      toggle_analysis,
+      vector_select_ref,
+      get_selected_admin,
+      select_admin: (admin) => {
+        console.log("Now selecting admin ", admin);
+        ctx.emit('select-admin', admin);
+      },
+      onPan,
+      card_style
     }
   }
 })

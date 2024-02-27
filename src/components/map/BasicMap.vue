@@ -1,6 +1,9 @@
 <template>
   <div class="q-pa-sm" :id="map_id">
-    <map-query-dialog ref="map_query_dialog"  @toggle-analysis="do_toggle" @update-opacity="update_opacity" />
+    <map-query-dialog ref="map_query_dialog_ref" 
+        @toggle-analysis="do_toggle" 
+        @select-admin="select_admin"
+        @update-opacity="update_opacity" />
   </div>  
 </template>
  
@@ -16,6 +19,10 @@ import { ILegendItem } from '../../interfaces'
 import { LEGEND_TYPE, DATASOURCE, DATA_TYPE, OPERATOR } from '../../enums'
 import { alphaNum } from '@vuelidate/validators'
 import { TechnicalAnalysisService } from 'src/services/TechnicalAnalysisService'
+import { VectorService } from 'src/services/VectorService'
+import { AppUtil } from 'src/utils/app'
+import { onUnmounted } from 'vue'
+import { useQuasar } from 'quasar';
 
 export default defineComponent({
   name: 'BasicMap',
@@ -24,6 +31,7 @@ export default defineComponent({
     'map-query-dialog': defineAsyncComponent(()=> import('../map/MapQueryDialog.vue'))
   },
   setup (props, ctx) {
+    const $q = useQuasar();
     const map_id = 'map-div'
     let layer_control_instance = null
     let map_instance = null
@@ -37,7 +45,8 @@ export default defineComponent({
     let data_label = 'Dataset'
     const current_layer = ref(null)
     const route = useRoute()
-    let analysis_doc = null
+    let analysis_doc = null;
+    const selected_feature = ref(null);
 
     const map_options = {
       center: L.latLng(props.center ? props.center : [-0.437099, 36.958010/*27.0902, -95.7129*/]),
@@ -166,7 +175,7 @@ export default defineComponent({
           button.innerHTML = '<i class="fa fa-bars"></i>'
           button.class = 'fa-solid fa-question' //'q-btn q-btn-item'
           button.onclick = function(e) {
-            map_query_dialog.value.showWindow(true)
+            map_query_dialog_ref.value.showWindow(true)
           }
           return button
         },
@@ -199,22 +208,30 @@ export default defineComponent({
      * @param data 
      * @param url 
      */
-    const set_datasource = async (data=null, url=null, label='Dataset', data_type=DATA_TYPE.GEOJSON, style_field=null, legend_items: ILegendItem[]=[]) => { 
+    const set_datasource = async (analysis_name:string, data=null, url=null, label='Dataset', data_type=DATA_TYPE.GEOJSON, style_field=null, legend_items: ILegendItem[]=[]) => { 
       if(data && url){ 
         throw('Data and URL cannot be supplied at the same time. Provide one or the other')
       }  
       data_label = label
       const fetchGeoJson = async () => { 
          return await fetchData('https://api.npoint.io/fdbc5b08a7e7eccb6052')
-      }
-      if(data){
-        map_data.value.push({ 'datatype': data_type, 'data': data, 'label': label, style_field, 'legend_items': legend_items });
-      }
-      else {
-        if(data_type == DATA_TYPE.GEOJSON){
+      }     
+      if(data_type == DATA_TYPE.GEOJSON){
+        if(data){
+          map_data.value.push({ 'datatype': data_type, 'data': data, 'label': label, style_field, 'legend_items': legend_items });
+        } 
+        else {
           const d = await fetchGeoJson()  
           map_data.value.push({ 'datatype': data_type, 'data': data, 'label': label, style_field, 'legend_items': legend_items });
         }   
+      }
+      else if (data_type == DATA_TYPE.RASTER){
+        console.log("Raster data");
+        const bounds = get_selected_feature()?.getBounds();
+        add_image_overlay(url, analysis_name, bounds);
+
+        //show the clipped vector
+        //show raster on top of the clipped vector
       }
     }
 
@@ -377,14 +394,14 @@ export default defineComponent({
 
     const get_color_v2 = (val: object, analysis_name: string) => {
       let map_info = get_analysis(analysis_name);
-      for(let i=0; i < map_info.legend_items.length; i++){
+      for(let i=0; i < map_info?.legend_items.length; i++){
         let itm = map_info.legend_items[i];
         let match = match_legend_item(val, itm)
         if(match) {
           return itm.color;
         }
       }
-      return '#FFEDA0';
+      return '';// '#FFEDA0';
     }
 
     const match_legend_item = (val: object, legend_item: ILegendItem) => {
@@ -426,7 +443,7 @@ export default defineComponent({
      const highlight_feature = (e) => {
       const layer = e.target
 
-      select_feature(layer)
+      select_feature(layer);
       // layer.setStyle({
       //   weight: 5,
       //   color: '#666',
@@ -446,7 +463,7 @@ export default defineComponent({
       if(!feature && id){
         for(var i=0; i < Object.keys(map_instance._layers).length; i++){
           let el = Object.values(map_instance._layers)[i] 
-          if(el.feature !== undefined && el.feature.properties.shapeID == id){
+          if(el.feature !== undefined && el.feature.properties.name == id){
             res = el 
             break
           }
@@ -458,7 +475,7 @@ export default defineComponent({
     /**
      * Select feature
      */
-    const select_feature = (id: string, layer: object) => {      
+    const select_feature = async (id: string, level: number, layer: object) => {      
       // if(!layer && id){
       //   for(var i=0; i < Object.keys(map_instance._layers).length; i++){
       //     let el = Object.values(map_instance._layers)[i] 
@@ -468,12 +485,16 @@ export default defineComponent({
       //     }
       //   } 
       // }  
-      const feature = get_feature(id, layer)
+      selected_feature.value = null;
+      let feature = get_feature(id, layer)
       if(!feature){
         //try add the feature first
-
+        const admin = await VectorService.get_admin(id, level);
+        let added_layer = add_feature(JSON.parse(admin.geom)['features'][0], admin.name);
+        feature = get_feature(id, added_layer);
       }
       if(feature){
+        selected_feature.value = feature;
         feature.setStyle({
           weight: 5,
           color: '#666',
@@ -650,7 +671,7 @@ export default defineComponent({
      if(image_overlay){
         map_instance.removeLayer(image_overlay)
      }
-      image_overlay = L.image_overlay(url, latLngBounds, {
+      image_overlay = L.imageOverlay(url, latLngBounds, {
           //opacity: 1.0,
           errorOverlayUrl: url, // errorOverlayUrl,
           // alt: altText,
@@ -705,7 +726,7 @@ export default defineComponent({
       }
     })  
 
-    const add_feature = (geojson_feature: object) => {
+    const add_feature = (geojson_feature: object, layer_id: string) => {
       if(geojson_layer){
         //If there is a current layer, remove
         map_instance.removeLayer(geojson_layer)
@@ -719,32 +740,63 @@ export default defineComponent({
           "properties": clone,
           "geometry": geom
       };
-
-      return add_geojson_layer(feature, '', false) 
+      return add_geojson_layer(feature, layer_id, false) 
     }
     
-    const add_analysis = (analysis_name: object) => { 
+    const add_analysis = (analysis_name: object, vector_id: string, admin_level: number) => { 
+      $q.loading.show({});
       const analysis = TechnicalAnalysisService.get_analysis(analysis_name).then((doc) => {
-        // Check if it is vector or raster 
+        remove_analysis(doc.analysis_name); 
+        
+        TechnicalAnalysisService.get_computation(doc.name, vector_id, admin_level).then((res) => {
+          // Check if it is vector or raster
+          if(doc.datasource_type == DATASOURCE.VECTOR){
+            let legend_items = make_legend(doc);      
+            // The style_field is the analysis_name as the computation adds a new property analysi_name
+            set_datasource(analysis_name, res.result, null, doc.analysis_name, DATA_TYPE.GEOJSON, analysis_name, legend_items)
+            .then(res => {          
+              add_legend_v2(doc.analysis_name, legend_items, doc.analysis_name);
+              $q.loading.hide();
+            })       
+          }
+          if(doc.datasource_type == DATASOURCE.RASTER){
+            // The style_field is the analysis_name as the computation adds a new property analysi_name
+            set_datasource(analysis_name, null, AppUtil.get_full_backend_url(res.result['rasterfile']), doc.analysis_name, DATA_TYPE.RASTER, analysis_name, legend_items)
+            .then(res => {          
+              add_legend_v2(doc.analysis_name, legend_items, doc.analysis_name);
+              $q.loading.hide();
+            })
+          }
+          // if(analysis_doc.datasource_type == DATASOURCE.TABULAR){
+
+          // }   
+        });     
+        
+        /*
         if(doc.datasource_type == DATASOURCE.VECTOR){
-          let legend_items = make_legend(doc);      
-          // The style_field is the analysis_name as the computation adds a new property analysi_name
-          remove_analysis(doc.analysis_name); 
-          set_datasource(JSON.parse(doc.geom), null, doc.analysis_name, DATA_TYPE.GEOJSON, analysis_name, legend_items)
-          .then(res => {          
-            add_legend_v2(doc.analysis_name, legend_items, doc.analysis_name);
-          })          
-        }   
-        // if(analysis_doc.datasource_type == DATASOURCE.RASTER){
+            let legend_items = make_legend(doc);      
+            // The style_field is the analysis_name as the computation adds a new property analysi_name
+            set_datasource(JSON.parse(doc.geom), null, doc.analysis_name, DATA_TYPE.GEOJSON, analysis_name, legend_items)
+            .then(res => {          
+              add_legend_v2(doc.analysis_name, legend_items, doc.analysis_name);
+            })          
+          }   
+          if(analysis_doc.datasource_type == DATASOURCE.RASTER){
+            
+          }
+          // if(analysis_doc.datasource_type == DATASOURCE.TABULAR){
 
-        // }
-        // if(analysis_doc.datasource_type == DATASOURCE.TABULAR){
-
-        // }   
+          // }   
+          */
       });  
     }
 
-    const map_query_dialog = ref(null)
+    const get_selected_feature = () => selected_feature.value;
+
+    const map_query_dialog_ref = ref(null)
+    onUnmounted(() => {
+      $q.loading.hide();
+    })
     return {
       map_id,
       map_options,
@@ -754,17 +806,23 @@ export default defineComponent({
       set_datasource,
       add_tile_layer, 
       add_image_overlay,
-      map_query_dialog,
+      map_query_dialog_ref,
       select_feature,
       reset_all_feature_styles,
       add_legend,
       add_legend_v2,
       add_feature,
-      zoom_to_feature,
+      zoom_to_feature,     
       add_analysis,
-      do_toggle: function(analysis_name, show) {
-        //alert('Toggle clicked')
-        ctx.emit('toggle-analysis', analysis_name, show)
+      do_toggle: function(analysis_name, show) { 
+        const selected_admin = map_query_dialog_ref.value.get_selected_admin();        
+        ctx.emit('toggle-analysis', analysis_name, selected_admin?.name, selected_admin?.level, show);
+      },
+      select_admin: (admin) => {
+        console.log("New admin is ", admin);
+        select_feature(admin.name, admin.level, null).then(()=> {
+          console.log("Admin selected");
+        });
       },
       update_opacity: function(opacities: object){
         //alert('opacity changing...')

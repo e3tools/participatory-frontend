@@ -3,9 +3,13 @@ import { adminZero } from 'src/data/admin0_ke';
 import { adminOne } from 'src/data/admin1_ke';
 import { adminTwo } from 'src/data/admin2_ke';
 import { adminThree } from 'src/data/admin3_ke';
+import { AppUtil } from 'src/utils/app';
+import { Frappe } from 'src/backend/frappe';
 
 class VectorService {
   // constructor() { }
+
+  static backend = new Frappe(AppUtil.backendURL)
 
   static async get_states() {
     return statesData;
@@ -25,6 +29,27 @@ class VectorService {
 
   static async get_admin_three() {
     return adminThree;
+  }
+
+  /**
+   * Returns a complete list of admins with children objects set
+   */
+  static async get_admin_tree() {
+    const res = await this.backend.call_api_endpoint('get_all_admins');
+    return res
+  }
+
+  /**
+   * Get admin level object from the backend
+   * @param admin_id 
+   * @param admin_level 
+   */
+  static async get_admin(admin_id, admin_level) {
+    const res = await this.backend.call_api_endpoint('get_admin', {
+      admin_id: admin_id,
+      admin_level: admin_level
+    });
+    return res
   }
 }
 

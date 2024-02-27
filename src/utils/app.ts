@@ -86,6 +86,14 @@ const AppUtil = class AppUtil {
     return res
   }
 
+  /**
+   * Get full backend url
+   * @param url 
+   */
+  static get_full_backend_url(url) {
+    return AppUtil.backendURL + url;
+  }
+
   static __(text: string, params: object={}) {
     return this.translate(text, params)
   }

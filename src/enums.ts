@@ -30,7 +30,8 @@ const DATASOURCE = {
 }
 
 const DATA_TYPE = {
-    GEOJSON: 'geojson'
+    GEOJSON: 'geojson',
+    RASTER: 'raster'
 }
 
 const OPERATOR = {

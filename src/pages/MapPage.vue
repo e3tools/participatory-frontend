@@ -86,7 +86,7 @@
                     option-value="shapeID"
                     placeholder="County"
                     style="max-width:116px"
-                    @update:model-value="selectShape"
+                    @update:model-value="select_shape"
                   />
               </q-item-section>  
               <q-separator vertical inset />
@@ -120,7 +120,7 @@
                     option-value="shapeID"
                     placeholder="Sub-county"
                     style="max-width:117px"   
-                    @update:model-value="selectShape"
+                    @update:model-value="select_shape"
                      />
               </q-item-section>
               <q-separator vertical inset />
@@ -155,7 +155,7 @@
                     option-value="shapeID"
                     placeholder="Ward"
                     style="max-width:120px"    
-                    @update:model-value="selectShape"
+                    @update:model-value="select_shape"
                 />
               </q-item-section>
             </q-item> 
@@ -240,8 +240,7 @@ export default defineComponent({
     'basic-map': defineAsyncComponent(() => import('components/map/BasicMap.vue')),
     MapStatisticsDialog
   },
-  setup(props) {
-    const $q = useQuasar()
+  setup(props) { 
     const mapRef = ref(null)
     const loading = ref(true)
     const route = useRoute()
@@ -266,6 +265,8 @@ export default defineComponent({
     const adminThree = ref(null)
     const analysis = ref(null)
     const query = route.query
+    const selected_feature = ref(null);
+    const $q = useQuasar();
 
     // if (props.analysis) {
     //   //If there is a query
@@ -438,25 +439,32 @@ export default defineComponent({
       return mapRef.value ? mapRef.value.get_map_instance() : null
     }
 
-    const selectShape = (admin: object) => { 
+    const select_shape = async (admin: object) => { 
       const mapComponent = mapRef.value
       mapComponent.reset_all_feature_styles()
-      let feature = mapComponent.select_feature(admin.shapeID, null) 
+      let feature = await mapComponent.select_feature(admin.name, null) 
+      selected_feature.value = null
       let shape = null
       if(!feature){
-        shape = adminZeroFeatures.features.filter(el => el.properties.shapeID == admin.shapeID)
+        selected_feature.value = feature
+        shape = adminZeroFeatures.features.filter(el => el.properties.shapeID == admin.name)
         if(shape.length == 0){
-          shape = adminOneFeatures.features.filter(el => el.properties.shapeID == admin.shapeID)
+          shape = adminOneFeatures.features.filter(el => el.properties.shapeID == admin.name)
         }
         if(shape.length == 0){
-          shape = adminTwoFeatures.features.filter(el => el.properties.shapeID == admin.shapeID)
+          shape = adminTwoFeatures.features.filter(el => el.properties.shapeID == admin.name)
+        }
+        if(shape.length == 0){
+          shape = adminThreeFeatures.features.filter(el => el.properties.shapeID == admin.name)
         }
         if(shape.length !== 0){ 
-          const layer = mapComponent.add_feature(shape[0])    
+          const layer = mapComponent.add_feature(shape[0], shape[0].shapeID)    
           //search again
-          feature = mapComponent.select_feature(admin.shapeID, layer)
+          feature = await mapComponent.select_feature(admin.name, layer)
         }
       }
+      return
+      /*
       if(feature){
         //get_map_instance().fitBounds(feature.getBounds())
         mapComponent.zoom_to_feature(feature)
@@ -498,7 +506,7 @@ export default defineComponent({
           //   ]
           // })
         })
-      } 
+      } */
     }
 
     const getRaster = async (shape: object, feature: object) => { 
@@ -508,7 +516,7 @@ export default defineComponent({
       //get_map_instance().fitBounds(feature.getBounds())
       return raster
     }
-
+ 
     const showRasterStats = (data: object) => {
       Dialog.create({
         position: 'bottom',
@@ -544,16 +552,16 @@ export default defineComponent({
       })
     }
 
-    const toggle_analysis = (val: string, show: boolean) => { 
-      if(show){
+    const toggle_analysis = (analysis_name: string, vector_id: string, admin_level: number, show: boolean) => { 
+      if(show){ 
         //check if the layer exists or not
-        let exists = mapRef.value.analysis_exists(val)
+        let exists = mapRef.value.analysis_exists(analysis_name)
         if(exists) {
-          mapRef.value.remove_analysis(val) //remove the layer first to allow for redraw
+          mapRef.value.remove_analysis(analysis_name) //remove the layer first to allow for redraw
         }
-        mapRef.value.add_analysis(val);
+        mapRef.value.add_analysis(analysis_name, vector_id, admin_level);
       } else {
-        mapRef.value.remove_analysis(val)
+        mapRef.value.remove_analysis(analysis_name)
       }      
     }
 
@@ -579,8 +587,9 @@ export default defineComponent({
       setModelAdminOne,
       setModelAdminTwo,
       setModelAdminThree,
-      selectShape,
-      toggle_analysis
+      select_shape,
+      toggle_analysis,
+      
      }
   }
 })

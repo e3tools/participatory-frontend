@@ -17,6 +17,7 @@
     "@vuelidate/core": "^2.0.3",
     "@vuelidate/validators": "^2.0.4",
     "axios": "^1.2.1",
+    "deepdash-es": "^5.3.9",
     "echarts": "^5.4.3",
     "frappe-ui": "^0.1.18",
     "leaflet": "^1.9.4",
