@@ -24,6 +24,8 @@ import { AppUtil } from 'src/utils/app'
 import { onUnmounted } from 'vue'
 import { useQuasar } from 'quasar';
 
+const ENABLE_TILES = true;
+
 export default defineComponent({
   name: 'BasicMap',
   props: ['datasource_type', 'style_field', 'center'],
@@ -208,7 +210,7 @@ export default defineComponent({
      * @param data 
      * @param url 
      */
-    const set_datasource = async (analysis_name:string, data=null, url=null, label='Dataset', data_type=DATA_TYPE.GEOJSON, style_field=null, legend_items: ILegendItem[]=[]) => { 
+    const set_datasource = async (analysis_name:string, data=null, url=null, label='Dataset', data_type=DATA_TYPE.GEOJSON, style_field=null, legend_items: ILegendItem[]=[], layer_name: string=null) => { 
       if(data && url){ 
         throw('Data and URL cannot be supplied at the same time. Provide one or the other')
       }  
@@ -224,12 +226,19 @@ export default defineComponent({
           const d = await fetchGeoJson()  
           map_data.value.push({ 'datatype': data_type, 'data': data, 'label': label, style_field, 'legend_items': legend_items });
         }   
+        const layer = add_geojson_layer(data, label);
+        map_data.value[map_data.value.length - 1]['layer'] = layer
       }
-      else if (data_type == DATA_TYPE.RASTER){
-        console.log("Raster data");
+      else if (data_type == DATA_TYPE.RASTER){ 
         const bounds = get_selected_feature()?.getBounds();
-        add_image_overlay(url, analysis_name, bounds);
-
+        map_data.value.push({ 'datatype': data_type, 'data': url, 'label': label, style_field, 'legend_items': legend_items });
+        let raster_layer = null;
+        if(!ENABLE_TILES){
+          raster_layer = add_image_overlay(url, analysis_name, bounds);
+        } else {
+          raster_layer = add_tile_layer(url, layer_name);
+        } 
+        map_data.value[map_data.value.length - 1]['layer'] = raster_layer;
         //show the clipped vector
         //show raster on top of the clipped vector
       }
@@ -242,7 +251,7 @@ export default defineComponent({
     const make_legend = (analysis_doc: object) => {
       let legend_items = []
       let analysis_type = analysis_doc?.analysis_type;
-      for(let i=0; i < analysis_doc?.legend.length; i++) {
+      for(let i=0; i < analysis_doc?.legend?.length; i++) {
         let itm = analysis_doc.legend[i]
         let cfg = {} as ILegendItem
         cfg.color = itm.color
@@ -648,11 +657,13 @@ export default defineComponent({
       //url = 'http://kmddl.meteo.go.ke:8081/SOURCES/.KMD/.Kenya_v03r05/.ALL/.Rainfall/.daily/.precip/%28TotRain%29%28seasonalStat%29cvn/parameter/%28PerDA%29eq/%7Bdataflag%7Dif/%281%29%28DayStart%29cvn/parameter/%28%20%29append/%28Jul%29%28seasonStart%29cvn/parameter/append/%28%20-%20%29append/%2830%29%28DayEnd%29cvn/parameter/append/%28%20%29append/%28Sep%29%28seasonEnd%29cvn/parameter/append/5/%28spellThreshold%29cvn/parameter/1/%28wetThreshold%29cvn/parameter/0.0/%28seasonalStat%29cvn/get_parameter/%28TotRain%29eq/%7Bnip/nip/flexseastotAvgFill//units//mm/def/40.0//probExcThresh1/parameter%7Dif/%28seasonalStat%29cvn/get_parameter/%28NumWD%29eq/%7B3/-1/roll/pop/flexseasonalfreqGT/30.0//probExcThresh2/parameter%7Dif/%28seasonalStat%29cvn/get_parameter/%28NumDD%29eq/%7B3/-1/roll/pop/flexseasonalfreqLT/30.0//probExcThresh3/parameter%7Dif/%28seasonalStat%29cvn/get_parameter/%28RainInt%29eq/%7B3/-1/roll/pop/flexseasonalmeandailyvalueGT//units/%28mm/day%29def/10.0//probExcThresh4/parameter%7Dif/%28seasonalStat%29cvn/get_parameter/%28NumDS%29eq/%7BflexseasonalnonoverlapDSfreq//units//spells/def/3.0//probExcThresh5/parameter%7Dif/%28seasonalStat%29cvn/get_parameter/%28NumWS%29eq/%7BflexseasonalnonoverlapWSfreq//units//spells/def/3.0//probExcThresh6/parameter%7Dif/%28PoE%29%28yearlyStat%29cvn/parameter/%28CoV%29eq/%7Bpop/dup%5BT%5Drmsaover/exch%5BT%5Daverage/div//percent/unitconvert/%28%20%29exch%7Dif/startcolormap/DATA/0/100/RANGE/transparent/black/navy/0/VALUE/navy/navy/2/bandmax/blue/blue/6/bandmax/DeepSkyBlue/DeepSkyBlue/12/bandmax/aquamarine/aquamarine/20/bandmax/PaleGreen/PaleGreen/25/bandmax/moccasin/moccasin/30/bandmax/yellow/yellow/40/bandmax/DarkOrange/DarkOrange/50/bandmax/red/red/60/bandmax/DarkRed/DarkRed/80/bandmax/brown/brown/100/bandmax/brown/endcolormap/%28yearlyStat%29cvn/get_parameter/%28CoV%29eq/%7BDATA/0/50/RANGE%7Dif/%28yearlyStat%29cvn/get_parameter/%28Var%29eq/%7Bpop/units/exch//units/undef%5BT%5Dstddev/Infinity/maskge/dup/mul/DATA/0/AUTO/RANGE/exch//units/exch/cvntos/%282%29append/cvn/def/%28%20%29exch%7Dif/%28yearlyStat%29cvn/get_parameter/dup/%28PoE%29eq/exch/%28PonE%29eq/or/%7B//probExcThresh/parameter/exch/units/3/-2/roll/exch/flaggt%5BT%5Daverage//yearlyStat/get_parameter/%28PoE%29ne/%7B-1/mul/1/add%7Dif//percent/unitconvert/correlationcolorscale/DATA/0/100/RANGE/exch/cvntos/%28%20%29exch//probExcThresh/get_parameter/s==/exch/%28%20%29exch/%28%20%295/array/astore/concat/exch%7Dif/exch/%28yearlyStat%29cvn/get_parameter/exch/%28in%20%29lpar/%28seasonStart%29cvn/get_parameter/%28%20%29%28DayStart%29cvn/get_parameter/%28%20-%20%29%28seasonEnd%29cvn/get_parameter/%28%20%29%28DayEnd%29cvn/get_parameter/rpar/12/array/astore/concat/%28long_name%29cvn/exch/def/%28name%29cvn/%28proba%29cvn/def/a-/-a/SOURCES/.WORLDBATH/.bath/X/32/43/RANGE/Y/-6/6/RANGE/1/index/SOURCES/.Features/.Political/.Kenya/a:/.Wards/.the_geom/:a:/.SubCounties/.the_geom/:a:/.Counties/.the_geom/:a/X/Y/fig-/colors/colors/||/colors/grey/verythin/stroke/stroke/black/thinnish/stroke/-fig/%28antialias%29cvn/true/psdef/%28framelabel%29cvn/%28seasonalStat%29cvn/get_parameter/%28TotRain%29eq/%7B%28Total%20Rainfall%29%7Dif/%28seasonalStat%29cvn/get_parameter/%28NumWD%29eq/%7B%28Number%20of%20Wet%20Days%20-%20days%20above%20%29//wetThreshold/get_parameter/s==/append/%28%20mm%29append%7Dif/%28seasonalStat%29cvn/get_parameter/%28NumDD%29eq/%7B%28Number%20of%20Dry%20Days%20-%20days%20below%20%29//wetThreshold/get_parameter/s==/append/%28%20mm%29append%7Dif/%28seasonalStat%29cvn/get_parameter/%28RainInt%29eq/%7B%28Rainfall%20Intensity%20-%20average%20daily%20rainfall%20for%20days%20above%20%29//wetThreshold/get_parameter/s==/append/%28%20mm%29append%7Dif/%28seasonalStat%29cvn/get_parameter/%28NumDS%29eq/%7B%28Number%20of%20Dry%20Spells%20-%20%29//spellThreshold/get_parameter/s==/append/%28%20or%20more%20continuous%20days%20below%20%29append//wetThreshold/get_parameter/s==/append/%28%20mm%29append%7Dif/%28seasonalStat%29cvn/get_parameter/%28NumWS%29eq/%7B%28Number%20of%20Wet%20Spells%20-%20%29//spellThreshold/get_parameter/s==/append/%28%20or%20more%20continuous%20days%20above%20%29append//wetThreshold/get_parameter/s==/append/%28%20mm%29append%7Dif/psdef/%28layers%29cvn%5B%28proba%29cvn/%28SubCounties%29cvn/%28Counties%29cvn%5Dpsdef/wms.xml?plotaxislength=840'
       //url = 'http://thredds.northwestknowledge.net:8080/thredds/wms/TERRACLIMATE_ALL/data/TerraClimate_ws_2022.nc?REQUEST=GetLegendGraphic&LAYER=ws&PALETTE=invblues_11'
       //layer = 'ws'
-      current_layer.value = L.tileLayer.wms(url, {
+      const wms_layer = L.tileLayer.wms(url, {
             layers: layer,
             transparent: true,
             format: 'image/png'
-        }).addTo(map_instance)  
+        }).addTo(map_instance);
+      current_layer.value = wms_layer;
+      return wms_layer;
     }
 
     const add_image_overlay = (url: '', layer: '', bounds: object) => {
@@ -668,9 +679,9 @@ export default defineComponent({
       var errorOverlayUrl = 'https://cdn-icons-png.flaticon.com/512/110/110686.png';
       var altText = 'Image of Newark, N.J. in 1922. Source: The University of Texas at Austin, UT Libraries Map Collection.';
       var latLngBounds = bounds// L.latLngBounds([[40.799311, -74.118464], [40.68202047785919, -74.33]]);
-     if(image_overlay){
-        map_instance.removeLayer(image_overlay)
-     }
+      if(image_overlay){
+          map_instance.removeLayer(image_overlay)
+      }
       image_overlay = L.imageOverlay(url, latLngBounds, {
           //opacity: 1.0,
           errorOverlayUrl: url, // errorOverlayUrl,
@@ -681,6 +692,7 @@ export default defineComponent({
       //L.rectangle(latLngBounds).addTo(map_instance);
       map_instance.fitBounds(latLngBounds);
       image_overlay.bringToFront();
+      return image_overlay;
     }
 
     onMounted(() => {
@@ -717,12 +729,13 @@ export default defineComponent({
       //if (Object.keys(map_data.value).length !== 0) {
       if (currVal.length !== 0) {
         // Add to the map 
+        /*
         map_data.value.forEach((el, idx) => { 
           if(el.datatype == 'geojson'){
             let layer = add_geojson_layer(el['data'], el['label']);
             map_data.value[idx]['layer'] = layer
           }  
-        }) 
+        }) */
       }
     })  
 
@@ -761,7 +774,21 @@ export default defineComponent({
           }
           if(doc.datasource_type == DATASOURCE.RASTER){
             // The style_field is the analysis_name as the computation adds a new property analysi_name
-            set_datasource(analysis_name, null, AppUtil.get_full_backend_url(res.result['rasterfile']), doc.analysis_name, DATA_TYPE.RASTER, analysis_name, legend_items)
+            let url = AppUtil.get_full_backend_url(res.result['rasterfile']);
+            let layer_name = doc.analysis_name;
+            if(ENABLE_TILES){
+              url = res.result['tiles']['url'];
+              layer_name = res.result['tiles']['layer'];
+            }
+            set_datasource(
+                    analysis_name, 
+                    null, 
+                    url, 
+                    doc.analysis_name, 
+                    DATA_TYPE.RASTER, 
+                    analysis_name, 
+                    legend_items,
+                    layer_name)
             .then(res => {          
               add_legend_v2(doc.analysis_name, legend_items, doc.analysis_name);
               $q.loading.hide();
@@ -830,8 +857,15 @@ export default defineComponent({
         if(opacities) {
           for (const [key, value] of Object.entries(opacities)) {
             let mp = get_analysis(key);
-            //mp.layer.setOpacity(value);        
-            mp?.layer?.setStyle({ opacity: value });
+            //mp.layer.setOpacity(value);
+            if(mp){     
+              if(mp.datatype == DATA_TYPE.VECTOR){
+                mp?.layer?.setStyle({ opacity: value });
+              }
+              else if (mp.datatype == DATA_TYPE.RASTER){
+                mp?.layer?.setParams({ 'opacity': value });
+              }
+            }
           }
         }
       },

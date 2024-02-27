@@ -31,7 +31,7 @@ class TechnicalAnalysisService /* extends DocTypeService*/ {
     const res = await this.backend.call_api_endpoint('get_computation', {
       analysis_name, vector_id, admin_level 
     });
-    if (res.type == DATA_TYPE.RASTER){
+    if (res?.type == DATA_TYPE.RASTER){
       res.result = AppUtil.backendURL + res.result
     }
     return res
