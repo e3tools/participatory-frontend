@@ -2,11 +2,10 @@
   <div>
     <q-dialog v-model="display" :style="card_style">
       
-      <q-bar class="bg-primary text-white" v-touch-pan.mouse="onPan">
+      <!-- <q-bar class="bg-primary text-white" v-touch-pan.mouse="onPan">
         <div>Dragme</div>
-        <q-space></q-space>
-        <!-- <q-btn dense flat icon="close" @click="hideSelf()"></q-btn> -->
-      </q-bar>
+        <q-space></q-space> 
+      </q-bar> -->
       
       <q-card style="width: 300px;" class="q-px-sm q-pb-sm">        
         <q-toolbar>
@@ -40,7 +39,7 @@
                 <q-checkbox v-model="visible_analyses[analysis.name]" @update:model-value ="toggle_analysis(analysis.name)" />
               </q-item-section>
               <q-item-section>
-                <q-slider color="teal" v-model="opacities[analysis.name]" :step="0.1" :min="0" :max="1" label />
+                <q-slider color="teal" v-model="opacities[analysis.name]" :step="0.1" :min="0" :max="1" label @pan="on_opacity_slider_focus(analysis.name)" />
               </q-item-section>
             </q-item>
           </q-list>
@@ -140,13 +139,14 @@ export default defineComponent({
       technical_analyses.value = recs
       recs.forEach(el => {
         visible_analyses.value[el.name] = false
-        opacities.value[el.name] = 0
+        opacities.value[el.name] = 0.5
       })      
     }) 
 
     const visible_analyses = ref({})
     const opacities = ref({}) 
     const vector_select_ref = ref(null);
+    const slider_ref = ref(null);
 
     watch(visible_analyses.value, (newVal, oldVal) => {
       // console.log("Visible analysis changed3")
@@ -154,7 +154,7 @@ export default defineComponent({
 
     watch(opacities.value, (newVal, oldVal) => {  
       if(opacities.value){
-        ctx.emit('update-opacity', opacities.value)
+        ctx.emit('update-opacity', opacities.value, slider_ref.value);
       }
       // for (const [key, value] of Object.entries(opacities.value)) {
       //   // let mp = get_analysis(key);
@@ -182,7 +182,11 @@ export default defineComponent({
       return {
         transform: `translate(${card_pos.x}px, ${card_pos.y}px)`
       } 
-    })
+    });
+
+    const on_opacity_slider_focus = (analysis_name) => { 
+      slider_ref.value = analysis_name;
+    }
     return {
       display,
       temperature: ref(false),
@@ -204,7 +208,9 @@ export default defineComponent({
         ctx.emit('select-admin', admin);
       },
       onPan,
-      card_style
+      card_style,
+      on_opacity_slider_focus,
+      slider_ref
     }
   }
 })

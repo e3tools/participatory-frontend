@@ -34,8 +34,10 @@ class VectorService {
   /**
    * Returns a complete list of admins with children objects set
    */
-  static async get_admin_tree() {
-    const res = await this.backend.call_api_endpoint('get_all_admins');
+  static async get_admin_tree(as_tree: boolean=true) {
+    const res = await this.backend.call_api_endpoint('get_all_admins', {
+      as_tree: as_tree 
+    });
     return res
   }
 

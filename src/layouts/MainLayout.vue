@@ -239,9 +239,21 @@
         </q-expansion-item>
         
 
+        <q-item 
+            :to="'/map'" 
+            active-class="q-item-no-link-highlighting">
+          <q-item-section avatar>
+            <q-icon name="person"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{ t('MAIN_LAYOUT.NAVIGATOR.DIAGNOSTICS_TITLE') }}</q-item-label>
+          </q-item-section>
+        </q-item>
+
         <q-expansion-item
           icon="dashboard"
           :label="t('MAIN_LAYOUT.NAVIGATOR.DIAGNOSTICS_TITLE')"
+          v-show="false"
         >
           <q-list class="q-pl-lg">
             <q-item v-for="analysis in analyses" :key="analysis.name"
@@ -261,6 +273,7 @@
         <q-expansion-item
           icon="troubleshoot"
           :label="t('MAIN_LAYOUT.NAVIGATOR.DIAGNOSTICS_TITLE')"
+          v-show="false"
         >
           <q-list class="q-pl-lg">
             <q-item
@@ -446,7 +459,7 @@
     </q-drawer>
     
      <!-- place QPageSticky at end of page -->
-     <q-page-sticky expand position="top">
+     <q-page-sticky v-show="show_sticky_header" expand position="top">
         <q-toolbar class="bg-accent text-white">
           <q-avatar>
             <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg">
@@ -476,7 +489,7 @@
 
       </q-page-sticky>
     
-    <q-page-container class="q-mt-lg">
+    <q-page-container :class="show_sticky_header && 'q-mt-lg'">
       <router-view /> 
     </q-page-container>
   </q-layout>
@@ -574,7 +587,8 @@ export default defineComponent({
     const user = ref(AppUtil.get_current_user())  
     const aboutDlgVisible = ref(false)
     const engagementStore = useEngagementStore()
-    const navigate = (path: string, params: object={}) => AppUtil.route_to_path(path, params)
+    const navigate = (path: string, params: object={}) => AppUtil.route_to_path(path, params);
+    const show_sticky_header = ref(false);
 
     const userInitials = ref()
     userInitials.value = AppUtil.get_current_user_initials() 
@@ -656,6 +670,10 @@ export default defineComponent({
       analyses,
       navigateEngagement,
       navigate,
+      show_sticky_header,
+      toggle_inner_header: (show) => {
+        show_sticky_header.value = show
+      }
     }
   }
 })

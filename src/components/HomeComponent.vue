@@ -16,7 +16,7 @@
       </q-img> -->
 
       <q-img
-        src="../assets/images/pp3.jpeg"
+        src="../assets/images/flloca.jpeg"
         basic
       >
       </q-img>

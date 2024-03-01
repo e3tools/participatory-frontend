@@ -1,4 +1,85 @@
 <template>
+  <div v-show="true" class="q-gutter-md row">
+      <q-select
+        class="column"
+        filled
+        v-model="selected_admin"
+        use-input
+        fill-input
+        hide-selected
+        input-debounce="0"
+        :label="t('MAP_PAGE.SEARCH_REGION')"
+        :options="filtered_admins"
+        @filter="filter_admins"
+        @input-value="set_selected_admin"
+        @update:model-value="select_admin"
+        style="max-width: 250px"
+        behavior="menu"
+        option-label="admin_name"
+        option-value="name"
+      >
+        <template v-slot:no-option>
+          <q-item>
+            <q-item-section class="text-grey">
+              No data
+            </q-item-section>
+          </q-item>
+        </template>
+      </q-select>
+
+      <!-- <q-btn flat color="primary" label="Map Settings" icon="settings">
+      <q-menu>
+        <div class="row no-wrap q-pa-md">
+          <div class="column">           
+            <div class="text-h6 q-mb-md">Settings</div>
+            <q-toggle v-model="mobileData" label="Use Mobile Data" />
+            <q-toggle v-model="bluetooth" label="Bluetooth" />
+          </div>
+
+          <q-separator vertical inset class="q-mx-lg" />
+
+          <div class="column items-center">
+            <q-avatar size="72px">
+              <img src="https://cdn.quasar.dev/img/avatar4.jpg">
+            </q-avatar>
+
+            <div class="text-subtitle1 q-mt-md q-mb-xs">John Doe</div>
+
+            <q-btn
+              color="primary"
+              label="Logout"
+              push
+              size="sm"
+              v-close-popup
+            />
+          </div>
+        </div>
+      </q-menu>
+    </q-btn> -->
+    <q-separator vertical inset class="q-mx-none" />
+    <map-settings 
+        class="column"
+        @toggle-analysis="do_toggle" 
+        @select-admin="select_admin"
+        @update-opacity="update_opacity" 
+    />
+    </div> 
+
+  <div v-show="false" class="row no-wrap shadow-1">
+      <q-toolbar class="col-12" :class="$q.dark.isActive ? 'bg-grey-9 text-white' : 'bg-grey-3'">
+        <q-btn flat round dense icon="menu" />
+        <!-- <q-toolbar-title>Title</q-toolbar-title> -->
+        <q-btn flat round dense icon="search" />
+        <q-select label="TEEE" model-value="cow"/>
+        <q-space />
+        <map-settings />
+      </q-toolbar>
+      <!-- <q-toolbar class="col-4 bg-primary text-white">
+        <q-space />        
+        <q-btn flat round dense icon="bluetooth" class="q-mr-sm" />
+        <q-btn flat round dense icon="more_vert" />
+      </q-toolbar> -->
+  </div>
   <div class="q-pa-sm" :id="map_id">
     <map-query-dialog ref="map_query_dialog_ref" 
         @toggle-analysis="do_toggle" 
@@ -30,7 +111,8 @@ export default defineComponent({
   name: 'BasicMap',
   props: ['datasource_type', 'style_field', 'center'],
   components: {
-    'map-query-dialog': defineAsyncComponent(()=> import('../map/MapQueryDialog.vue'))
+    'map-query-dialog': defineAsyncComponent(()=> import('../map/MapQueryDialog.vue')),
+    'map-settings': defineAsyncComponent(() => import('../map/MapSettings.vue')),
   },
   setup (props, ctx) {
     const $q = useQuasar();
@@ -49,6 +131,15 @@ export default defineComponent({
     const route = useRoute()
     let analysis_doc = null;
     const selected_feature = ref(null);
+    const all_admins = ref([]);
+    const filtered_admins = ref([]);
+    const selected_admin = ref(null);
+    const t = (text) => AppUtil.translate(text);
+     
+    VectorService.get_admin_tree(false).then((res) => {
+      filtered_admins.value = res;
+      all_admins.value = [...res];
+    });
 
     const map_options = {
       center: L.latLng(props.center ? props.center : [-0.437099, 36.958010/*27.0902, -95.7129*/]),
@@ -379,14 +470,14 @@ export default defineComponent({
       return layer_group
     }
     
-    const style_feature = (feature: object) => { 
+    const style_feature = (feature: object) => {  
       return {
         fillColor: get_color_v2(feature.properties[feature.style_field], feature.style_field), // get_color(feature.properties[feature.style_field]),
         weight: 2,
         opacity: 1,
         color: 'white',
         dashArray: '3',
-        fillOpacity: 0.9,// 0.7
+        fillOpacity: 0,// 0.9,// 0.7
       }
     }
 
@@ -450,18 +541,8 @@ export default defineComponent({
      * @param e 
      */
      const highlight_feature = (e) => {
-      const layer = e.target
-
-      select_feature(layer);
-      // layer.setStyle({
-      //   weight: 5,
-      //   color: '#666',
-      //   dashArray: '',
-      //   fillOpacity: 0.7
-      // })
-
-      // layer.bringToFront()
-      // info_control.update(layer.feature.properties)
+      const layer = e.target;
+      select_feature(layer); 
     }
     
     /**
@@ -508,7 +589,8 @@ export default defineComponent({
           weight: 5,
           color: '#666',
           dashArray: '',
-          fillOpacity: 0.7
+          opacity: 1,
+          fillOpacity: 0,// 0.7
         })
 
         feature.bringToFront()
@@ -660,7 +742,8 @@ export default defineComponent({
       const wms_layer = L.tileLayer.wms(url, {
             layers: layer,
             transparent: true,
-            format: 'image/png'
+            format: 'image/png',
+            opacity: 1.0
         }).addTo(map_instance);
       current_layer.value = wms_layer;
       return wms_layer;
@@ -820,6 +903,14 @@ export default defineComponent({
 
     const get_selected_feature = () => selected_feature.value;
 
+    const select_admin = (admin) => {
+        console.log("New admin is ", admin);
+        selected_admin.value = admin;
+        select_feature(admin.name, admin.level, null).then(()=> {
+          console.log("Admin selected");
+        });
+    }
+
     const map_query_dialog_ref = ref(null)
     onUnmounted(() => {
       $q.loading.hide();
@@ -842,20 +933,20 @@ export default defineComponent({
       zoom_to_feature,     
       add_analysis,
       do_toggle: function(analysis_name, show) { 
-        const selected_admin = map_query_dialog_ref.value.get_selected_admin();        
-        ctx.emit('toggle-analysis', analysis_name, selected_admin?.name, selected_admin?.level, show);
+        //const selected_admin = map_query_dialog_ref.value.get_selected_admin();
+        if(selected_admin.value){
+          ctx.emit('toggle-analysis', analysis_name, selected_admin.value?.name, selected_admin.value?.level, show);
+        } else {
+          AppUtil.notify_error(t('MAP_PAGE.MESSAGES.NO_SELECTED_ADMIN'));
+        }
       },
-      select_admin: (admin) => {
-        console.log("New admin is ", admin);
-        select_feature(admin.name, admin.level, null).then(()=> {
-          console.log("Admin selected");
-        });
-      },
-      update_opacity: function(opacities: object){
-        //alert('opacity changing...')
-        //ctx.emit('update-opacity')
+     
+      update_opacity: function(opacities: object, analysis_name: string){ 
         if(opacities) {
           for (const [key, value] of Object.entries(opacities)) {
+            if(analysis_name != key) {
+              continue
+            } 
             let mp = get_analysis(key);
             //mp.layer.setOpacity(value);
             if(mp){     
@@ -863,14 +954,35 @@ export default defineComponent({
                 mp?.layer?.setStyle({ opacity: value });
               }
               else if (mp.datatype == DATA_TYPE.RASTER){
-                mp?.layer?.setParams({ 'opacity': value });
+                mp?.layer?.setOpacity(value);
               }
             }
           }
         }
       },
       analysis_exists,
-      remove_analysis
+      remove_analysis, 
+      all_admins,
+      filtered_admins,
+      selected_admin,
+      filter_admins: (val, update) => {
+        if (val === '') {
+          update(() => { 
+            filtered_admins.value = all_admins.value; 
+          })
+          return
+        }
+
+        update(() => {
+          const needle = val.toLowerCase(); 
+          filtered_admins.value = all_admins.value.filter(v => v.admin_name.toLowerCase().indexOf(needle) > -1); 
+        })
+      },
+      set_selected_admin: (val) => { 
+        //selected_admin.value = val;
+      },
+      select_admin,
+      t
     }
   }
 })

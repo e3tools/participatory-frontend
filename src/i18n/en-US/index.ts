@@ -89,7 +89,7 @@ export default {
       DASHBOARD: 'Dashboards',
       ENGAGEMENTS: 'Engage',
       USER_PROFILE: 'User Profile',
-      DIAGNOSTICS_TITLE: 'Map Diagnostics',
+      DIAGNOSTICS_TITLE: 'Diagnostics',
       REPORTS_TITLE: 'Reports',
       ACTION_PLANS_TITLE: 'Action Plans',
       REFERENCE_RESOURCES_TITLE:  'References & Downloads',
@@ -148,6 +148,10 @@ export default {
   MAP_PAGE: {
     SET_OPTIONS: 'Set Options',
     OVERLAYS: 'Overlays',
+    SEARCH_REGION: 'Search region',
+    MESSAGES: {
+      NO_SELECTED_ADMIN: 'Please select a region'
+    }
     // TEMPERATURE: 'Temperature',
     // RAINFALL: 'Rainfall',
     // PRECIPITATION: 'Precipitation'

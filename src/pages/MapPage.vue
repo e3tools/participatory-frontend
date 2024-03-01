@@ -1,7 +1,7 @@
 <template>
   <q-page padding>    
     <!-- content -->
-    <q-card class="bg-transparent no-shadow no-border" bordered>
+    <q-card v-show="false" class="bg-transparent no-shadow no-border" bordered>
       <q-card-section class="q-pa-none">
 
         <div v-show="false" class="row no-wrap q-col-gutter-sm q-ma-sm shadow-1">

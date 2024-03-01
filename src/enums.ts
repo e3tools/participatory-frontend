@@ -7,8 +7,8 @@ const APPS = {
 }
 
 const URLS = {
-    BACKEND: "http://10.120.108.101:8003",
-    //BACKEND: "http://192.168.101.6:8000"
+    //BACKEND: "http://10.120.108.101:8003",
+    BACKEND: "http://192.168.101.6:8000"
 }
 
 const LEGEND_TYPE = {
