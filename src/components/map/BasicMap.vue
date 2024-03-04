@@ -86,6 +86,23 @@
         @select-admin="select_admin"
         @update-opacity="update_opacity" />
   </div>  
+  <map-legend ref="legendGeneratorRef" v-show="false">
+
+  </map-legend>
+  <div class="q-pa-none" ref="legend_container">
+    <q-dialog v-model="show_legend" persistent position="right">
+      <q-card class="q-pa-none">
+        <q-bar>
+          <q-space />
+          <q-btn dense flat icon="close" v-close-popup>            
+          </q-btn>
+        </q-bar>
+        <q-card-section v-for="legend in legends" :key="legend.name">
+          <map-legend :analysis_name="legend.analysis_name" :title="legend.analysis_name"/>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+  </div>
 </template>
  
 <script lang="ts">
@@ -94,7 +111,7 @@ import { defineAsyncComponent, defineComponent, onMounted, ref } from 'vue'
 import L from 'leaflet' 
 import 'leaflet/dist/leaflet.css'
 import { watchEffect } from 'vue'
-import { reactive, watch } from 'vue'  
+import { reactive, watch, computed } from 'vue'  
 import { useRoute } from 'vue-router' 
 import { ILegendItem } from '../../interfaces'
 import { LEGEND_TYPE, DATASOURCE, DATA_TYPE, OPERATOR } from '../../enums'
@@ -103,7 +120,8 @@ import { TechnicalAnalysisService } from 'src/services/TechnicalAnalysisService'
 import { VectorService } from 'src/services/VectorService'
 import { AppUtil } from 'src/utils/app'
 import { onUnmounted } from 'vue'
-import { useQuasar } from 'quasar';
+import { useQuasar } from 'quasar'; 
+import { transpileModule } from 'typescript'
 
 const ENABLE_TILES = true;
 
@@ -113,13 +131,16 @@ export default defineComponent({
   components: {
     'map-query-dialog': defineAsyncComponent(()=> import('../map/MapQueryDialog.vue')),
     'map-settings': defineAsyncComponent(() => import('../map/MapSettings.vue')),
+    'map-legend': defineAsyncComponent(() => import('../map/MapLegend.vue')),
   },
   setup (props, ctx) {
     const $q = useQuasar();
     const map_id = 'map-div'
-    let layer_control_instance = null
-    let map_instance = null
-    let map_data = ref([]) 
+    let layer_control_instance = null;
+    let map_instance = null;
+    let map_data = ref([]);
+    const legends = ref([]);
+    const legendGeneratorRef = ref(null);
     
     let datasource = ref({})
     let geojson_layer = null
@@ -382,12 +403,17 @@ export default defineComponent({
       return res != null
     }
 
+    const remove_legend = (legend_name) => {
+      legends.value = legends.value?.filter(el => el.analysis_name != legend_name);
+    }
+
     const remove_analysis = (label: string) => {
       let layers = layer_control_instance?._layers.slice(); 
       for(let i=0; i < layers?.length; i++){
         let layer = layers[i];
         if(/*layer.name == label &&*/ layer.overlay){
           layer_control_instance.removeLayer(layer.layer);
+          remove_legend(label);
         }
       }
 
@@ -395,9 +421,9 @@ export default defineComponent({
       items.forEach((el)=> {
         //remove the layer
         if(el.layer){
-          if(map_instance.hasLayer(el.layer)){
-            console.log("Has layer")
-            map_instance.removeLayer(el.layer);  
+          if(map_instance.hasLayer(el.layer)){            
+            map_instance.removeLayer(el.layer);
+            remove_legend(label);  
           }
         }
         if(el.legend){
@@ -444,8 +470,6 @@ export default defineComponent({
           //   on_each_feature: on_each_feature,
           //   style: style_feature
           // }).addTo(map_instance)
-
-          
 
           layer = L.geoJson(data, {
             on_each_feature: on_each_feature,
@@ -729,6 +753,72 @@ export default defineComponent({
       legend.addTo(map_instance)
     }
 
+    const add_legend_v3 = (analysis_name: string, items: ILegendItem[], title:string) => { 
+      let exists = false;
+      for(let i=0; i < legends.value?.length; i++){
+        if(legends.value[i].analysis_name == analysis_name) {
+          exists = true;
+          break;
+        }
+      }
+      if(exists){
+        //do nothing
+        return
+      }
+      legends.value.push({ analysis_name, title });
+      return
+      /*
+      let legend = legendGeneratorRef.value.make_legend_by_analysis(analysis_name, analysi_name);
+
+      legend_items = items
+      const legend = L.control({ position: 'bottomright' });
+      map_data.value.forEach(el => {
+        if(el.label == analysis_name) {
+          el['legend_items'] = items;
+          el['legend'] = legend;
+        }
+      });     
+
+      const labels = [`<strong>${title}</strong>`]
+      legend.onAdd = (map) => {
+
+        const div = L.DomUtil.create('div', 'info legend')
+        const grades = [0, 10, 20, 50, 100, 200, 500, 1000]
+        //const labels = []
+        let from, to
+
+        items.forEach(el => {
+          let from = el.lower_val;
+          let to = el.upper_val;
+          let color = el.color;
+          switch(el.item_type) {
+            case LEGEND_TYPE.TEXT:
+              labels.push(`<i style="background:${color}"></i> ${from}${to ? `&ndash;${to}` : '+'}`) 
+              break
+            case LEGEND_TYPE.NUMERIC:
+              labels.push(`<i style="background:${color}"></i> ${from}${to ? `&ndash;${to}` : '+'}`) 
+              break
+            case LEGEND_TYPE.DATE:
+              labels.push(`<i style="background:${color}"></i> ${from}${to ? `&ndash;${to}` : '+'}`)   
+            break
+            default:
+              break  
+          }
+          // if(el.item_type == LEGEND_TYPE.TEXT){
+          // }
+        })
+        // for(let i =0; i < grades.length; i++){
+        //   from = grades[i]
+        //   to = grades[i+1]
+
+        //   labels.push(`<i style="background:${get_color(from + 1)}"></i> ${from}${to ? `&ndash;${to}` : '+'}`) 
+        // }
+        div.innerHTML = labels.join('<br>')
+        return div
+      }
+      legend.addTo(map_instance)*/
+    }
+
     const add_tile_layer = (url: '', layer: '') => {
       //see http://thredds.northwestknowledge.net:8080/thredds/wms/TERRACLIMATE_ALL/data/TerraClimate_ws_2022.nc?service=WMS&version=1.3.0&request=GetCapabilities
       
@@ -822,6 +912,10 @@ export default defineComponent({
       }
     })  
 
+    watch(() => [...legends.value], (currVal, oldVal) => {
+        show_legend.value = legends.value?.length > 0;
+    });
+
     const add_feature = (geojson_feature: object, layer_id: string) => {
       if(geojson_layer){
         //If there is a current layer, remove
@@ -847,13 +941,14 @@ export default defineComponent({
         TechnicalAnalysisService.get_computation(doc.name, vector_id, admin_level).then((res) => {
           // Check if it is vector or raster
           if(doc.datasource_type == DATASOURCE.VECTOR){
-            let legend_items = make_legend(doc);      
+            let legend_items = make_legend(doc);     
             // The style_field is the analysis_name as the computation adds a new property analysi_name
             set_datasource(analysis_name, res.result, null, doc.analysis_name, DATA_TYPE.GEOJSON, analysis_name, legend_items)
             .then(res => {          
-              add_legend_v2(doc.analysis_name, legend_items, doc.analysis_name);
+              // add_legend_v2(doc.analysis_name, legend_items, doc.analysis_name);
+              add_legend_v3(doc.analysis_name, legend_items, doc.analysis_name);
               $q.loading.hide();
-            })       
+            });
           }
           if(doc.datasource_type == DATASOURCE.RASTER){
             // The style_field is the analysis_name as the computation adds a new property analysi_name
@@ -873,9 +968,10 @@ export default defineComponent({
                     legend_items,
                     layer_name)
             .then(res => {          
-              add_legend_v2(doc.analysis_name, legend_items, doc.analysis_name);
+              // add_legend_v2(doc.analysis_name, legend_items, doc.analysis_name);
+              add_legend_v3(doc.analysis_name, legend_items, doc.analysis_name);
               $q.loading.hide();
-            })
+            });
           }
           // if(analysis_doc.datasource_type == DATASOURCE.TABULAR){
 
@@ -904,12 +1000,12 @@ export default defineComponent({
     const get_selected_feature = () => selected_feature.value;
 
     const select_admin = (admin) => {
-        console.log("New admin is ", admin);
         selected_admin.value = admin;
         select_feature(admin.name, admin.level, null).then(()=> {
-          console.log("Admin selected");
-        });
+      });
     }
+
+    const show_legend = ref(false);
 
     const map_query_dialog_ref = ref(null)
     onUnmounted(() => {
@@ -919,8 +1015,10 @@ export default defineComponent({
       map_id,
       map_options,
       datasource: null,
+      legendGeneratorRef,
       get_map_instance: () => map_instance,
       layer_control_instance,
+      legends,
       set_datasource,
       add_tile_layer, 
       add_image_overlay,
@@ -935,10 +1033,35 @@ export default defineComponent({
       do_toggle: function(analysis_name, show) { 
         //const selected_admin = map_query_dialog_ref.value.get_selected_admin();
         if(selected_admin.value){
-          ctx.emit('toggle-analysis', analysis_name, selected_admin.value?.name, selected_admin.value?.level, show);
+          if(show){ 
+            //check if the layer exists or not
+            let exists = analysis_exists(analysis_name)
+            if(exists) {
+              remove_analysis(analysis_name) //remove the layer first to allow for redraw
+            }
+            add_analysis(analysis_name, selected_admin.value?.name, selected_admin.value?.level);
+          } 
+          else {
+            remove_analysis(analysis_name)
+          } 
+          //ctx.emit('toggle-analysis', analysis_name, selected_admin.value?.name, selected_admin.value?.level, show);
         } else {
           AppUtil.notify_error(t('MAP_PAGE.MESSAGES.NO_SELECTED_ADMIN'));
+        }        
+        /*
+        const toggle_analysis = (analysis_name: string, vector_id: string, admin_level: number, show: boolean) => { 
+          if(show){ 
+            //check if the layer exists or not
+            let exists = mapRef.value.analysis_exists(analysis_name)
+            if(exists) {
+              mapRef.value.remove_analysis(analysis_name) //remove the layer first to allow for redraw
+            }
+            mapRef.value.add_analysis(analysis_name, vector_id, admin_level);
+          } else {
+            mapRef.value.remove_analysis(analysis_name)
+          }      
         }
+      */
       },
      
       update_opacity: function(opacities: object, analysis_name: string){ 
@@ -982,7 +1105,8 @@ export default defineComponent({
         //selected_admin.value = val;
       },
       select_admin,
-      t
+      t,
+      show_legend
     }
   }
 })
