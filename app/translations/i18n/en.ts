@@ -7,9 +7,7 @@ export default {
   username: 'Username',
   password: 'Password',
   login: 'Login',
-
-  APP_NAME: 'CDD App'
-
+  APP_NAME: 'CDD App',
   GLOBAL: {
     GITHUB_NOTE: 'Development',
     FACEBOOK_NOTE: 'Join our Facebook Group!',
