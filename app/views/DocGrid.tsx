@@ -19,7 +19,8 @@ import { AppMenu } from '@/app/common/components/Menu';
 import { ExporterService } from '@/app/services/exporter'
 import ViewerWeb from '../components/shared/ViewerWeb'
 import { FileUtil } from '@/app/utils/file'
-import { IGridProps } from '@/app/interfaces/common'
+import { IGridProps } from '../ui/interfaces/ui'
+import AppLoader from '../components/shared/AppLoader'
 
 const DocGrid = (props: IGridProps, ref ) => {
   //const { columns, data, doctype, ...rest } = props; 
@@ -40,6 +41,7 @@ const DocGrid = (props: IGridProps, ref ) => {
   const [current_row, set_current_row] = React.useState(null);
   const [downloading, set_downloading] = useState(false);
   const [download_url, set_download_url] = useState('');
+  const [is_loading, set_is_loading] = useState(true);
 
   const db = new DocTypeService(doctype);  
 
@@ -57,7 +59,15 @@ const DocGrid = (props: IGridProps, ref ) => {
       query['parent'] = props.parent;
       query['parentfield'] = props.parentfield;
     }
-    config.filters = APP.make_filters(query)
+    else {
+      console.log("Docgrid params: ", params)
+      if(props.doctype == DOCTYPES.ENGAGEMENT_ENTRY){
+        if('engagement' in params){
+          query['engagement'] = params.engagement;
+        }
+      }
+    }
+    config.filters = APP.make_filters(query);
     config.order_by = GLOBALS.LISTVIEW_SORT_FIELD; 
   
     // update total rows count. Get the count from backend
@@ -77,7 +87,7 @@ const DocGrid = (props: IGridProps, ref ) => {
     let cols = [{
       'name': 'name',
       'fieldname': 'name',
-      'label': APP._('ID'),
+      'label': APP._('DOC_LIST_VIEW_PAGE.ID_COLUMN_HEADER'),
       align: 'left',
       field: 'name',
       sortable: true,
@@ -113,19 +123,23 @@ const DocGrid = (props: IGridProps, ref ) => {
   /**
    * Load data
    */
-  const load_data = async () => {
+  const load_data = async () => { 
+    set_is_loading(true);
     if(!props.is_child_table){
       // get data from server 
       const config = get_read_db_cfg();
+      console.log("Config:", config, params)
       const [recs, total_count] = await db.get_list(config, true); 
       set_data(data => recs);
       set_count(count => total_count);
+      set_is_loading(false);
     }
     else { 
       let recs = props.parentdoc?.__islocal ? [] : props.parentdoc?.[props.parentfield];
       recs = recs || props.value; //If there are existing rows, show them
       set_data(data => recs);
-    }
+      set_is_loading(false);
+    } 
   }
 
   /**
@@ -171,8 +185,16 @@ const DocGrid = (props: IGridProps, ref ) => {
   }
 
   const on_refresh = () => {
+    console.log("Refresh clicked")
     set_selected_rows([]);
-    set_page(0);
+    const page_to_load = 0;
+    // if page_to_load is same as current page, hard load data else soft load
+    if(page == page_to_load){
+      load_data();
+    } else 
+    {
+      set_page(page_to_load);
+    }
   }
 
   const open_form_view = (is_editing: boolean, row = null) => { 
@@ -277,24 +299,35 @@ const DocGrid = (props: IGridProps, ref ) => {
   const to = Math.min((page + 1) * items_per_page, count);
 
   React.useEffect(() => {
-    get_columns();
+    //set title only for major grids. Child tables appear within forms and so cannot have page title
+    if(!props.is_child_table) {
+      let pg_title = `${doctype} ${APP._('DOC_LIST_VIEW_PAGE.TITLE')}`;
+      if(params['engagement']){
+        pg_title = `${params.engagement_name} ${APP._('DOC_LIST_VIEW_PAGE.TITLE')}`;
+      } 
+      navigation.setOptions({ title: pg_title });
+    }
+    
   }, []); 
 
   React.useEffect(() => { 
     props.on_change?.(data); // update_field_store_value will be called from here
   }, [data]);
 
-  React.useEffect(() => {
-    if(columns){
-      load_data();
-    }
-  }, [items_per_page, columns, page])
  
   React.useEffect(() => {  
     get_columns().then(() => {});
   }, []); 
-  
+
+
+   React.useEffect(() => {
+    if(columns){
+      load_data();
+    }
+  }, [items_per_page, /*columns,*/ ])
+ 
   React.useEffect(() => {
+    console.log('About to load')
     if(columns){
       load_data();
     }
@@ -306,6 +339,7 @@ const DocGrid = (props: IGridProps, ref ) => {
   });
    
   return (
+    is_loading ? <AppLoader /> : 
     <View style={props.style}>
       {
         props.label && <Title>{props.label}</Title>

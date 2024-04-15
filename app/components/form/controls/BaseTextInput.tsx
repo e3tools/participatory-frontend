@@ -44,6 +44,7 @@ const BaseTextInput = (props: IDataProps) => {
         label={props.label}
         // placeholder={props.label}
         value={value}
+        disabled={props.readonly}
         mode='outlined'
         numberOfLines={props.multiline ? 3: 1}
         dense

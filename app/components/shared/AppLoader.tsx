@@ -1,8 +1,13 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { ActivityIndicator } from 'react-native-paper'
+import { string } from 'yup'
 
-export default function AppLoader({ loading_text }) {
+type Props = {
+  loading_text?: string
+}
+
+export default function AppLoader(props: Props) {
   return (
     <View style={styles.container}>
       <ActivityIndicator animating={true} style={{ flex: 1 }} size={40} />

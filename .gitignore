@@ -40,3 +40,9 @@ yarn-error.*
 expo-env.d.ts
 # @end expo-cli
 android.config.googleMaps.apiKey
+
+*.apk
+android/*
+eas_OLD.json
+
+reference_materials/*

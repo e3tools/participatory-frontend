@@ -13,6 +13,9 @@ import DocForm from "../DocForm";
 import useDynamicRefs from "@/app/hooks/dynamicRefs";
 import { GLOBALS } from "@/app/constants/defaults";
 import { UIUtil } from "@/app/utils/ui";
+import { StyleSheet } from "react-native";
+import { theme } from "@/app/core/theme";
+import { useFocusEffect } from "@react-navigation/native";
 
 const MyComponent = (props: { title: string }) => {
   return (
@@ -32,6 +35,8 @@ export default function MultiStepForm(props) {
   // const [form_refs, set_form_refs] = useState({});
   const form_refs = useRef();
   const [get_ref, set_ref] = useDynamicRefs();
+
+  const [key, set_key] = useState('');
 
   const [content, set_content] = useState([
     <MyComponent title="Component 1" />,
@@ -63,15 +68,17 @@ export default function MultiStepForm(props) {
   }, [engagement_template, docs]);
 
   useEffect(() => {  
+    navigation.setOptions({ title: `${engagement?.engagement_name}` });
+    console.log("Setting multiform title...")
   }, [engagement])
 
-  useEffect(() => {
-    //console.log("Re-render") 
-  });
+  // useEffect(() => {
+  //   //console.log("Re-render") 
+  // });
 
-  useEffect(() => {
-    navigation.setOptions({ title: `${engagement?.name}` });
-   }, []);
+  // useEffect(() => {
+  //   navigation.setOptions({ title: `${engagement?.engagement_name}` });
+  //  }, []);
   
   const on_next_step = async () => {
     const key = `form` + (step+1); //add 1 since form.idx is 1 based index while step is 0 based indexed
@@ -213,12 +220,26 @@ export default function MultiStepForm(props) {
     return contents
   }
 
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log("Multi step Focused form")
+      set_key(APP.generate_random_string());
+
+      return () => {
+        console.log("Multi step Blurred now")
+        set_key(null);
+      }
+    }, []) 
+  );
+
  
   return (
-    <View> 
-      <Stepper
+    <View key={key}> 
+      <Stepper 
         active={step}
-        buttonStyle2={{ padding: 10, borderRadius: 6, alignSelf: 'center', marginRight: 10, marginLeft: 25, backgroundColor: '#a1a1a1'}}
+        buttonStyle={styles.buttons}
+        stepStyle={styles.step}
+        buttonStyle2={{ padding: 10, borderRadius: 6, alignSelf: 'center', marginRight: 10, marginLeft: 25, backgroundColor: '#a1a1a1'}} 
         stepStyle2={{backgroundColor: '#1976d2', width: 30, height: 30, borderRadius: 30, justifyContent: 'center', alignItems: 'center', opacity: 1}}
         // content={content}
         content={content}
@@ -234,10 +255,22 @@ export default function MultiStepForm(props) {
         }
         onFinish={() => {
             on_next_step();
-            APP.alert("Finish");
+            // APP.alert("Finish");
           }
         }
       />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  buttons: {
+    backgroundColor: theme.colors.tertiary,
+    marginLeft: 20,
+    borderRadius: 5,
+    height: 40
+  },
+  step: {
+    backgroundColor: theme.colors.secondary
+  }
+})

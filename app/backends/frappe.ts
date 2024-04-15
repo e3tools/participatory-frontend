@@ -9,6 +9,7 @@ import {
 import { make_request } from '../utils/api';
 import { APPS } from '../constants/enums';
 import { GLOBALS } from '../constants/defaults';
+import { UserStore } from '../modules/auth/stores/user_store';
  
 
 /**
@@ -27,7 +28,22 @@ const Frappe = class Frappe {
     this.frappe_custom_app = APPS.FRAPPE_CUSTOM_APP;
     this.api_url = `${this.url}/api/method/${this.frappe_custom_app}.api`;
   }
-  async login(data) {
+  async login(data) {    
+    const response = await this.call_api_endpoint('login', data); 
+    console.log("Login db call res: ", response);
+    if(response && response.status_code == 200){
+      this.headers['Authorization'] = `token ${response.token}`
+      const user = await this._makeRequest(
+                                `${this.resource_url}/User/${response.name}`,
+                                'GET');//   
+      delete this.headers['Authorization']               
+      return await [true, { ...user, token: response.token }];
+    } else {
+      return [false, response?.message || 'Error occurred'];
+    } 
+  }
+
+  async login_deprecated(data) {
     //const res = await fetch(`${this.url}/api/method/login`, {
     const res = await fetch(
       `${this.url}/api/method/${this.frappe_custom_app}.api.login`,
@@ -83,7 +99,7 @@ const Frappe = class Frappe {
     body: object = {},
     data_property = 'data',
     is_upload: boolean = false,
-    is_export: boolean = false
+    is_export: boolean = false, 
   ) { 
     //this.get_headers();
     const res = await make_request(
@@ -297,6 +313,23 @@ const Frappe = class Frappe {
     return get_global_count ? [docs, total_count] : docs
   }
 
+  /***
+   * Get count of records
+   */
+  async get_count(config: IDBReadParam) {
+    let url = `${this.resource_url}/${config.doctype}`;
+    const fields = ['name'];
+    let filters = {}
+    if (config.filters) {
+      filters = JSON.stringify(config.filters); 
+    }
+    if (config.or_filters) {
+      filters = JSON.stringify(config.or_filters); 
+    } 
+    let count = await this.call_api_endpoint('get_count', { filters, doctype: config.doctype, fields: fields }, 'POST'); 
+    return count || 0;
+  }
+
   /**
    * Get PDF
    * @param doctype Name of the model
@@ -327,12 +360,12 @@ const Frappe = class Frappe {
       method: 'GET',
       headers: this.headers,
     });
-    if (res.status == 200) {
+    if (res?.status == 200) {
       const blob = await res.blob();
       const file = await window.URL.createObjectURL(blob);
       window.location.assign(file);
     } else {
-      this.$popIt.error('Error', res.statusText);
+      this.$popIt.error('Error', res?.statusText);
     }
   }
 };

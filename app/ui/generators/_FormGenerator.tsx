@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import { FIELD_TYPE, SPECIAL_TEXT_FIELD_TYPE } from "@/app/constants/enums";
 import { Dimensions, Keyboard, ScrollView, StyleSheet, View } from "react-native";
 import { Transformer } from "../transformer";
-import { IDateProps, ISelectProps, INumericProps, ICheckBoxProps, IDataProps } from "@/app/interfaces/inputs";
+import { IDateProps, ISelectProps, INumericProps, ICheckBoxProps, IDataProps, ITableMultiSelectProps } from "@/app/interfaces/inputs";
 import { APP } from "@/app/utils/app";
 import { AppButton } from "@/app/components/shared/AppButton";
 import { UIUtil } from "@/app/utils/ui";  
@@ -24,7 +24,8 @@ import {
     AppCheckBox, 
     AppPassword, 
     AppSmallText,
-    ChildTable
+    ChildTable,
+    MultiSelectChildTable
 } from '../../components/form/controls';
 import { DocTypeService } from "../../services/doctype";
 import { RuleBuilder } from "../rule_builder";
@@ -36,6 +37,7 @@ import { GLOBALS } from "../../constants/defaults";
 import withStore from "../../components/hoc/withStoreValue";
 import KeyboardAvoidingWrapper from "../../components/shared/KeyboardAvoidingWrapper";
 import { useNavigation } from "expo-router";
+import AppLoader from "@/app/components/shared/AppLoader";
 
 const NON_FORM_FIELDS = [
     'Tab Break',
@@ -60,6 +62,8 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
     const [initial_values, set_initial_values] = useState(form_props.initial_values) ;//({ name: '' });
     const [form_config, set_form_config] = useState({'fields': [], 'validation_schema': {}}); //form_props.form_config
     const [segment, set_segment] = useState('');// set segment for the navigation buttons 
+    const [loading, set_loading] = useState(true);
+
     const forms = FormStore.useState(s=>s.forms);
     const { width, height } = Dimensions.get('window');
 
@@ -234,6 +238,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
               set_doc(initial_doc);
             }*/
             await get_doc();
+            set_loading(false)
             //make_form_config();
         } 
         load_initials();
@@ -415,7 +420,9 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
 
       /* Make validation schema */
       validation_rules[key] = RuleBuilder.build(clone_field);
+    
     }); 
+
     const form_key = form_props.doctype;
 
     // get stored form values. IF they exist, use them, else use the normal initialized values
@@ -636,6 +643,39 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                     />
                 );  
             break;
+            case FIELD_TYPE.MULTI_SELECT_TABLE:
+                props = _transform(field) as ITableMultiSelectProps;   
+                const multi_table_ref = createRef(null);
+                el = (
+                    <MultiSelectChildTable
+                        {...props}  
+                        parent={form_props.docname}
+                        parenttype={form_props.doctype}
+                        parentfield={props.field_name}
+                        // name={props.field_name}  
+                        // field={props} 
+                        // value={initial_values[props.field_name]} 
+                        on_change_value={(rows, link_field) => {                            
+                            // const rows = table_ref?.current?.get_rows();  
+                            console.log("Multi select values:", rows)
+                            // For multitable select, convert them into a Table format, so set doctype and the value of the link field
+                            const docs = [];
+                            rows?.map((row, idx) => {
+                              const new_doc = {
+                                'doctype': field.options,
+                              }
+                              if(link_field){
+                                new_doc[link_field.fieldname] = row;
+                              }
+                              docs.push(new_doc)
+                            }) 
+                            console.log("Multiselect transformed vals: ", docs)
+                            formik_props.values[props.field_name] = docs; 
+                          }
+                        }
+                    />
+                );  
+            break;
             default: 
             break;
         }
@@ -694,66 +734,67 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
     const get_form_title = () => { 
       return UIUtil.is_new_record(form_props.docname) ? `${GLOBALS.NEW_RECORD_ID} ${form_props.doctype}` : `${form_props.docname}`;
     }
-      return (
-        <KeyboardAvoidingWrapper> 
-             <Formik 
-                innerRef={formik_ref /*ref*//*(f) => (ref.current = f)*/}
-                initialValues={initial_values}
-                validationSchema={Yup.object().shape(form_config.validation_schema)}
-                onSubmit={(values, actions) => {
-                    console.log("Values:", values); 
-                    on_submit(values);
-                    //actions.resetForm();
-                }}
-            >
-                { 
-                    (formik_props) => ( 
-                        <Card style={styles.form_container}> 
-                            {
-                                show_save_button && !form_props.is_child_table 
-                                && <Card.Actions style={styles.actions}>
-                                    <Text variant='titleMedium' style={styles.title_text}>{get_form_title()}</Text>
-                                    <AppButton 
-                                        icon='content-save' 
-                                        mode='contained'
-                                        style={{ width: 100 }}
-                                        compact
-                                        label={APP._("BUTTON.SAVE")} 
-                                        on_press={()=> {   
-                                            console.log("Touched fields:", formik_props.touched)
-                                            formik_props.validateForm().then((res) => { 
-                                            })
-                                            formik_props.handleSubmit();
-                                          } 
-                                        }
-                                    />  
-                                </Card.Actions>
-                            } 
-                            <Card.Content>
-                                <ScrollView style={{ flexGrow: 1, maxHeight: height * 0.70 }}>
-                                    {
-                                        tabs?.length > 0 && render_tabs(formik_props)
-                                    }
-                                    <View>
-                                      {/* Doc specific fields */}                                
-                                      <AppData visible={false} name='doctype' field={{ name:'doctype', fieldtype:'Data', fieldname:'doctype', hidden: 1 }} style={{ display: 'none'}} value={form_props.doctype} />
-                                      <AppData visible={false} name='docname' field={{ name:'doctype', fieldtype:'Data', fieldname:'doctype', hidden: 1 }} style={{ display: 'none'}} value={form_props.docname} />
-                                      {       
-                                          get_form_fields(formik_props)?.map((field, idx) => { 
-                                              return render_layout(field, formik_props);
-                                          })                            
-                                          // form_config.fields.map((field, idx) => { 
-                                          //     return render_layout(field, formik_props);
-                                          // })
-                                      }        
-                                    </View>     
-                                </ScrollView>
-                            </Card.Content>    
-                        </Card>
-                    )
-                }
-             </Formik> 
-        </KeyboardAvoidingWrapper>  
+      return ( 
+          loading ? <AppLoader /> : 
+          <KeyboardAvoidingWrapper> 
+              <Formik 
+                  innerRef={formik_ref /*ref*//*(f) => (ref.current = f)*/}
+                  initialValues={initial_values}
+                  validationSchema={Yup.object().shape(form_config.validation_schema)}
+                  onSubmit={(values, actions) => {
+                      console.log("Values:", values); 
+                      on_submit(values);
+                      //actions.resetForm();
+                  }}
+              >
+                  { 
+                      (formik_props) => ( 
+                          <Card style={styles.form_container}> 
+                              {
+                                  show_save_button && !form_props.is_child_table 
+                                  && <Card.Actions style={styles.actions}>
+                                      <Text variant='titleSmall' style={styles.title_text}>{get_form_title()}</Text>
+                                      <AppButton 
+                                          icon='content-save' 
+                                          mode='contained'
+                                          style={{ width: 100 }}
+                                          compact
+                                          label={APP._("BUTTON.SAVE")} 
+                                          on_press={()=> {   
+                                              console.log("Touched fields:", formik_props.touched)
+                                              formik_props.validateForm().then((res) => { 
+                                              })
+                                              formik_props.handleSubmit();
+                                            } 
+                                          }
+                                      />  
+                                  </Card.Actions>
+                              } 
+                              <Card.Content>
+                                  <ScrollView style={{ flexGrow: 1, maxHeight: height * 0.70 }}>
+                                      {
+                                          tabs?.length > 0 && render_tabs(formik_props)
+                                      }
+                                      <View>
+                                        {/* Doc specific fields */}                                
+                                        <AppData visible={false} name='doctype' field={{ name:'doctype', fieldtype:'Data', fieldname:'doctype', hidden: 1 }} style={{ display: 'none'}} value={form_props.doctype} />
+                                        <AppData visible={false} name='docname' field={{ name:'doctype', fieldtype:'Data', fieldname:'doctype', hidden: 1 }} style={{ display: 'none'}} value={form_props.docname} />
+                                        {       
+                                            get_form_fields(formik_props)?.map((field, idx) => { 
+                                                return render_layout(field, formik_props);
+                                            })                            
+                                            // form_config.fields.map((field, idx) => { 
+                                            //     return render_layout(field, formik_props);
+                                            // })
+                                        }        
+                                      </View>     
+                                  </ScrollView>
+                              </Card.Content>    
+                          </Card>
+                      )
+                  }
+              </Formik> 
+          </KeyboardAvoidingWrapper>   
     )
 }
 

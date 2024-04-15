@@ -44,7 +44,7 @@ class RuleBuilder {
         else if ([FIELD_TYPE.LINK].includes(field_type)) {
             schema = Yup.string();
         }
-        else if ([FIELD_TYPE.TABLE].includes(field_type)) {
+        else if ([FIELD_TYPE.TABLE, FIELD_TYPE.MULTI_SELECT_TABLE].includes(field_type)) {
             schema = Yup.array();
         }
 

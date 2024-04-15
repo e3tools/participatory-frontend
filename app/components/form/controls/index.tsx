@@ -10,3 +10,4 @@ export { default as AppCheckBox } from './CheckBox';
 export { default as AppPassword } from './Password';
 export { default as AppSmallText } from './SmallText';
 export { default as ChildTable } from './ChildTable';
+export { default as MultiSelectChildTable} from './MultiSelectChildTable';

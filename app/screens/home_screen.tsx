@@ -4,11 +4,12 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { useNavigation } from 'expo-router'
 import { APP } from '../utils/app'
+import WebView from 'react-native-webview'
 
 const HomeScreen = () => {
     const navigation = useNavigation();
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }} key={APP.generate_random_string()}>
         <View style={styles.logo_container}>
             <Image 
                 source={require('../assets/images/pp4.jpg')}
@@ -16,6 +17,8 @@ const HomeScreen = () => {
                 resizeMode='cover'
             />
         </View>
+
+        {/* <WebView source={{ uri: 'http://197.248.185.171/' }} style={{ display: 'flex', backgroundColor: 'red' , height: 50}} /> */}
 
         <View style={styles.content}>
             <View style={styles.header}>

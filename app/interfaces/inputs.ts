@@ -52,6 +52,9 @@ interface IChildTableProps extends IBaseFieldProps {
     navigation?: object, //navigation object
 }  
 
+interface ITableMultiSelectProps extends ISelectProps, IChildTableProps { 
+}
+
 export {
     IBaseFieldProps,
     IDataProps,
@@ -60,5 +63,6 @@ export {
     ICheckBoxProps,
     IDateProps,
     IPasswordProps,
-    IChildTableProps
+    IChildTableProps,
+    ITableMultiSelectProps
 }

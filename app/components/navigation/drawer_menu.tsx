@@ -29,13 +29,11 @@ export default function DrawerMenu(props: any) {
     alert('clicked twice');
   } 
 
-  const test = () => {
-    // AuthService.login("administrator", "123").then(usr => { 
+  const test = () => { 
     //   DashboardService.get_dashboards().then(recs => { 
     //     console.log("dashboards:", recs);
     //     set_dashboards(recs);      
-    //   });
-    // });   
+    //   }); 
   }
   useEffect(() => {  
     const load_engagements = async() => {  
@@ -45,22 +43,19 @@ export default function DrawerMenu(props: any) {
       new DocTypeService('Engagement').get_list(cfg).then((recs) => { 
         set_engagements(recs); 
       })
-    }
-    // AuthService.login("administrator", "123").then(usr => { 
+    } 
       DashboardService.get_dashboards().then(recs => {  
+        console.log("Dashboards retrieved")
         set_dashboards(recs);      
       });
-      load_engagements();
-    // });   
+      load_engagements(); 
   }, []);
 
-  // useEffect(() => { 
-  //   AuthService.login("administrator", "123").then(usr => { 
+  // useEffect(() => {  
   //     DashboardService.get_dashboards().then(recs => { 
   //       console.log("dashboards:", recs);
   //       set_dashboards(recs);      
-  //     });
-  //   });   
+  //     }); 
   // }, []);
 
   const navigate_engagement = (props, engagement: object) => {
@@ -166,7 +161,7 @@ export default function DrawerMenu(props: any) {
             title={APP._('MAIN_LAYOUT.NAVIGATOR.DIAGNOSTICS_TITLE')} 
             left={props => <List.Icon {...props} icon='map-marker-distance' />}
             onPress={()=>{ 
-              APP.navigate_to_path(props.navigation, 'modules/mapping/screens/diagnostics', {})
+              APP.navigate_to_path(props.navigation, '/modules/mapping/screens/diagnostics_screen', {})
               // APP.route_to_path('screens/diagnostics', {  
               //   }
               // )
@@ -174,7 +169,7 @@ export default function DrawerMenu(props: any) {
             onLongPress={()=>{}}
           />
 
-          {/* Action Plans */}
+          {/* Action Plans
           <List.Accordion
             title={APP._('MAIN_LAYOUT.NAVIGATOR.ACTION_PLANS_TITLE')}
             left={props => <List.Icon {...props} icon="gesture-double-tap" />}>
@@ -208,7 +203,7 @@ export default function DrawerMenu(props: any) {
               }}
               onLongPress={()=>{}}
             />  
-          </List.Accordion>
+          </List.Accordion> */}
 
           {/* References & Downloads */}
           <List.Item 
@@ -277,7 +272,7 @@ export default function DrawerMenu(props: any) {
               title={APP._('MAIN_LAYOUT.NAVIGATOR.GRM_ITEMS.NEW_COMPLAINT')} 
               left={props => <List.Icon {...props} icon='bullhorn-variant' />}
               style={ styles.drawer_child }
-              onPress={()=>{ Alert.alert('Go to GRM') }}
+              onPress={()=>{ Alert.alert('Coming soon') }}
               onLongPress={()=>{}}
             /> 
             {/* <List.Item 

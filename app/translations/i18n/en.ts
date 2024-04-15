@@ -7,7 +7,7 @@ export default {
   username: 'Username',
   password: 'Password',
   login: 'Login',
-  APP_NAME: 'CDD App',
+  APP_NAME: 'Engage',
   GLOBAL: {
     GITHUB_NOTE: 'Development',
     FACEBOOK_NOTE: 'Join our Facebook Group!',
@@ -162,7 +162,7 @@ export default {
   DOC_LIST_VIEW_PAGE: {
     TITLE: 'List',
     SEARCH: 'Search',    
-
+    ID_COLUMN_HEADER: 'ID'
   },
   FORM_VIEW_PAGE: {
     DETAILS_TAB_TITLE: 'Basic Details',  
@@ -177,6 +177,8 @@ export default {
   },
   ENGAGEMENT_LIST_PAGE: {
     TITLE: 'Active Engagements',
+    FINALIZED_SUBMISSIONS: 'Submissions',
+    DRAFT_SUBMISSIONS: 'Drafts',
     BUTTON: {
       EXPLORE: 'Explore'
     }

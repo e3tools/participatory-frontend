@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import AppContainer from '@/app/components/base/AppContainer'
+import AppContainer from '@/app/components/shared/AppContainer'
 import { useLocalSearchParams, useNavigation } from 'expo-router'
 import { DocTypeService } from '@/app/services/doctype'
 import { APP } from '@/app/utils/app'

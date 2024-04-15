@@ -11,8 +11,10 @@ export default function AppTime(props) {
     <View style={{justifyContent: 'center', flex: 1, alignItems: 'center'}}>
       <TimePicker
         // style={[GlobalStyles.form_field, GlobalStyles.date_picker]}
+        style={props?.style}
         locale='en'
         // label={props.field.label}
+        disabled={props.readonly}
         value={input_time}
         inputMode='start'
         onChange={(d) => {

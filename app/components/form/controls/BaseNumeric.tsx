@@ -8,8 +8,9 @@ export default function BaseNumeric(props) {
   return (
     <BaseTextInput 
         // style={GlobalStyles.Numeric}
+        style={props?.style}
         {...rest} 
-        value={converted_val} 
+        value={converted_val}  
     /> 
   )
 }

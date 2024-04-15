@@ -24,8 +24,9 @@ import { WebView } from 'react-native-webview';
 const ViewFile = (url) => {
   return (
     <WebView
-    //   source={{ uri: 'https://expo.dev' }}
-        source={{ uri: 'https://web.pdx.edu/~nauna/week7b-neuralnetwork.pdf' }}
+        // source={{ uri: 'https://expo.dev' }}
+        source={{ uri: 'http://197.248.185.171/'}}
+        // source={{ uri: 'https://web.pdx.edu/~nauna/week7b-neuralnetwork.pdf' }}
     />
   )
 }

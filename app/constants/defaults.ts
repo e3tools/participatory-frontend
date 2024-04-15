@@ -7,6 +7,7 @@ const GLOBALS = class {
     static MAX_DATA_ROWS = 5000;
     static MAX_UPLOAD_SIZE = 5 * 1024 * 1024; //5 MB
     static NEW_RECORD_ID = 'New'
+    static BACKEND_TIMEOUT = 120000 //backend api calls will timeout in 2 minutes
 }
 
 export { GLOBALS }

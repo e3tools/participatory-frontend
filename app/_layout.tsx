@@ -1,7 +1,7 @@
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Drawer } from "expo-router/drawer";
 import Ionicons from '@expo/vector-icons/Ionicons'; 
-import DrawerMenu from "./components/navigation/DrawerMenu";
+import DrawerMenu from "./components/navigation/drawer_menu";
 import { PaperProvider } from 'react-native-paper';
 import LoginScreen from "./modules/auth/screens/login_screen";
 import UserProfileScreen from "./modules/auth/screens/user_profile_screen";
@@ -18,7 +18,6 @@ export default function Layout() {
   useEffect(() => {
     const load = async () => {
       const res = await AuthService.is_authenticated();
-      console.log("Authenticated: ?", res)
       set_authenticated(res)
     }
     load();

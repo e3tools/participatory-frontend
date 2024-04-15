@@ -51,7 +51,8 @@ export const GlobalStyles = StyleSheet.create({
         overflow: 'hidden',
     },
     select: {
-        borderColor: 'gray',
+        borderColor: theme.colors.primary, //'gray',
+        backgroundColor: theme.colors.surface, //secondary, // 'white',
         padding: 0,
         borderWidth: 1,
         margin: 5,

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { AuthService } from './modules/auth/services/auth';
 import App from './App';
 import LoginScreen from './modules/auth/screens/login_screen';
-import HomeScreen from './screens/HomeScreen';
+import HomeScreen from './screens/home_screen';
 import EngagementIndexScreen from './modules/engage/screens/engage_index_screen';
 
 const index = () => {
@@ -11,7 +11,6 @@ const index = () => {
   useEffect(() => {
     const load = async () => {
       const res = await AuthService.is_authenticated();
-      console.log("Authenticated:", res)
       set_authenticated(res)
     }
     load();

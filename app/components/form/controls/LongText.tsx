@@ -10,8 +10,7 @@ import { GlobalStyles } from '@/app/styles/global';
 export default function AppLongText(props: IDataProps) {    
     return (    
       <BaseTextInput
-          multiline
-          style={GlobalStyles.Data}
+          multiline 
           {...props}
       /> 
     )

@@ -2,6 +2,7 @@ import { APP } from '@/app/utils/app';
 import { UserStore } from '../stores/user_store';
 import { Frappe } from '@/app/backends/frappe'; 
 import { URLS } from '@/app/constants/enums';
+import { Alert } from 'react-native'; 
 
 const AuthService = class AuthService {
 
@@ -12,8 +13,8 @@ const AuthService = class AuthService {
     const auth = {
       usr: username,
       pwd: password,
-    }; 
-    const [success, user] = await new Frappe(URLS.BACKEND).login(auth);
+    };  
+    const [success, user] = await new Frappe(URLS.BACKEND).login(auth); 
     // if (user && !user.status_code) {
     if(success){
       await this._on_login_success(user); 
@@ -28,8 +29,7 @@ const AuthService = class AuthService {
    * Called when login is successful
    * @param res User object
    */
-  static _on_login_success = async (user: object) => { 
-    console.log("login success: ", user)
+  static _on_login_success = async (user: object) => {  
     await UserStore.set_user(user); 
   }
 

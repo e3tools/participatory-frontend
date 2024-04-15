@@ -16,12 +16,13 @@ import { AppData, AppPassword } from '@/app/components/form/controls'
 import { AuthService } from '../services/auth'
 import { useNavigation } from 'expo-router'
 import { Text } from 'react-native-paper'
+import { UserStore } from '../stores/user_store'
  
 const Login = () => { 
   const navigation = useNavigation();
   
-  const [username, set_username] = useState({ value: '', error: '' });
-  const [password, set_password] = useState({ value: '', error: '' });
+  const [username, set_username] = useState({ value: 'administrator', error: '' });
+  const [password, set_password] = useState({ value: '123', error: '' });
   const [loading, set_loading] = useState(false);
 
   const initial_values = {'username': '', password: ''};
@@ -43,8 +44,10 @@ const Login = () => {
 
   const on_login = async (values: object) => {
     APP.toggle_loading(true);
+    await UserStore.remove_user();
     set_loading(true);
     const [res, user] = await AuthService.login(values.username, values.password);
+    console.log("Login values: ", values)
     if(res) {
       APP.toggle_loading(false);
       set_loading(false);
@@ -69,7 +72,9 @@ const Login = () => {
       <SafeAreaView>
         <KeyboardAvoidingWrapper> 
           <View style={styles.container}> 
+          
             <View>
+              <Text style={styles.app_name}>{APP._('APP_NAME')}</Text>
               <Formik          
                 initialValues={initial_values}
                 validationSchema={validation_schema}
@@ -180,8 +185,15 @@ const styles = StyleSheet.create({
     display: 'flex', 
     alignContent: 'center', 
   },
-
   input: {
     margin: 10
+  },
+  app_name: {
+    fontWeight: '700',
+    fontSize: 26,
+    textAlign: 'center',
+    marginTop: 50
+    // top: 400,
+    // position:'absolute'
   }
 })

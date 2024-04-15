@@ -5,7 +5,8 @@ import {
     INumericProps, 
     IDateProps, 
     ICheckBoxProps, 
-    IChildTableProps } from "../interfaces/inputs"; 
+    IChildTableProps, 
+    ITableMultiSelectProps} from "../interfaces/inputs"; 
 import { FIELD_TYPE } from "../constants/enums";
 import {  } from "../interfaces/inputs";
 
@@ -38,7 +39,8 @@ class Transformer {
         cfg.options = field_cfg.options || '';
         cfg.label = field_cfg.label || '';
         cfg.placeholder = field_cfg.label || '';
-        cfg.style = { display: field_cfg.hidden == 1 ? 'none' : 'block' }
+        cfg.readonly = field_cfg.read_only;
+        cfg.style = { display: field_cfg.hidden == 1 ? 'none' : 'block' } 
         return cfg;
     }
     
@@ -140,6 +142,10 @@ class Transformer {
 
             case FIELD_TYPE.TABLE:
                 props = Transformer._table_props(field_cfg) as IChildTableProps;
+            break;
+
+            case FIELD_TYPE.MULTI_SELECT_TABLE:
+                props = Transformer._table_props(field_cfg) as ITableMultiSelectProps;
             break;
             
             case FIELD_TYPE.ATTACH:

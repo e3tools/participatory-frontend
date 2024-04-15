@@ -87,6 +87,19 @@ class DocTypeService {
     } 
     return await this.db.get_list(config, get_global_count);
   }
+
+  /**
+   * Get a list of documents
+   * @param config 
+   * @returns 
+   */
+  async get_count(config: IDBReadParam) {
+    if(!config.doctype){
+      config.doctype = this.doctype;
+    } 
+    return await this.db.get_count(config);
+  }
+
 }
 
 export { DocTypeService };

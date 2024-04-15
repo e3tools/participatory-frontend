@@ -2,7 +2,9 @@ import { APPS, URLS } from '../constants/enums';
 import { _ as t } from "../utils/translate";
 import { router } from 'expo-router'; 
 import { Alert } from 'react-native';
-import * as Random from 'randomstring';  
+import * as Random from 'randomstring';   
+// import { NavigationActions } from 'react-navigation';
+import { CommonActions } from '@react-navigation/native';
 
 String.prototype.format = function (...args) {
   // Storing arguments into an array
@@ -304,7 +306,10 @@ const APP = class AppUtil {
     const clone = { ...params}
     // clone['navigation'] = navigation;
     // clone['_t'] = this.generate_random_string(16); 
-    navigation.navigate(url, clone); 
+
+    navigation.navigate(url, clone);  
+    // const obj = { path: url, params: clone, key: APP.generate_random_string() }
+    // CommonActions.navigate(obj);
   }
 
   static route_to_path = (
@@ -334,6 +339,8 @@ const APP = class AppUtil {
       .then(() => {
         router.go(0)
       });
+
+      router.replace()
   };
 
   /**

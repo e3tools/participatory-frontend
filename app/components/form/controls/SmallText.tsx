@@ -9,8 +9,7 @@ export default function AppSmallText(props: IDataProps) {
     return (    
       <BaseTextInput
           {...props}
-          multiline
-          style={GlobalStyles.Data}
+          multiline 
       /> 
     )
   } 

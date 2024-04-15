@@ -21,11 +21,12 @@ export default function AppDate(props: IDateProps) {
     //<View style={[GlobalStyles.form_field, GlobalStyles.date_picker]}>
     <View style={{justifyContent: 'center', flex: 1, alignItems: 'center'}}>
       <DatePickerInput
-        style={[GlobalStyles.form_field, GlobalStyles.date_picker]}
+        style={[GlobalStyles.form_field, GlobalStyles.date_picker, props?.style]}
         locale='en'
         mode='outlined'
         label={props.field.label}
         value={input_date}
+        disabled={props.readonly}
         inputMode='start'
         onChange={(d) => {
           set_input_date(d);

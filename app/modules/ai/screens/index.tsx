@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native'
 import React, { useEffect } from 'react'
-import AppContainer from '@/app/components/base/AppContainer'
+import AppContainer from '@/app/components/shared/AppContainer'
 import { Card, Paragraph, Text } from 'react-native-paper'
 import TopicModelSummaryImage from '@/app/assets/images/topic-model-summary.png';
 import { Image } from 'react-native';
