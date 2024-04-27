@@ -33,8 +33,7 @@ const GeoJsonLayer = (props/*: IGeoJsonProps*/, ref) => {
         const analysis = TechnicalAnalysisService.get_analysis(analysis_name).then((doc) => {
           //remove_analysis(doc.analysis_name);  
           TechnicalAnalysisService.get_computation(doc.name, admin_id, admin_level).then((res) => {
-            // Check if it is vector or raster
-            console.log("RESS: ", res)
+            // Check if it is vector or raster 
             if(doc.datasource_type == DATASOURCE.RASTER){
               // let legend_items = make_legend(doc);    
               set_geojson(res.result);  

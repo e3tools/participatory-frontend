@@ -56,11 +56,9 @@ const DocTabbedFormik = () => {
             // badge={true} // only show indicator
             // badge="text"
             // badge={1}
-            // onPressIn={() => {
-            //   console.log('onPressIn explore');
+            // onPressIn={() => { 
             // }}
-            // onPress={() => {
-            //   console.log('onPress explore');
+            // onPress={() => { 
             // }}
           >
              <View style={{ backgroundColor: 'red', flex:1 }} />

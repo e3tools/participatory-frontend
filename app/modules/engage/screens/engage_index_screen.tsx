@@ -1,10 +1,10 @@
 import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { Avatar, Card, IconButton, List, Paragraph, Badge, Button, Text } from 'react-native-paper'
 import { DocTypeService } from '@/app/services/doctype';
 import { IDBReadParam } from '@/app/interfaces/database';
 import { AppButton } from '@/app/components/shared/AppButton';
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native';
 import { useNavigation } from 'expo-router';
 import { APP } from '@/app/utils/app';
 import { DOCTYPES } from '@/app/constants/enums';
@@ -242,7 +242,7 @@ import Engagement from '../components/engagement';
 
 const EngagementIndexScreen = () => {
   const [engagements, set_engagements] = useState([]);
-  const navigation = useNavigation();
+  const navigation = useNavigation(); 
 
   useEffect(() => {  
     const load_engagements = async() => {  
@@ -252,12 +252,13 @@ const EngagementIndexScreen = () => {
       new DocTypeService('Engagement').get_list(cfg).then((recs) => { 
         set_engagements(recs);
       });
-    } 
-    navigation.setOptions({ title: APP._('ENGAGEMENT_LIST_PAGE.TITLE') }); 
+    }     
     load_engagements(); 
   }, []);
 
-
+  useLayoutEffect(()=> {
+    navigation.setOptions({ title: APP._('ENGAGEMENT_LIST_PAGE.TITLE') }); 
+  }, [])
 
   return (
     <AppContainer>

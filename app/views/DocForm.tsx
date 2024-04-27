@@ -5,8 +5,7 @@ import { IDocFormProps } from '../ui/interfaces/ui';
 import { APP } from '../utils/app';
 
 const DocForm = (props: IDocFormProps, ref) => { 
-  const {doctype, docname, doc, is_child_table, show_save_button=true, ...rest} = props;     
-  console.log("Docform props: ", doctype, docname, doc);
+  const {doctype, docname, doc, is_child_table, show_save_button=true, ...rest} = props;      
 
   // Setting key for child table causes the form to render endlessly. So do not do it
   return (

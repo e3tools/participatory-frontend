@@ -18,8 +18,7 @@ export default App
 
 // const AppTimeline = () => {
 //     const is_focused = useIsFocused();
-//     const [selected, set_selected] = useState();
-//     console.log("Entry point focused: ", is_focused);
+//     const [selected, set_selected] = useState(); 
 //     const data = [
 //         {
 //             time: '01:00',

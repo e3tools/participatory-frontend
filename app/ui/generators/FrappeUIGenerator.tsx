@@ -58,8 +58,7 @@ const FrappeUIGenerator = (props: IDocFormProps, ref) => {
   /**
    * Return form values
   */
-  // const get_values = () => {
-  //   console.log("Getting values from FrappeGenerator")
+  // const get_values = () => { 
   //   return form_ref.current.get_values();
   // }
   
@@ -150,8 +149,7 @@ const FrappeUIGenerator = (props: IDocFormProps, ref) => {
     return ''
   }
 
-  const on_update_value = (field: string, value: object) => { 
-    console.log("On Update value: ", value);
+  const on_update_value = (field: string, value: object) => {  
     let curr_state = doc;
     curr_state[field] = value;
     set_doc(curr_state) 
@@ -181,12 +179,8 @@ const FrappeUIGenerator = (props: IDocFormProps, ref) => {
  
   useEffect(() => { 
     get_doctype(); 
-  }, []);
-
-  useEffect(() => {
-    console.warn("Frappe UI container changing....")
-  }, []);
-
+  }, []); 
+  
   useEffect(() => { 
     /*const do_load = async () => {
       get_tabs();
@@ -237,13 +231,7 @@ const FrappeUIGenerator = (props: IDocFormProps, ref) => {
     set_form_config(cfg => form_cfg); 
     return form_cfg;
   } 
-
-  const handle_submit2 = (values, { setSubmitting }) => {
-    // Handle form submission (e.g., send data to the server)
-    console.log("Form submitted with values:", values);
-    setSubmitting(false);
-  };
-
+ 
    /**
    * Get tab breaks defined in the form
    */
@@ -281,98 +269,24 @@ const FrappeUIGenerator = (props: IDocFormProps, ref) => {
       reset_form_store(values.doctype);
       return
     }
-    // Handle form submission (e.g., send data to the server)
-    console.log("Form submitted with values:", values);
-
-    // const valid = await validate()
-    // if(valid){
-      // const values = await getValues()// myForm.value.getValues()
+    // Handle form submission (e.g., send data to the server) 
       values.name = docname === undefined || docname == GLOBALS.NEW_RECORD_ID ? null : docname;
-
-      // const first = $q.loading.show({
-      //   // group: 'first',
-      //   // message: 'Saving...',
-      //   // spinnerColor: 'white',
-      //   // messageColor: 'amber'
-      // })   
-      const res = await db.upsert_doc(values)
-      console.log("saving:", values)
+ 
+      const res = await db.upsert_doc(values) 
       if (res){
         //reset form state
         reset_form_store(doctype_name);
         APP.navigate_to_path(navigation, 'views/list/[doctype]', {
           doctype: doctype_name
-        });
-        // APP.route_to_path(
-        //   '/views/list/[doctype]',
-        //   {
-        //     doctype: doctype_name
-        //   } 
-        // );
+        }); 
       } else {
         //throw error
-      }
-      // if(props.docname){
-      //   return await db.update_doc(values, formValues.value.name) 
-      // } else { 
-      //   return await db.create_doc(values)
-      // }
-    // }
-    // return false
-    //setSubmitting(false);
-  };
+      } 
+  }; 
 
-  // const initial_values = {
-  //   name: "",
-  //   first_name: "",
-  //   // gender: "",
-  //   // age: "",
-  //   // email: "",
-  //   // role: "",
-  //   // qualification: ""
-  //   // Initialize other fields
-  // };
-
-  // const [segment, set_segment] = useState('')
-  // const [group, set_group] = React.useState('left');
-  // const [radio, set_radio] = React.useState('first');
-
-  // const render_tabs = () => {
-  //   return (
-  //     <View>
-  //       {
-  //         tabs?.map((tab, idx) => {
-  //           // console.log("Tab:", tab.fieldname)
-  //           const label = `${idx+1}.${tab.label}`;
-  //           return (
-  //               <SegmentedButtons
-  //                 key={tab.fieldname}
-  //                 value={segment}
-  //                 onValueChange={set_segment}  
-  //                 style={{ alignItems: 'center', justifyContent: 'center'}}
-  //                 buttons={[
-  //                   {
-  //                     value: tab.fieldname,
-  //                     label: `${idx+1}.${tab.label}`,
-  //                     showSelectedCheck: true,
-  //                     onPress: ()=>{ 
-  //                       set_active_tab(tab.fieldname);
-  //                     },
-  //                     style: { flex: 1, alignSelf:'center', flexGrow: 1, borderRadius: 0, borderColor: 'white' }
-  //                   }, 
-  //                 ]}
-  //             />
-  //           )
-  //         })
-  //       }
-  //   </View>
-  //   )
-  // }  
- 
   useEffect(() => {
     // Re-initialize form state
     reset_form_store(doctype_name);
-
   }, []);
 
   return (

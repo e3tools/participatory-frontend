@@ -1,10 +1,10 @@
 import { APPS, URLS } from '../constants/enums';
 import { _ as t } from "../utils/translate";
-import { router } from 'expo-router'; 
+import { router, useNavigation, useRootNavigationState } from 'expo-router'; 
 import { Alert } from 'react-native';
 import * as Random from 'randomstring';   
 // import { NavigationActions } from 'react-navigation';
-import { CommonActions } from '@react-navigation/native';
+import { CommonActions, DrawerActions } from '@react-navigation/native';
 
 String.prototype.format = function (...args) {
   // Storing arguments into an array
@@ -303,12 +303,21 @@ const APP = class AppUtil {
    * @param query_string 
    */
   static navigate_to_path = (navigation: object, url: string, params: object = {}, query_string: string = '') => { 
-    const clone = { ...params}
+    const clone_params = { ...params }
     // clone['navigation'] = navigation;
-    // clone['_t'] = this.generate_random_string(16); 
-
-    navigation.navigate(url, clone);  
-    // const obj = { path: url, params: clone, key: APP.generate_random_string() }
+    // clone['_t'] = this.generate_random_string(16);  
+    // navigation.navigate(url, clone_params);
+    // navigation.push(url, clone_params);  
+    navigation.reset({
+      index: 0,
+      routes: [
+        {
+          name: url,
+          params: params,
+        },
+      ],
+    })
+    // const obj = { path: url, params: clone_params, key: APP.generate_random_string() }
     // CommonActions.navigate(obj);
   }
 
@@ -316,14 +325,21 @@ const APP = class AppUtil {
     path: string,
     params: object = {},
     query: object = {}
-  ) => { 
+  ) => {  
+    // const rootNavigationState = useRootNavigationState(); 
 
-    params['t'] = this.generate_random_string(5);
-    router.push({
-        pathname: path, 
-        params: params,
-        // query
-      })
+    // if (!rootNavigationState?.key) return null;
+ 
+    // params['t'] = this.generate_random_string(5);
+    // router.replace(path)
+    router.push(path)
+
+    // router.push({
+    //     pathname: path, 
+    //     params: params,
+    //     // query
+    //   })
+
           // .then(() => {
           //   router.go(0)
           // });

@@ -6,9 +6,23 @@ import {
 
 const KEY = 'frappeUser';
 
+type UserData = {
+    name: string;
+    username: string;
+    email: string;
+    full_name: string;
+    token: string;
+}
+
 const UserStore = class UserStore {
     static set_user = async (user: object) => {
-        let obj = {'name': user.name, 'username': user.username, 'email': user.email, 'full_name': user.full_name, 'token': user.token }; 
+        let obj = {} as UserData;
+        obj.name = user.name;
+        obj.username = user.username
+        obj.email = user.email
+        obj.full_name = user.full_name
+        obj.token = user.token
+        // let obj = {'name': user.name, 'username': user.username, 'email': user.email, 'full_name': user.full_name, 'token': user.token }; 
         return await set_value(KEY, obj);
     }
 
@@ -18,8 +32,7 @@ const UserStore = class UserStore {
 
     static remove_user = async () => {
         const res = await delete_value(KEY);
-        const usr = await this.get_user();
-        console.log("Removing user: ", res, usr)
+        const usr = await this.get_user(); 
         return res;
     }
 
@@ -28,4 +41,4 @@ const UserStore = class UserStore {
         return usr != null ? usr.token : '';
     }
 }
-export { UserStore }
+export { UserData, UserStore }

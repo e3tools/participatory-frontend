@@ -24,8 +24,7 @@ export default function AppMultiSelectChildTable(props: ITableMultiSelectProps) 
   const place_holder = `${placeholder}`;// `---${placeholder.toLocaleLowerCase()}---`
   const [data, set_data] = useState([]);
   const child_table_doctype = props.field.options; 
-  const [link_field, set_link_field] = useState(null);
-  console.log("Child doctype: ", child_table_doctype)
+  const [link_field, set_link_field] = useState(null); 
 
   const get_link_doctype_from_child_table = async () => {
     // For the child table doctype, get the link field within the child table doctype
@@ -69,16 +68,10 @@ export default function AppMultiSelectChildTable(props: ITableMultiSelectProps) 
   }, [])
 
   useEffect(()=> { 
-    // Trigger setting of values in the parent component
-    console.log("Current vals: ", value);
+    // Trigger setting of values in the parent component 
     props.on_change_value(value, link_field); 
   }, [value]);
-
-  // useEffect(() => {
-  //   console.log("props value: ", props.value) 
-  //   set_value(props.value);
-  // }, [props.value]);
-
+ 
   useEffect(() => {
     let vals = [];
     if(link_field) {

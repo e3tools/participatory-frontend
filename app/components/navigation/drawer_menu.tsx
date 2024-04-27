@@ -1,5 +1,5 @@
 import { View, Text, Pressable, StyleSheet, Alert } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { DrawerActions } from '@react-navigation/native';
@@ -15,6 +15,7 @@ import { DocTypeService } from '@/app/services/doctype';
 import { EngagementStore } from '@/app/stores/engagement';
 import { DOCTYPES } from '@/app/constants/enums';
 import { GLOBALS } from '@/app/constants/defaults';
+import { useAuth } from '@/app/contexts/auth';
 
 export default function DrawerMenu(props: any) {
   const [dashboards, set_dashboards] = useState([]);
@@ -22,19 +23,14 @@ export default function DrawerMenu(props: any) {
   const bottom = useSafeAreaInsets();
   const navigation = useNavigation();
   const router = useRouter();
+  const auth = useAuth();
   const close_drawer = () => {
     navigation.dispatch(DrawerActions.closeDrawer());
   } 
   const item_clicked = () => { 
     alert('clicked twice');
-  } 
+  }  
 
-  const test = () => { 
-    //   DashboardService.get_dashboards().then(recs => { 
-    //     console.log("dashboards:", recs);
-    //     set_dashboards(recs);      
-    //   }); 
-  }
   useEffect(() => {  
     const load_engagements = async() => {  
       let cfg = {} as IDBReadParam
@@ -44,19 +40,17 @@ export default function DrawerMenu(props: any) {
         set_engagements(recs); 
       })
     } 
-      DashboardService.get_dashboards().then(recs => {  
-        console.log("Dashboards retrieved")
+      DashboardService.get_dashboards().then(recs => {   
         set_dashboards(recs);      
       });
       load_engagements(); 
   }, []);
-
-  // useEffect(() => {  
-  //     DashboardService.get_dashboards().then(recs => { 
-  //       console.log("dashboards:", recs);
-  //       set_dashboards(recs);      
-  //     }); 
-  // }, []);
+  
+  useLayoutEffect(()=> {
+    // set_header_shown(auth.is_authenticated);
+    // console.log("Counter status changed to : ", auth.counter, props);  
+    // navigation.setOptions({ title: auth.counter?.toString(), headerShown: false }) 
+  }, [auth.counter])
 
   const navigate_engagement = (props, engagement: object) => {
     EngagementStore.set_current_engagement(engagement);
@@ -73,6 +67,11 @@ export default function DrawerMenu(props: any) {
       // ) r
     }      
     return {}
+  }
+  if(!auth.is_authenticated){
+    return (
+      <View></View>
+    )
   }
 
   return ( 
@@ -316,23 +315,14 @@ export default function DrawerMenu(props: any) {
               <List.Item title="Second item" />
             </List.Accordion>
           </List.Section> */}
-        </DrawerContentScrollView> 
-
-        {/* <Pressable onPress={async () => {
-            const res = await AuthService.logout();
-            console.log("Logged out...", res)
-            if(res) {
-              navigation.navigate("index");
-            }
-        }} style={{padding: 20, paddingBottom: bottom + 10}}>
-          <Text>{APP._('MAIN_LAYOUT.HEADER.LOGOUT')}</Text> 
-        </Pressable> */}
+        </DrawerContentScrollView>  
         <List.Item  
             title={APP._('MAIN_LAYOUT.HEADER.LOGOUT')}
             left={props => <List.Icon {...props} icon='logout' />}
             style={{ paddingBottom: bottom + 10 }}
             onPress={async ()=>{ 
-              const res = await AuthService.logout();
+              // const res = await AuthService.logout();
+              const res = await auth.logout();
               console.log("Logged out...", res)
               navigation.navigate("modules/auth/screens/login_screen");
             }}

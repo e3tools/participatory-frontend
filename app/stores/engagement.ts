@@ -1,8 +1,7 @@
 import { set_value, get_value, delete_value} from "../utils/storage";
 import { DocTypeService } from "../services/doctype";
 import { DOCTYPES } from "../constants/enums";
-import { AuthService } from "../modules/auth/services/auth";
-// import { useState } from "react";
+import { AuthService } from "../modules/auth/services/auth"; 
 const KEY = 'engagement';
 
 type Engagement = { 
@@ -48,9 +47,7 @@ const EngagementStore = class EngagementStore {
 
     static make_temp_engagement_entry = async () => {
         const svc = new DocTypeService(`${DOCTYPES.ENGAGEMENT_ENTRY}`);
-        const curr_engagement = this.get_current_engagement();
-
-        console.log("form type: ", `${DOCTYPES.ENGAGEMENT_ENTRY}`)
+        const curr_engagement = this.get_current_engagement(); 
         const new_doc = await svc.new_doc({});
         new_doc.engagement = curr_engagement.name
         new_doc.engagement_name = curr_engagement.engagement_name
@@ -85,8 +82,7 @@ const EngagementStore = class EngagementStore {
    * @param doctype 
    * @param data 
    */
-     static set_survey_form_data = (engagement: string, doctype: string, data:object, ) => {
-        // console.log("Survey data: ", doctype)
+     static set_survey_form_data = (engagement: string, doctype: string, data:object, ) => { 
         this._set_form_value(engagement, SURVEY, doctype, data)
     }
 

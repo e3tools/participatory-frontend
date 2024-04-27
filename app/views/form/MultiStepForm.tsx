@@ -1,5 +1,5 @@
 import { View, Text, Alert } from "react-native";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
 import Stepper from "react-native-stepper-ui";
 import StepIndicator from 'react-native-step-indicator';
 import { EngagementStore } from "@/app/stores/engagement";
@@ -16,6 +16,7 @@ import { UIUtil } from "@/app/utils/ui";
 import { StyleSheet } from "react-native";
 import { theme } from "@/app/core/theme";
 import { useFocusEffect } from "@react-navigation/native";
+import { useAuth } from "@/app/contexts/auth";
 
 const MyComponent = (props: { title: string }) => {
   return (
@@ -24,7 +25,7 @@ const MyComponent = (props: { title: string }) => {
     </View>
   );
 };
-export default function MultiStepForm(props) { 
+export default function MultiStepForm(props) {  
   const navigation = useNavigation();
   const stepperRef = useRef(null);
   const [step, set_step] = useState(0);
@@ -35,8 +36,8 @@ export default function MultiStepForm(props) {
   // const [form_refs, set_form_refs] = useState({});
   const form_refs = useRef();
   const [get_ref, set_ref] = useDynamicRefs();
-
   const [key, set_key] = useState('');
+  const auth = useAuth();
 
   const [content, set_content] = useState([
     <MyComponent title="Component 1" />,
@@ -45,7 +46,7 @@ export default function MultiStepForm(props) {
   ]); 
   const params = useLocalSearchParams();
  
-  useEffect(() => {
+  useEffect(() => {    
     new DocTypeService("Engagement").get_doc(params.engagement).then((d) => {      
       //engagement.value = d 
       set_engagement(d);
@@ -67,37 +68,24 @@ export default function MultiStepForm(props) {
      refresh_content();    
   }, [engagement_template, docs]);
 
-  useEffect(() => {  
-    navigation.setOptions({ title: `${engagement?.engagement_name}` });
-    console.log("Setting multiform title...")
+  useLayoutEffect(() => {  
+    navigation.setOptions({ title: `${engagement?.engagement_name}` }); 
   }, [engagement])
-
-  // useEffect(() => {
-  //   //console.log("Re-render") 
-  // });
-
-  // useEffect(() => {
-  //   navigation.setOptions({ title: `${engagement?.engagement_name}` });
-  //  }, []);
   
   const on_next_step = async () => {
     const key = `form` + (step+1); //add 1 since form.idx is 1 based index while step is 0 based indexed
     // const form = form_refs[key];
     const form = get_ref(key).current; //get .current since this is a ref
-    const res = await form.validate();
-    console.log("Form ref: ", form, " get_values: ", await form.get_values());
+    const res = await form.validate(); 
     // const values = form.get_values();
     const errors = await form.validate();
-    const valid = await form.is_valid();
-    console.log("Form valid: ", valid, errors)
+    const valid = await form.is_valid(); 
 
     if (valid) {
       const doctype = await form.get_doc_type(); 
       const vals = await form.get_values(); 
-      EngagementStore.set_survey_form_data(engagement.name, doctype, vals);
-      console.log("Current step: ", step);
-      if (step == engagement_template?.items?.length - 1) {
-        console.log("Submitting")
+      EngagementStore.set_survey_form_data(engagement.name, doctype, vals); 
+      if (step == engagement_template?.items?.length - 1) { 
         //is the last step. submit data
         const vals = EngagementStore.get_survey_engagement_entry_data(engagement.name);
         const drafts = await EngagementService.get_draft_engagement_entries(engagement.name);
@@ -125,8 +113,7 @@ export default function MultiStepForm(props) {
         }
       } else {
         // continue with next step
-        // stepperRef.next();
-        console.log("Moving to next step: ")
+        // stepperRef.next(); 
         set_step(p => p+1);
       }
     } else {
@@ -158,8 +145,7 @@ export default function MultiStepForm(props) {
       await load_engagement_entry_data(engagement_doc.name, params.entry)
       return
     }
-    // If its a new entry, check if there is another draft
-    console.log("Retrieving drafts: ", engagement_doc)
+    // If its a new entry, check if there is another draft 
     let records = await EngagementService.get_draft_engagement_entries(engagement_doc.name)
     if(records?.length > 0){
       APP.confirm("There is a draft record. Do you want to open it?", '', () => {
@@ -190,21 +176,12 @@ export default function MultiStepForm(props) {
       // loading.value = false
       set_loading(false);
     }
-  }
-
- 
-  // const content = [
-  //   <MyComponent title="Component 1" />,
-  //   <MyComponent title="Component 2" />,
-  //   <MyComponent title="Component 3" />,
-  // ];
-
+  } 
 
   const refresh_content = () => {
     let contents = [];
     for(let i=0; i< engagement_template?.items?.length; i++) {
-      let form = engagement_template.items[i]; 
-      // console.log("Form ref key: ", `form${form.idx}`) 
+      let form = engagement_template.items[i];  
       contents.push( 
         <DocForm
           doctype={form.doctype_item} 
@@ -221,16 +198,21 @@ export default function MultiStepForm(props) {
   }
 
   useFocusEffect(
-    React.useCallback(() => {
-      console.log("Multi step Focused form")
+    React.useCallback(() => {  
       set_key(APP.generate_random_string());
 
-      return () => {
-        console.log("Multi step Blurred now")
+      return () => { 
         set_key(null);
       }
     }, []) 
   );
+
+  useEffect(()=> {
+    /**Do this to ensure forms are reloaded and redrawn */
+    navigation.addListener('focus', () => {
+      console.log('Reloaded screen')
+    })
+  }, [navigation])
 
  
   return (
@@ -241,7 +223,6 @@ export default function MultiStepForm(props) {
         stepStyle={styles.step}
         buttonStyle2={{ padding: 10, borderRadius: 6, alignSelf: 'center', marginRight: 10, marginLeft: 25, backgroundColor: '#a1a1a1'}} 
         stepStyle2={{backgroundColor: '#1976d2', width: 30, height: 30, borderRadius: 30, justifyContent: 'center', alignItems: 'center', opacity: 1}}
-        // content={content}
         content={content}
         onBack={() => {
             on_back_step();

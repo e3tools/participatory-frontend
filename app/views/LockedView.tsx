@@ -3,7 +3,7 @@ import React from 'react'
 import { Avatar, Button, Card, Text } from 'react-native-paper'
 import CardActions from 'react-native-paper/lib/typescript/components/Card/CardActions'
 import CardContent from 'react-native-paper/lib/typescript/components/Card/CardContent'
-import { ScrollView } from 'react-native-gesture-handler'
+import { ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 const cnt = 50;

@@ -1,7 +1,7 @@
 import { Alert, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { useNavigation } from 'expo-router';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native';
 import { Avatar, Card } from 'react-native-paper';
 import { APP } from '@/app/utils/app';
 import { GLOBALS } from '@/app/constants/defaults';

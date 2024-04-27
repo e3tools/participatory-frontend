@@ -6,8 +6,7 @@ import { APP } from "./app";
  * @returns formatted date string
  */
 export const format_date = (dt: Date) : string => {
-    if(!dt) return '';
-    console.log("Formatting date: ", dt)
+    if(!dt) return ''; 
     if(typeof dt == 'string') return dt;
     const _pad = (val, length=2) => {
         return APP.pad_start(val, '0', length); //val.toString().padStart(length, 0);

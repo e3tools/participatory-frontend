@@ -72,10 +72,8 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
    */
   const get_doc = async () => {
     let stored_doc = null;
-    if(form_store_exists(form_props.doctype, forms)){
-      console.log("Form state exists");
-      stored_doc = get_form_store(form_props.doctype, forms);
-      console.log("Getting stored doc: ", stored_doc);
+    if(form_store_exists(form_props.doctype, forms)){ 
+      stored_doc = get_form_store(form_props.doctype, forms); 
       if(stored_doc){
         set_doc(stored_doc);
       }
@@ -84,8 +82,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
       console.log("Form state does NOT exist")
     }
     if(stored_doc == null) 
-    {
-      console.log("Getting doc: ", form_props.docname, UIUtil.is_new_record(form_props.docname));
+    { 
       const docname = form_props.docname;
       if (docname && docname !== undefined && !UIUtil.is_new_record(docname)){ 
         const fdoc = await db.get_doc(docname); 
@@ -122,8 +119,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                 /*
                 if field does not belong to the active tab, set display to none. this is because react does not have support for keep-alive like in VueJS
                 See https://github.com/facebook/react/issues/12039 
-                */
-                // console.log("Selected Field: ", selected_field.value);
+                */ 
                 if(NON_FORM_FIELDS.includes(df.fieldtype)){
                     return false
                 }
@@ -165,8 +161,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
           // exp_str = 'var res = ' + exp;
           // console.log("Exp str: ", exp_str);
 
-          // let zz = eval("formik_props.values.assignee_type=='System User'")
-          // console.log("Formik prop vals: ", formik_props.values, exp);
+          // let zz = eval("formik_props.values.assignee_type=='System User'") 
           //let res = eval?.(exp)
           let res = _eval();
           return res
@@ -200,20 +195,15 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
     _parse_dates()//sanitize dates
     return values;
   }
-
-    // console.log(form_config.validation_schema)
-    // console.log(Yup.object().shape(form_config.validation_schema))
-    
+ 
     /**
      * Functions to be exposed to parent components
      */
     useImperativeHandle(ref, () => ({
         is_valid: () => formik_ref?.current?.isValid,
         validate: async () => { return await formik_ref?.current?.validateForm() },
-        get_values: () => {
-            // console.log("Getting values from FormGenerator 2");
-            if(formik_ref.current){
-                // console.log("Lowest form ref 2: ", formik_ref.current.values);
+        get_values: () => { 
+            if(formik_ref.current){ 
                 if(formik_ref.current.isValid){
                     let vals = formik_ref.current.values;
                     return sanitize_values(vals) 
@@ -221,8 +211,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
             }
             return null;
         },
-        get_doc_type: () => { 
-          console.log(" Form gen doctype: ", form_props.doctype)
+        get_doc_type: () => {  
             return form_props.doctype;
         }
     }), []);
@@ -334,12 +323,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
   }, [tabs])
 
   useEffect(() => {
-  }, [initial_values]);
-
-  useEffect(() => {
-    // const store = get_form_store(form_props.doctype, forms);
-    // console.log("Form Store:::", store)
-  }, []);
+  }, [initial_values]); 
   
   const parse_val = (val, fld) => {
     /*Get value from formStore. */
@@ -349,8 +333,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
     if(state_exists){
       //if val is null, try retrieve from the formstore 
       if(form_props.is_child_table){
-        //if child table, do not retrieve state as the state is stored for all rows not specific row field
-        // console.log("child Doc: ", doc, fld.fieldname);// initial_values)
+        //if child table, do not retrieve state as the state is stored for all rows not specific row field 
         if(doc){
           // If a Child table row is being edited
           val = doc[fld.fieldname];
@@ -364,8 +347,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
     // if(!val) {
     //     //if val is null, try retrieve from the formstore 
     //     if(form_props.is_child_table){
-    //       //if child table, do not retrieve state as the state is stored for all rows not specific row field
-    //       console.log("Doc: ", doc)
+    //       //if child table, do not retrieve state as the state is stored for all rows not specific row field 
     //       val = initial_values[fld.fieldname];
     //     }
     //     else {
@@ -384,8 +366,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
     //     if(!val) {
     //         //if val is null, try retrieve from the formstore 
     //         if(form_props.is_child_table){
-    //           //if child table, do not retrieve state as the state is stored for all rows not specific row field
-    //           console.log("Doc: ", doc)
+    //           //if child table, do not retrieve state as the state is stored for all rows not specific row field 
     //           val = initial_values[fld.fieldname];
     //         }
     //         else {
@@ -493,8 +474,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                 el = (
                     <AppDate 
                         {...props} 
-                        on_change_value={val => {
-                            console.log("Date value: ", val);
+                        on_change_value={val => { 
                             formik_props.values[props.field_name] = val;  
                           }
                         }  
@@ -656,8 +636,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                         // field={props} 
                         // value={initial_values[props.field_name]} 
                         on_change_value={(rows, link_field) => {                            
-                            // const rows = table_ref?.current?.get_rows();  
-                            console.log("Multi select values:", rows)
+                            // const rows = table_ref?.current?.get_rows();   
                             // For multitable select, convert them into a Table format, so set doctype and the value of the link field
                             const docs = [];
                             rows?.map((row, idx) => {
@@ -668,8 +647,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                                 new_doc[link_field.fieldname] = row;
                               }
                               docs.push(new_doc)
-                            }) 
-                            console.log("Multiselect transformed vals: ", docs)
+                            })  
                             formik_props.values[props.field_name] = docs; 
                           }
                         }
@@ -693,8 +671,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
         return (
           <View>
             {
-              tabs?.map((tab, idx) => {
-                // console.log("Tab:", tab.fieldname)
+              tabs?.map((tab, idx) => { 
                 const label = `${idx+1}.${tab.label}`;
                 return (
                     <SegmentedButtons
@@ -709,8 +686,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                           showSelectedCheck: true,
                           onPress: ()=>{ 
                             //persist the values in the store before switching tabs
-                            get_form_fields(formik_props)?.map((field, idx) => {
-                              console.log("Field: ", field.fieldname, "=", formik_props.values[field.fieldname])
+                            get_form_fields(formik_props)?.map((field, idx) => { 
                               // only update store if the active tab is about to change
                               update_field_store_value(form_props.doctype, field.fieldname, formik_props.values[field.fieldname]);
                             });
@@ -741,8 +717,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                   innerRef={formik_ref /*ref*//*(f) => (ref.current = f)*/}
                   initialValues={initial_values}
                   validationSchema={Yup.object().shape(form_config.validation_schema)}
-                  onSubmit={(values, actions) => {
-                      console.log("Values:", values); 
+                  onSubmit={(values, actions) => { 
                       on_submit(values);
                       //actions.resetForm();
                   }}
@@ -760,8 +735,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                                           style={{ width: 100 }}
                                           compact
                                           label={APP._("BUTTON.SAVE")} 
-                                          on_press={()=> {   
-                                              console.log("Touched fields:", formik_props.touched)
+                                          on_press={()=> {    
                                               formik_props.validateForm().then((res) => { 
                                               })
                                               formik_props.handleSubmit();

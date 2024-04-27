@@ -1,6 +1,5 @@
 import { Keyboard, StyleSheet, View } from 'react-native'
-import React, { useState } from 'react'
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import React, { useState } from 'react' 
 import { Caption, Headline, Modal, Portal, Text } from 'react-native-paper';
 import { GlobalStyles } from '@/app/styles/global';
 import { IModalProps } from '@/app/interfaces/common';

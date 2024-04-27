@@ -12,7 +12,7 @@ const ListView = (props: any) => {
   const doctype = params.doctype;  
   const db = new DocTypeService(doctype); 
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     navigation.setOptions({ title: `${doctype} ${APP._('REPORT_VIEW_PAGE.TITLE')}` });
   }, []);
   

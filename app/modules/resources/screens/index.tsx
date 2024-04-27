@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { DocTypeService } from '@/app/services/doctype';
 import { Card, Searchbar, Text } from 'react-native-paper'; 
 import { APP } from '@/app/utils/app';
@@ -22,7 +22,7 @@ const ResourcesDefault = () => {
        return APP.make_backend_url(url);
     }
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         navigation.setOptions({ title: APP._('HELP_RESOURCE_LIST_PAGE.TITLE') });
     }, []);
 

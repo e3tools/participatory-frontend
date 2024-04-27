@@ -1,6 +1,6 @@
-import { Dimensions, StyleSheet, Text, View } from 'react-native'
+import { Dimensions, SafeAreaView, StyleSheet, Text, View } from 'react-native'
 import React, { Children } from 'react'
-import { ScrollView } from 'react-native-gesture-handler'
+import { ScrollView } from 'react-native'
 
 type APPContainerProps = {
     children: React.ReactNode
@@ -9,9 +9,14 @@ type APPContainerProps = {
 const {width, height} = Dimensions.get("window");
 const AppContainer = (props: APPContainerProps) => {
   return (
-    <ScrollView style={{ flexGrow: 1, maxHeight: height * 0.70 }} > 
-        {props.children} 
-    </ScrollView>
+    // <SafeAreaView>
+    //    {props.children} 
+    // </SafeAreaView>
+    <SafeAreaView style={{ flex: 1 }}>
+      {/* <ScrollView style={{ flex:1, flexGrow: 1, maxHeight: height * 0.70 }} >  */}
+          {props.children} 
+      {/* </ScrollView> */}
+    </SafeAreaView>
   )
 }
 

@@ -12,9 +12,11 @@ import { AuthService } from '../services/auth';
 import * as Yup from 'yup';
 import { AppButton } from '@/app/components/shared/AppButton';
 import KeyboardAvoidingWrapper from '@/app/components/shared/KeyboardAvoidingWrapper';
+import { useAuth } from '@/app/contexts/auth';
 
 const ChangePassword = () => {
     const navigation = useNavigation();
+    const auth = useAuth();
     const [initial_values, set_initial_values] = useState({ current_password: '', new_password: '', confirm_password: ''});
     const [doc, set_doc] = useState();
     const validation_schema = Yup.object().shape({
@@ -38,16 +40,19 @@ const ChangePassword = () => {
       let obj = {...doc};
       const login_as = doc.name || doc.username || doc.mobile_no || doc.email; 
       // check new password by logging in
-      const [logged_in, usr] = await AuthService.login(login_as, values.current_password);
+      // const [logged_in, usr] = await AuthService.login(login_as, values.current_password);
+      const [logged_in, usr] = await auth.login(login_as, values.current_password);
       if(logged_in){
         // check if new passwords match even if Yup had checked
         const res = await AuthService.change_password(doc.name, values.new_password);
         if(res) {
           // If password changed successfully, relogin since Frappe will destroy all sessions on password change
           APP.notify(APP._('GLOBAL.SAVE_SUCCESS_MESSAGE'));
-          const [sc, us] = await AuthService.login(login_as, values.new_password);
+          // const [sc, us] = await AuthService.login(login_as, values.new_password);
+          const [sc, us] = await auth.login(login_as, values.new_password);
           if(!sc){
-            await AuthService.logout();
+            // await AuthService.logout();
+            await auth.logout();
             APP.navigate_to_path(navigation, '/modules/auth/screens/login_screen', {}, {});
           }
         } else {

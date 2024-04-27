@@ -7,22 +7,17 @@ import { APP } from '@/app/utils/app';
 
 const ListView = (props: any) => { 
   const navigation = useNavigation();
- 
-  // console.log("List props: ", props);
+  
   const router = useRouter(); 
   const params = useLocalSearchParams();
   const doctype = params.doctype; 
   // const [title, set_title] = React.useState('');
-  
-  // console.log("PArams: ", params) 
-
-  // React.useEffect(() => {
-  //   console.log("Setting title: ", title)
+   
+  // React.useEffect(() => { 
   //   navigation.setOptions({ title });
   // }, [title])
   
-  // React.useEffect(() => {
-  //   console.log("Getting title: ", title)
+  // React.useEffect(() => { 
   //   let pg_title = `${doctype} ${APP._('DOC_LIST_VIEW_PAGE.TITLE')}`;
   //   if(params['engagement']){
   //     pg_title = `${params.engagement_name} ${APP._('DOC_LIST_VIEW_PAGE.TITLE')}`;

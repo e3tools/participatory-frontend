@@ -40,8 +40,7 @@ export class FileUtil {
         let name = url.substring(url.lastIndexOf('/')+1); // url.replace(`.${ext}`, '');
         if(!name){
             name = APP.generate_random_string(10);
-        }
-        console.log("File name:", name, "Ext:", ext)
+        } 
         return name.replace(`.${ext}`, "");
     }
 

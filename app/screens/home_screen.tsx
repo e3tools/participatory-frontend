@@ -1,13 +1,17 @@
-import { Image, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { TouchableOpacity } from 'react-native-gesture-handler'
-import { useNavigation } from 'expo-router'
+import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useContext } from 'react'
+import { SafeAreaView } from 'react-native-safe-area-context' 
+import { useNavigation, useRouter } from 'expo-router'
 import { APP } from '../utils/app'
-import WebView from 'react-native-webview'
+import { AuthService } from '../modules/auth/services/auth'
+import { useAuth } from '../contexts/auth'
+import { Button } from 'react-native'
 
 const HomeScreen = () => {
-    const navigation = useNavigation();
+    const navigation = useNavigation(); 
+    const router = useRouter();
+    const auth = useAuth();
+
   return (
     <SafeAreaView style={{ flex: 1 }} key={APP.generate_random_string()}>
         <View style={styles.logo_container}>
@@ -36,10 +40,18 @@ const HomeScreen = () => {
                     Under key tenets of inform, consult, involve, Collaborate & Empower
                 </Text>
             </View>
+            
+            {/* <View>
+                <View><Text>{`Counter: ${auth.counter}`}</Text></View> 
+                <Button title='Increment' onPress={auth.increment} />
+            </View> */}
 
-            <TouchableOpacity style={styles.button} onPress={() => {
-                // APP.navigate_to_path(navigation, '/modules/auth/screens/login_screen', {}, {});
-                APP.route_to_path('/modules/auth/screens/login_screen', {}, {});
+            <TouchableOpacity style={styles.button} onPress={async () => {
+                if(auth.is_authenticated){ 
+                    APP.route_to_path('modules/engage/screens/engage_index_screen', {}, {});
+                } else { 
+                    APP.route_to_path('modules/auth/screens/login_screen', {}, {});
+                }
             }}>
                 <Text style={styles.button_text}>Let's go</Text>
             </TouchableOpacity>

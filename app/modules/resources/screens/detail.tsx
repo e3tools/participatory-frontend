@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import AppContainer from '@/app/components/shared/AppContainer'
 import { useLocalSearchParams, useNavigation } from 'expo-router'
 import { DocTypeService } from '@/app/services/doctype'
@@ -31,7 +31,7 @@ const ResourceDetail = (docname: string) => {
         return <View style={{ display: 'none' }}><ViewerWeb url={url} /></View>
     }
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         navigation.setOptions({ title: APP._('HELP_RESOURCE_DETAIL_PAGE.TITLE') });
     }, []);
 

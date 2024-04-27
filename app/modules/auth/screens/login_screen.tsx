@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import Login from '../components/login'
 import { useNavigation } from 'expo-router';
 import { APP } from '@/app/utils/app';
@@ -23,14 +23,12 @@ const LoginScreen = () => {
     // }, 3000);
   }, []);
    
-  useEffect(() => {
-    navigation.setOptions({ title: APP._('LOGIN_PAGE.TITLE'), headerShown: false });    
-    //refresh screen contents
-    console.log("Is focused: ", is_focused);
+  useLayoutEffect(()=>{
+    navigation.setOptions({ title: APP._('LOGIN_PAGE.TITLE')});    
+    //refresh screen contents 
     on_refresh();
-  }, []);
-
-    
+  }, [navigation]);
+   
   return (
     <AppContainer key={APP.generate_random_string()}>
       <BackButton on_press={() => APP.route_to_path('/screens/home_screen') /* APP.navigate_to_path(navigation, '/screens/home_screen')*/ } />  

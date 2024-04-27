@@ -8,13 +8,11 @@ class RuleBuilder {
     static build = (field: IBaseFieldProps ) => {
         if(field == null || field == undefined) return Yup.string();
         let schema = Yup.string().nullable(true);
-         
-        // console.log("Rules for : ", field.field_type)
+          
         const key = field.field_name;
         const field_type = field.field_type;
         // /* Set base type */
-        // if (Transformer.is_numeric_field(field)){
-        //     console.log("Numeric field: ", field.fieldname);
+        // if (Transformer.is_numeric_field(field)){ 
         //     schema = Yup.number();
         // }
         if ([FIELD_TYPE.DATA].includes(field_type)){

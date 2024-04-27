@@ -4,8 +4,7 @@ import { Button, Card, Headline, Modal, Portal, Text } from 'react-native-paper'
 import { MaterialIcons } from '@expo/vector-icons';
 import DocForm from './DocForm';
 import { GlobalStyles } from '../styles/global'; 
-import { AppButton } from '../components/shared/AppButton'; 
-import { ScrollView } from 'react-native-gesture-handler';
+import { AppButton } from '../components/shared/AppButton';  
 import AppModal from '../components/shared/Modal';
 import { IDocDialogProps } from '../ui/interfaces/ui';
 import { APP } from '../utils/app';
@@ -14,24 +13,8 @@ import KeyboardAvoidingWrapper from '../components/shared/KeyboardAvoidingWrappe
 const DocDialog = (props: IDocDialogProps) => { 
     const [modal_open, set_modal_open] = useState(props.visible || false);
     const { title } = props;
-    const ref = createRef(null);    
-    console.log("Dialog props: ", props)
-  return (
-  //   <Portal>
-  //     <Modal
-  //       visible={modal_open}
-  //       // theme={theme}
-  //       contentContainerStyle={styles.modal}
-  //       dismissable={true}
-  //     >
-  //       {/* <ScrollView> */}
-  //         <Headline>Terms of service</Headline>
-  //         <Text>Here we are</Text>
-  //         <Button mode="contained"  color="#3E81FD"  onPress={() => Alert.alert('Clicked')}>OK</Button>
-  //       {/* </ScrollView> */}
-  //     </Modal>
-  //   </Portal>
-  // )
+    const ref = createRef(null);     
+  return ( 
     <View style={GlobalStyles.container}> 
         <AppModal             
             visible={modal_open}  

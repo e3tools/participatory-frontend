@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React, { useEffect } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import UpdateUserProfile from '../components/update_user_details'
 import ChangePassword from '../components/change_password'
@@ -9,7 +9,7 @@ import { APP } from '@/app/utils/app'
 const UserProfileScreen = () => {
   const navigation = useNavigation();
   
-  useEffect(() => {
+  useLayoutEffect(() => {
     navigation.setOptions({ title: APP._('USER_PROFILE_PAGE.TITLES.PAGE') });
   }, []); 
   

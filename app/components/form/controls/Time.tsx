@@ -18,8 +18,7 @@ export default function AppTime(props) {
         value={input_time}
         inputMode='start'
         onChange={(d) => {
-          set_input_time(d);
-          console.log('time: ', d);
+          set_input_time(d); 
           //props.on_change_value(d);
         }}
       /> 

@@ -6,7 +6,7 @@ import { DocTypeService } from '@/app/services/doctype';
 import ChartFactory from '@/app/components/charts/ChartFactory';
 import { GlobalStyles } from '@/app/styles/global';
 import { StyleSheet } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native';
 //import { rotateY } from '@shopify/react-native-skia';
 // import { MusicChart } from 'components/charts/Bar';
 
@@ -22,84 +22,16 @@ export default function DashboardPage() {
           dash_charts[i].chart_type = dc.type;
         }
         return dash_charts;
-      };
+      }; 
 
-      // const set_chart_type = async (itm: object) => {
-      //   const doc = await new DocTypeService("Dashboard Chart").get_doc(itm.chart);
-      //   itm.chart_type = doc.type
-      //   console.log("Retrieved chart type")
-      // }
-
-      get_dashboard_charts().then(async(items) => {
-        /*for(let i=0; i< items.length; i++) {
-          const doc = await new DocTypeService("Dashboard Chart").get_doc(items[i].chart);
-          // items[i]['chart_type'] = ''  ;
-          console.log("Doc.type: ", doc.type);
-          //items[i]['chart_type'] = doc.type;
-          console.log("Doc.type: ", items[i]);
-          //items[i]['chart_type'] = doc.type;
-        }*/
+      get_dashboard_charts().then(async(items) => { 
         set_charts(items);
-      })
-
-      // get_dashboard_charts().then(items => {
-        
-      //   for(const itm of items) {
-      //     const doc = await new DocTypeService("Dashboard Chart").get_doc(itm.chart);
-      //     itm.chart_type = doc.type
-      //     if(idx == items.length - 1){
-      //       set_charts(items); 
-      //       //loading.value = false
-      //     }
-      //   }
-      //   /*
-      //   items.forEach(async (itm: object, idx: number) => {
-      //     const doc = await new DocTypeService("Dashboard Chart").get_doc(itm.chart);
-      //     itm.chart_type = doc.type
-      //     if(idx == items.length - 1){
-      //       set_charts(items); 
-      //       //loading.value = false
-      //     }
-      //   })*/
-      // })
-        // DashboardService.get_dashboard_charts(id).then((items) => {
-        //   console.log(items) 
-        //   items.forEach(async (itm: object, idx: number) => {
-        //     const doc = await new DocTypeService("Dashboard Chart").get_doc(itm.chart) 
-        //     itm.chart_type = doc.type
-        //     // if(idx == items.length - 1){
-        //     //   charts.value = items
-        //     //   loading.value = false
-        //     // }
-        //   }) 
-        //   set_charts(items);
-        //   console.log("items after: ", items)
-        // })
+      }) 
     }, []);
   
   //const DashboardItem = ({color}) => <View style={[mystyles.item, {backgroundColor: color}]} />
   const DashboardChart = ({color}) => <View style={[mystyles.item, {backgroundColor: color}]} />
-
-  // return (
-  //   <View
-  //     style={[
-  //       //styles.container,
-  //       {
-  //         // Try setting `flexDirection` to `"row"`.
-  //         flex: 1,
-  //         flexWrap: 'wrap',
-  //         padding: 20,
-  //         flexDirection: 'row',
-  //         alignContent: 'flex-start'
-  //       },
-  //     ]}>
-  //     <DashboardItem color='red' />
-  //     <DashboardItem color='darkorange' />
-  //     <DashboardItem color='green' />
-  //     <DashboardItem color='red' />
-  //     <DashboardItem color='darkorange' /> 
-  //   </View>
-  // )
+ 
   return (
     <ScrollView>
       <View style={GlobalStyles.dashboard}> 

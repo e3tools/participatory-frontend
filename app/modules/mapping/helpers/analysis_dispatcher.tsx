@@ -27,8 +27,7 @@ export default function AnalysisDispatcher(props: IAnalysisProps) {
     const analysis = TechnicalAnalysisService.get_analysis(analysis_name).then((doc) => {
       remove_analysis(doc.analysis_name); 
       
-      TechnicalAnalysisService.get_computation(doc.name, vector_id, admin_level).then((res) => {
-        console.log("Tech analysis: ", res)
+      TechnicalAnalysisService.get_computation(doc.name, vector_id, admin_level).then((res) => { 
         // Check if it is vector or raster
         if(doc.datasource_type == DATASOURCE.VECTOR){
           set_computation(DATASOURCE.VECTOR);

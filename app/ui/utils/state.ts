@@ -5,8 +5,7 @@ import { FormStore } from "../store/form";
  * @param doctype 
  * @param values
  */
-export const set_form_store = (doctype: string, values: object) => {
-    console.log("setting form store: ", doctype, values)
+export const set_form_store = (doctype: string, values: object) => { 
     FormStore.update(s=> {
         if(!(doctype in s.forms)){
             s.forms[doctype] = values;// initialize if doctype key does not exist

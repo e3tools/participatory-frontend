@@ -39,8 +39,7 @@ export const delete_value = async(key: string) => {
         else {
             return await SecureStore.deleteItemAsync(key);
         }
-    } catch (error) {
-        console.log("Error on delete_value")
+    } catch (error) { 
         throw error;
     }
 }

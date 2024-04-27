@@ -4,8 +4,7 @@ import FrappeUIGenerator from './generators/FrappeUIGenerator';
 import { IDocFormProps } from './interfaces/ui';
 
 function UIGenerator(props: IDocFormProps, ref) { 
-  const { doctype, docname, doc, show_save_button, is_child_table, navigation, ...rest } = props;   
-  console.log("ui gen", doctype, docname)
+  const { doctype, docname, doc, show_save_button, is_child_table, navigation, ...rest } = props;    
   return (
       <FrappeUIGenerator 
         doctype={doctype}

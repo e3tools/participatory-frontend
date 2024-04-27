@@ -49,8 +49,7 @@ const FileUploader = ({ type=['*/*'], multiple=false, ...rest}) => {
                 } else {
                     set_selected_files(files);
                 }
-            }
-            // console.log(result.uri);
+            } 
             // //check if selected file is within the size limit
             // const file_size = await FileSystem.getInfoAsync(result?.assets?.uri);
             // if(file_size.size > GLOBALS.MAX_UPLOAD_SIZE){
@@ -58,8 +57,7 @@ const FileUploader = ({ type=['*/*'], multiple=false, ...rest}) => {
             // } else {
             //     set_selected_file(result);
             // }
-        } catch (error) {
-            // console.log('Result: ', result);
+        } catch (error) { 
             if(result?.canceled){
                 //User cancelled the document picker
             } else {

@@ -1,10 +1,8 @@
 const InstanceStore = class InstanceStore {
-    static set_current_instance = (proxy: object) => {
-        console.log(proxy);
+    static set_current_instance = (proxy: object) => { 
     }
 
-    static get_current_instance = () => {
-        console.log("Getting...");
+    static get_current_instance = () => { 
     } 
 }
 export { InstanceStore }

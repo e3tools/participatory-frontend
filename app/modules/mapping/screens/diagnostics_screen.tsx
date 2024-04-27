@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Dimensions } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import MapView from 'react-native-maps'
 import { PROVIDER_GOOGLE } from "react-native-maps"
 import AppMap from '../components/Map' 
@@ -176,7 +176,7 @@ export default function Diagnostics() {
     select_admin(selected_admin);
   }, [selected_admin])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     navigation.setOptions({ title: APP._('MAP_PAGE.TITLE') }); 
   }, []);
 

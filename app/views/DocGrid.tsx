@@ -1,5 +1,5 @@
 import { Alert, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native'
-import React, { forwardRef, useImperativeHandle, useState } from 'react'
+import React, { forwardRef, useImperativeHandle, useLayoutEffect, useState } from 'react'
 import { Card, Checkbox, DataTable, List, Menu, Title } from 'react-native-paper' 
 import HyperLink from '../components/shared/HyperLink'
 import { APP } from '@/app/utils/app'
@@ -59,8 +59,7 @@ const DocGrid = (props: IGridProps, ref ) => {
       query['parent'] = props.parent;
       query['parentfield'] = props.parentfield;
     }
-    else {
-      console.log("Docgrid params: ", params)
+    else { 
       if(props.doctype == DOCTYPES.ENGAGEMENT_ENTRY){
         if('engagement' in params){
           query['engagement'] = params.engagement;
@@ -127,8 +126,7 @@ const DocGrid = (props: IGridProps, ref ) => {
     set_is_loading(true);
     if(!props.is_child_table){
       // get data from server 
-      const config = get_read_db_cfg();
-      console.log("Config:", config, params)
+      const config = get_read_db_cfg(); 
       const [recs, total_count] = await db.get_list(config, true); 
       set_data(data => recs);
       set_count(count => total_count);
@@ -184,8 +182,7 @@ const DocGrid = (props: IGridProps, ref ) => {
     }
   }
 
-  const on_refresh = () => {
-    console.log("Refresh clicked")
+  const on_refresh = () => { 
     set_selected_rows([]);
     const page_to_load = 0;
     // if page_to_load is same as current page, hard load data else soft load
@@ -242,8 +239,7 @@ const DocGrid = (props: IGridProps, ref ) => {
   const insert_new_row = (row) => {      
     let rows = data ? [...data] : []; 
     if(current_row){
-      const idx = rows.findIndex((el, indx) => el == current_row);
-      console.log("Curr index: ", idx);
+      const idx = rows.findIndex((el, indx) => el == current_row); 
       rows[idx] = row; 
     } else {
       row['name'] = `${GLOBALS.NEW_RECORD_ID}-${APP.generate_random_string(6)}`;      
@@ -259,8 +255,7 @@ const DocGrid = (props: IGridProps, ref ) => {
     // set_data((current_data) => { 
     //     current_data = current_data || [];
     //     if(current_row){
-    //       const idx = current_data.findIndex((el, indx) => el == current_row);
-    //       console.log("Curr index: ", idx);
+    //       const idx = current_data.findIndex((el, indx) => el == current_row); 
     //       current_data[idx] = row;
     //       return current_data;
     //     }
@@ -298,7 +293,7 @@ const DocGrid = (props: IGridProps, ref ) => {
   const from = page * items_per_page;
   const to = Math.min((page + 1) * items_per_page, count);
 
-  React.useEffect(() => {
+  useLayoutEffect(() => {
     //set title only for major grids. Child tables appear within forms and so cannot have page title
     if(!props.is_child_table) {
       let pg_title = `${doctype} ${APP._('DOC_LIST_VIEW_PAGE.TITLE')}`;
@@ -306,8 +301,7 @@ const DocGrid = (props: IGridProps, ref ) => {
         pg_title = `${params.engagement_name} ${APP._('DOC_LIST_VIEW_PAGE.TITLE')}`;
       } 
       navigation.setOptions({ title: pg_title });
-    }
-    
+    }    
   }, []); 
 
   React.useEffect(() => { 
@@ -326,18 +320,12 @@ const DocGrid = (props: IGridProps, ref ) => {
     }
   }, [items_per_page, /*columns,*/ ])
  
-  React.useEffect(() => {
-    console.log('About to load')
+  React.useEffect(() => { 
     if(columns){
       load_data();
     }
   }, [page]);
-
-  useFocusEffect(() => {
-    // console.log("focused list")
-    // set_page(0); //set to page 0 to trigger reload. do not do this otherwise only page will show
-  });
-   
+ 
   return (
     is_loading ? <AppLoader /> : 
     <View style={props.style}>
@@ -448,8 +436,7 @@ const DocGrid = (props: IGridProps, ref ) => {
                               on_press={()=> {
                                   set_current_row(item);
                                   if(props.is_child_table){
-                                    // For child tables, show child table dlg
-                                    console.log("Child table row clicked")
+                                    // For child tables, show child table dlg 
                                     on_add_new_row();
                                   } else {
                                     open_form_view(true, item); 

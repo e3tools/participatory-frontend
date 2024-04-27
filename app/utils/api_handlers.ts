@@ -68,12 +68,10 @@ class AxiosHandler {
             })
             
             .then(response => { 
-              //handle the response 
-              console.log("Api res: ", url, response)
+              //handle the response  
               // Alert.alert("Login rers: ", response)
             })
-        .catch(error => {
-            console.log("API error:", error)  
+        .catch(error => { 
             Alert.alert("Login error: ", error)
             const message = JSON.parse(JSON.parse(error.response.data._server_messages)[0]).message
             APP.show_error(message)      
@@ -138,16 +136,14 @@ static async do_request(
       if (method != 'GET' && body) {
         payload['body'] = JSON.stringify(body);
       }
-      const res = await fetch(url, payload)/*.catch((error) => {
-        console.log('Fetch error:', error.message);
+      const res = await fetch(url, payload)/*.catch((error) => { 
       });*/
       if (!res.ok) {
         const message = `An error has occured: ${res.status}`;
         throw new Error(message);
       }
       return await this.handle_response(res, data_property);
-    } catch (error) {
-      debugger;
+    } catch (error) { 
       console.log(error);
     }
   };

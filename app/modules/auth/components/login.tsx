@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { Navigation } from '@/app/core/types'
 import KeyboardAvoidingWrapper from '@/app/components/shared/KeyboardAvoidingWrapper'
 import { AppButton } from '@/app/components/shared/AppButton' 
@@ -8,8 +8,7 @@ import { APP } from '@/app/utils/app'
 import { Avatar, Card, IconButton, TextInput } from 'react-native-paper'
 import BaseTextInput from '@/app/components/form/controls/BaseTextInput'
 import { Formik } from 'formik';
-import * as Yup from "yup";
-import { TouchableOpacity } from 'react-native-gesture-handler'
+import * as Yup from "yup"; 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PureTextInput from '@/app/components/form/controls/PureInputText';
 import { AppData, AppPassword } from '@/app/components/form/controls'
@@ -17,9 +16,11 @@ import { AuthService } from '../services/auth'
 import { useNavigation } from 'expo-router'
 import { Text } from 'react-native-paper'
 import { UserStore } from '../stores/user_store'
+import { useAuth } from '@/app/contexts/auth'
  
 const Login = () => { 
   const navigation = useNavigation();
+  const auth = useAuth();
   
   const [username, set_username] = useState({ value: 'administrator', error: '' });
   const [password, set_password] = useState({ value: '123', error: '' });
@@ -45,9 +46,9 @@ const Login = () => {
   const on_login = async (values: object) => {
     APP.toggle_loading(true);
     await UserStore.remove_user();
-    set_loading(true);
-    const [res, user] = await AuthService.login(values.username, values.password);
-    console.log("Login values: ", values)
+    set_loading(true); 
+    // const [res, user] = await AuthService.login(values.username, values.password);
+    const [res, user] = await auth.login(values.username, values.password); 
     if(res) {
       APP.toggle_loading(false);
       set_loading(false);
@@ -64,7 +65,7 @@ const Login = () => {
     }
   } 
  
-  useEffect(() => { 
+  useLayoutEffect(() => { 
     navigation.setOptions({ title: APP._('APP_NAME') });
   }, []);
 
@@ -101,8 +102,7 @@ const Login = () => {
                               field_name='username'
                               label={APP._('LOGIN_PAGE.USERNAME')}
                               form_state={formik_props}
-                              on_change_value={(text)=> {
-                                // console.log("Username: ", username)
+                              on_change_value={(text)=> { 
                                 set_username({ value: text, error: '' })
                                 formik_props.values['username'] = text;  
                               }} 

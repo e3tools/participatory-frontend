@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native'
-import React, { useEffect } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 import AppContainer from '@/app/components/shared/AppContainer'
 import { Card, Paragraph, Text } from 'react-native-paper'
 import TopicModelSummaryImage from '@/app/assets/images/topic-model-summary.png';
@@ -10,7 +10,7 @@ import { APP } from '@/app/utils/app';
 const AIDefault = () => {
   const navigation = useNavigation();
     // const image_uri = Image.resolveAssetSource(TopicModelSummaryImage).uri 
-  useEffect(() => {
+    useLayoutEffect(() => {
     navigation.setOptions({ title: APP._('AI_PAGE.TITLE') }); 
   }, []);
     

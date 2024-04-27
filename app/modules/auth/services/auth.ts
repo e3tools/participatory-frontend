@@ -4,6 +4,12 @@ import { Frappe } from '@/app/backends/frappe';
 import { URLS } from '@/app/constants/enums';
 import { Alert } from 'react-native'; 
 
+type AuthData = {
+  token: string;
+  email: string;
+  name: string;
+};
+
 const AuthService = class AuthService {
 
   static backend = new Frappe(APP.backendURL);
@@ -47,7 +53,7 @@ const AuthService = class AuthService {
    * Retrieve current user data without token
    */
   static get_current_user = async () => {
-    const user_val = await UserStore.get_user(); 
+    const user_val = await UserStore.get_user();  
     return user_val ? user_val : null;
   }
 
@@ -109,8 +115,9 @@ const AuthService = class AuthService {
    * Logout.
    * @TODO Log the logout action to the db
    */
-  static logout = async() => {
-    return await UserStore.remove_user();
+  static logout = async () => {
+    const res = await UserStore.remove_user();
+    return res;
   }
 }
 

@@ -98,7 +98,9 @@ https://www.youtube.com/watch?v=EBFodDiGLN8
 
 Login
 https://www.youtube.com/watch?v=BQ-kHwLlhrg&list=PLk8gdrb2DmCicLTZJWC2cCTFXloTBMBCt
-
+https://medium.com/the-react-native-log/building-an-authentication-flow-with-react-navigation-fb5de2203b5c
+https://levelup.gitconnected.com/react-native-authentication-flow-the-simplest-and-most-efficient-way-3aa13e80af61
+https://www.smashingmagazine.com/2021/08/mounting-unmounting-navigation-routes-react-native/
 
 Merge Stack & Drawer
 https://www.youtube.com/watch?v=bnRIvh6NVqA
@@ -106,3 +108,6 @@ https://abdo-arwish.medium.com/drawer-navigator-transition-animation-9e862084f1d
 
 Multiple lessons
 https://www.youtube.com/playlist?list=PLcAweYhTtPJPLx_LXNFtp_ivoxnESX3wP
+
+Router
+https://medium.com/@christianchown/simple-routing-in-react-native-with-react-native-easy-router-6e529866519e

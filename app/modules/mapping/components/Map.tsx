@@ -24,8 +24,7 @@ import Snackbar from 'react-native-paper';
 import { DATASOURCE, DATA_TYPE } from '../enums';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppButton } from '@/app/components/shared/AppButton';
-import Carousel from 'react-native-reanimated-carousel';
-import { ScrollView } from 'react-native-gesture-handler';
+import Carousel from 'react-native-reanimated-carousel'; 
 
 /**
  * Component that renders the map and all its layers
@@ -67,8 +66,7 @@ const AppMap = class AppMap extends React.Component<IMapProps> {
      * Listener for change of region
      * @param region 
      */
-    on_region_change = (region: Region) => {
-        //console.log(region);
+    on_region_change = (region: Region) => { 
     }
 
     /**
@@ -635,8 +633,7 @@ const AppMap = class AppMap extends React.Component<IMapProps> {
                                 description={this.state.selected_admin.level}
                                 left={props => <List.Icon {...props} icon="bike" />}
                                 right={props => <View>
-                                    <AppButton label={APP._('BUTTON.OK')} on_press={() => {
-                                        console.log("Ok clicked")
+                                    <AppButton label={APP._('BUTTON.OK')} on_press={() => { 
                                     }}/> 
                                 </View>} 
                             >

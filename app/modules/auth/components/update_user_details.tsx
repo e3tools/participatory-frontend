@@ -42,8 +42,7 @@ const UpdateUserDetails = () => {
         const usr = await AuthService.get_current_user(); 
         if(usr){
           const usr_doc = await db.get_doc(usr.name);
-          set_doc(usr_doc);
-          console.log("Retrieved user: ", usr_doc.first_name, usr_doc.middle_name, usr_doc.last_name)
+          set_doc(usr_doc); 
           if(usr_doc){
             set_initial_values({first_name: usr_doc.first_name, middle_name: usr_doc?.middle_name, last_name: usr_doc?.last_name });
           }
