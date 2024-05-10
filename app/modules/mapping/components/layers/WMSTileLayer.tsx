@@ -1,13 +1,24 @@
 import { View, Text } from 'react-native'
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react'
-import { MAP_TYPES, WMSTile } from 'react-native-maps'
-import { IWMSTileProps } from '../../interfaces'
+import { MAP_TYPES, WMSTile } from 'react-native-maps' 
 import { TechnicalAnalysisService } from '@/app/services/technical_analysis';
 import { APP } from '@/app/utils/app';
 import { DATASOURCE } from '../../enums';
 import { number } from 'yup';
 
 const ENABLE_TILES = true;
+
+type IWMSTileProps = {
+  // url: string, //host url. Geoserver
+  // layer: string, //layer to pull
+  // tile_size: number, //tile size
+  // opacity: number, //layer opacity
+  // format: string, //format of the tiled image
+  analysis_name: string,
+  admin_id: string,
+  admin_level: number,
+  parent_state_updater:(state: object)=>void
+}
 
 /**
  * Layer that renders WMS Tiles. An example are those served by GeoServer.
@@ -42,10 +53,8 @@ const WMSTileLayer = (props: IWMSTileProps, ref) => {
     //const add_analysis = (analysis_name: object, vector_id: string, admin_level: number) => { 
       APP.toggle_loading(true);
       const analysis = TechnicalAnalysisService.get_analysis(analysis_name).then((doc) => {
-        //remove_analysis(doc.analysis_name); 
-        
-        TechnicalAnalysisService.get_computation(doc.name, admin_id, admin_level).then((res) => {
-          
+        //remove_analysis(doc.analysis_name);         
+        TechnicalAnalysisService.get_computation(doc.name, admin_id, admin_level).then((res) => {          
           // Check if it is vector or raster
           if(doc.datasource_type == DATASOURCE.RASTER){
             // The style_field is the analysis_name as the computation adds a new property analysi_name
@@ -57,9 +66,9 @@ const WMSTileLayer = (props: IWMSTileProps, ref) => {
 
               let srs = options.srs;
               let tmp = `${url}?service=WMS&request=GetMap&layers=${layer}&styles=&format=${options.format}&transparent=true&version=1.1.1&width={width}&height={height}&srs=${srs}&bbox={minX},{minY},{maxX},{maxY}`
-              set_template(tmp);
+              set_template(tmp);  
             }
-
+            props.parent_state_updater(doc.name, res)
             // set_datasource(
             //         analysis_name, 
             //         null, 

@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, Dimensions } from 'react-native'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import MapView from 'react-native-maps'
 import { PROVIDER_GOOGLE } from "react-native-maps"
-import AppMap from '../components/Map' 
+import AppMap from '../components/map' 
 import { IImageOverlayProps, IMarkerProps } from '../interfaces'
 import { Button, Card, IconButton } from 'react-native-paper'
 import LinkField from '../../../components/form/controls/Link'
@@ -36,7 +36,10 @@ export default function Diagnostics() {
   }
 
   // Kenya bounding box
-  const initial_bounds = [33.89, -4.68, 41.86, 5.51];
+  const initial_bounds = [33.89, -4.68, 41.86, 5.51]; 
+
+  // Nyeri bounds
+  //const initial_bounds = [36.60403823901738, -0.644683701030667, 37.3078117370009, 0.015436301565340857];
 
   const markers: Array<IMarkerProps> = [
     {

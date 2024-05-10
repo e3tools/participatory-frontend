@@ -41,19 +41,22 @@ const BaseTextInput = (props: IDataProps) => {
         {...props}
         keyboardType={keyboard_type}
         style={[GlobalStyles.form_field, GlobalStyles.Data, styles.text_input_style, props?.style ]}
-        label={props.label}
+        label={props.reqd ? `${props.label} *` : props.label} 
+        // label={<Text style={{fontSize: 20}}><Text style={{color: 'red' }}>*</Text>{props.label}</Text>} 
         // placeholder={props.label}
         value={value}
         disabled={props.readonly}
         mode='outlined'
-        numberOfLines={props.multiline ? 3: 1}
+        numberOfLines={props.multiline ? 6: 1}
         dense
+        textAlignVertical=''
         secureTextEntry={props.is_password}
         onChangeText={text => {
             set_value(text);
             props.on_change_value(text); 
           }
         }
+        outlineStyle={{ borderColor: props.reqd ? 'red' : theme.colors.primary }}
         error={error_message ? true : false}
       /> 
       {

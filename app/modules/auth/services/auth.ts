@@ -20,10 +20,9 @@ const AuthService = class AuthService {
       usr: username,
       pwd: password,
     };  
-    const [success, user] = await new Frappe(URLS.BACKEND).login(auth); 
-    // if (user && !user.status_code) {
+    const [success, user] = await new Frappe(URLS.BACKEND).login(auth);   
     if(success){
-      await this._on_login_success(user); 
+      await this._on_login_success(user);  
       return [success, user];
     } else {
       await this._on_login_failure(user); 
@@ -44,8 +43,6 @@ const AuthService = class AuthService {
    */
   static _on_login_failure = async(user: object) => { 
     await UserStore.remove_user();
-    const title = APP._('LOGIN_PAGE.LOGIN_FAILURE_TITLE');
-    APP.show_error(user.text, title);
     return false;
   }
 

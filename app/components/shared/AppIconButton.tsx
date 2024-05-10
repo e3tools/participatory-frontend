@@ -10,10 +10,11 @@ type IconButtonProps = {
   size?: number,
   mode?: string, 
   on_press: (e)=>void, //on_
+  disabled?: boolean
 }
 
 const AppIconButton = (props: IconButtonProps) => {// ({ label, icon, mode='contained', on_press }) => {
-    const { label, icon, size=24, mode='contained-tonal', tooltip, on_press, ...rest } = props;
+    const { label, icon, size=18, mode='contained-tonal', tooltip, disabled=false, on_press, ...rest } = props; 
     if(tooltip) {
         return (
             <Tooltip title={tooltip}>
@@ -22,6 +23,7 @@ const AppIconButton = (props: IconButtonProps) => {// ({ label, icon, mode='cont
                     icon={icon} 
                     mode={mode}  
                     size={size}
+                    disabled={true}
                     onPress={on_press}>
                     {label}
                 </IconButton>

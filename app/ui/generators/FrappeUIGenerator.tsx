@@ -160,7 +160,7 @@ const FrappeUIGenerator = (props: IDocFormProps, ref) => {
   }
 
   const evaluate_depends_on = (expression:string, selected_field: object) => {      
-    console.log("Evaluating depends on")
+    console.log("Evaluating depends on 3")
     //check if visibility is based on another field
     if(expression){
       let tmp = expression

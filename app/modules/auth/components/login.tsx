@@ -22,8 +22,10 @@ const Login = () => {
   const navigation = useNavigation();
   const auth = useAuth();
   
-  const [username, set_username] = useState({ value: 'administrator', error: '' });
+  const [username, set_username] = useState({ value: 'Administrator', error: '' });
   const [password, set_password] = useState({ value: '123', error: '' });
+  // const [username, set_username] = useState({ value: '', error: '' });
+  // const [password, set_password] = useState({ value: '', error: '' });
   const [loading, set_loading] = useState(false);
 
   const initial_values = {'username': '', password: ''};
@@ -56,10 +58,8 @@ const Login = () => {
       // APP.navigate_to_path(navigation, 'index');
       // APP.navigate_to_path(navigation, '/modules/engage/screens/engage_index_screen');
       APP.route_to_path('/modules/engage/screens/engage_index_screen');
-      //APP.route_to_path('app/', {}, {});
     } else {
-      console.log("Login fail")
-      APP.notify(APP._('LOGIN_PAGE.LOGIN_FAILURE_MESSAGE'), true);
+      APP.show_message(APP._('LOGIN_PAGE.LOGIN_FAILURE_MESSAGE'));
       APP.toggle_loading(false);
       set_loading(false);
     }
@@ -79,8 +79,11 @@ const Login = () => {
               <Formik          
                 initialValues={initial_values}
                 validationSchema={validation_schema}
-                onSubmit={(values, actions) => { 
-                    on_login(values);
+                onSubmit={async (values, actions) => { 
+                    const res = on_login(values);
+                    if(!res){
+                      set_loading(false);
+                    }
                     //actions.resetForm();
                 }}
               >

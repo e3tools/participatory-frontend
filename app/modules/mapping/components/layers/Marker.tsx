@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { IMarkerProps } from '@/app/modules/mapping/interfaces'
 import { Marker } from 'react-native-maps'
 
@@ -7,7 +7,10 @@ import { Marker } from 'react-native-maps'
  * Render basic marker on a map
  */
 export default function MapMarker(props: IMarkerProps) {
-    const [location, set_location] = useState(props.location);
+    const [location, set_location] = useState(props.location); 
+    useEffect(()=> {
+        set_location(props.location);
+    }, [props.location]);
   return (
     <Marker 
         coordinate={location}

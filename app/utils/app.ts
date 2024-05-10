@@ -1,7 +1,7 @@
 import { APPS, URLS } from '../constants/enums';
 import { _ as t } from "../utils/translate";
 import { router, useNavigation, useRootNavigationState } from 'expo-router'; 
-import { Alert } from 'react-native';
+import { Alert, ToastAndroid } from 'react-native';
 import * as Random from 'randomstring';   
 // import { NavigationActions } from 'react-navigation';
 import { CommonActions, DrawerActions } from '@react-navigation/native';
@@ -13,7 +13,6 @@ String.prototype.format = function (...args) {
   // Using replace for iterating over the string
   // Select the match and check whether related arguments are present. 
   // If yes, then replace the match with the argument.
-    
   return this.replace(/{([0-9]+)}/g, function (match, index) {      
     // checking whether the argument is present
     return typeof args[index] == 'undefined' ? match : args[index];
@@ -36,7 +35,7 @@ const APP = class AppUtil {
     // return proxy;
     return null;
   }
-
+ 
   /**
    * Get full backend url
    * @param url 
@@ -62,7 +61,7 @@ const APP = class AppUtil {
    */
   static show_message(
     message: string,
-    title: '',
+    title: string = '',
     // on_ok = null,
     // on_cancel = null,
     // on_dismiss = null
@@ -205,17 +204,14 @@ const APP = class AppUtil {
   | "left"
   | "right"
   | "center" = 'top', timeout=3000) => {    
-    this.alert(message, false, position);
-    // Notify.create({
-    //   color: is_error ? 'negative' : 'secondary',
-    //   //textColor: 'white',
-    //   icon: 'info',
-    //   message,
-    //   position,
-    //   avatar: 'info',
-    //   multiLine: true, 
-    //   timeout: timeout, // Math.random() * 5000 + 3000
-    // })
+    // this.alert(message, false, position);
+    ToastAndroid.showWithGravityAndOffset(
+      message,
+      ToastAndroid.LONG,
+      ToastAndroid.CENTER,
+      25,
+      100,
+    );
   }
 
   /**
@@ -306,8 +302,7 @@ const APP = class AppUtil {
     const clone_params = { ...params }
     // clone['navigation'] = navigation;
     // clone['_t'] = this.generate_random_string(16);  
-    // navigation.navigate(url, clone_params);
-    // navigation.push(url, clone_params);  
+    // navigation.navigate(url, clone_params); 
     navigation.reset({
       index: 0,
       routes: [

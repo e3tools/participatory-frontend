@@ -45,7 +45,7 @@ export default function MultiStepForm(props) {
     <MyComponent title="Component 3" />,
   ]); 
   const params = useLocalSearchParams();
- 
+   
   useEffect(() => {    
     new DocTypeService("Engagement").get_doc(params.engagement).then((d) => {      
       //engagement.value = d 
@@ -181,12 +181,12 @@ export default function MultiStepForm(props) {
   const refresh_content = () => {
     let contents = [];
     for(let i=0; i< engagement_template?.items?.length; i++) {
-      let form = engagement_template.items[i];  
+      let form = engagement_template.items[i]; 
       contents.push( 
         <DocForm
           doctype={form.doctype_item} 
-          docname={docs[form.doctype_item] ? docs[form.doctype_item].name : null}
-          doc={docs[form.doctype_item] ? docs[form.doctype_item] : null}
+          docname={docs ? (docs[form.doctype_item] ? docs[form.doctype_item].name : null) : null}
+          doc={docs ? (docs[form.doctype_item] ? docs[form.doctype_item] : null) : null}
           show_save_button={false} 
           // ref={(el) => (form_refs['form'+form.idx] = el)}
           ref={set_ref(`form${form.idx}`)}

@@ -19,9 +19,9 @@ export default function AppDate(props: IDateProps) {
 
   return (
     //<View style={[GlobalStyles.form_field, GlobalStyles.date_picker]}>
-    <View style={{justifyContent: 'center', flex: 1, alignItems: 'center'}}>
+    <View style={[ GlobalStyles.date_picker, {justifyContent: 'center', flex: 1, alignItems: 'center'}]}>
       <DatePickerInput
-        style={[GlobalStyles.form_field, GlobalStyles.date_picker, props?.style]}
+        style={[GlobalStyles.form_field, /*GlobalStyles.date_picker,*/ props?.style]}
         locale='en'
         mode='outlined'
         label={props.field.label}

@@ -60,18 +60,7 @@ export interface IImageOverlayProps {
     bounds: [[], []],
     opacity: number
 }
-
-export interface IWMSTileProps {
-    // url: string, //host url. Geoserver
-    // layer: string, //layer to pull
-    // tile_size: number, //tile size
-    // opacity: number, //layer opacity
-    // format: string, //format of the tiled image
-    analysis_name: string,
-    admin_id: string,
-    admin_level: number
-}
-
+   
 interface ILegendItem {
     operator: string
     item_type: typeof LEGEND_TYPE,

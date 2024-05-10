@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "participatory-frontend",
+    "name": "Engage",
     "slug": "participatory-frontend",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -21,7 +21,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
       "config": {
@@ -29,7 +29,7 @@
           "apiKey": "AIzaSyAX3uSoIOBULPh21IRfBiwZ_KzxDtPmTeU"
         }
       },
-      "package": "com.stevenyaga.participatoryfrontend"
+      "package": "com.stevenyaga.engage"
     },
     "web": {
       "bundler": "metro",

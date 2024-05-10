@@ -8,6 +8,7 @@ import { theme } from "./core/theme";
 import { SafeAreaView, Text } from "react-native";  
 import { useNavigation } from 'expo-router'; 
 import { AuthProvider, useAuth } from "./contexts/auth"; 
+import { ping } from "./utils/db";
 
 export default function Layout() {
   const auth = useAuth(); 
@@ -17,6 +18,11 @@ export default function Layout() {
   useEffect(()=> {
     set_header_shown(auth.is_authenticated); 
   }, [auth.is_authenticated])
+
+  useEffect(()=> {
+    console.log("Pinging....")
+    ping();
+  }, [])
  
   return (
     <PaperProvider theme={theme}>     

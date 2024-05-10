@@ -196,6 +196,7 @@ const DocGrid = (props: IGridProps, ref ) => {
 
   const open_form_view = (is_editing: boolean, row = null) => { 
     // reset_form_store(props.doctype); // reset form state    
+    console.log("Opening view: ", is_editing, row )
     if(doctype != DOCTYPES.ENGAGEMENT_ENTRY){ 
       APP.navigate_to_path(navigation, 'views/form/index', {
           'doctype': doctype,
@@ -212,6 +213,7 @@ const DocGrid = (props: IGridProps, ref ) => {
     }
     else {
       const curr_engagement = params.engagement;
+      console.log("DD: ", params, row, is_editing)
       APP.navigate_to_path(navigation, 'views/form/MultiStepForm', {
           'engagement': curr_engagement,
           'entry': is_editing ? row.name : GLOBALS.NEW_RECORD_ID

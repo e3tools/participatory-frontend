@@ -67,6 +67,10 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
     const forms = FormStore.useState(s=>s.forms);
     const { width, height } = Dimensions.get('window');
 
+
+    useEffect(()=> {
+      console.log("Values changed")
+    }, [formik_ref.current?.values])
     /**
    * Get form record
    */
@@ -79,16 +83,16 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
       }
     }
     else {
-      console.log("Form state does NOT exist")
+      console.log("Form state does NOT exist")  
     }
     if(stored_doc == null) 
-    { 
+    {  
       const docname = form_props.docname;
       if (docname && docname !== undefined && !UIUtil.is_new_record(docname)){ 
         const fdoc = await db.get_doc(docname); 
         set_doc(fdoc); 
         set_form_store(form_props.doctype, fdoc);
-      } else {
+      } else { 
         let fdoc = await db.new_doc(null);
         // update with initial values 
         fdoc = APP.update_dict(initial_values);
@@ -106,6 +110,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
      */
     const get_form_fields = (formik_props: object) => {
         // const selected_value = null; 
+        console.log("RE-rendering")
         // for fields in other tabs, set display: none
         const clone_fields = [...fields]; // make a copy to maintain the original state
         const tab_fields = form_tabs?.[active_tab] || [];  
@@ -121,15 +126,16 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                 See https://github.com/facebook/react/issues/12039 
                 */ 
                 if(NON_FORM_FIELDS.includes(df.fieldtype)){
-                    return false
+                    return false;
                 }
-                if(df.depends_on && !evaluate_depends_on(df.depends_on, /*selected_value,*/ formik_props)){
+                if(df.depends_on && !evaluate_depends_on(df, df.depends_on, /*selected_value,*/ formik_props)){
                     df['style'] = {display: 'none'};
+                    return false;
                     //instead of returning false, proceed but set display to none since react does not support keep-alive
                     //return false
                 }
                 if(df.mandatory_depends_on){
-                    let res = evaluate_depends_on(df.mandatory_depends_on,  /*selected_value,*/ formik_props)
+                    let res = evaluate_depends_on(df, df.mandatory_depends_on,  /*selected_value,*/ formik_props)
                     df.reqd = res
                 } 
             }
@@ -139,34 +145,56 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
         return flds;
     }
 
-    const evaluate_depends_on = (expression:string, /*selected_field: object,*/ formik_props: object) => {     
+    /**
+     * Evaluate depends on
+     * Works well on initial render. However it does not work thereafter since it is dependent on
+     * the values of the form
+     * @param expression 
+     * @param formik_props 
+     * @returns 
+     */
+    const evaluate_depends_on = (field: object, expression:string, /*selected_field: object,*/ formik_props: object) => {     
       let exp_str;
       var vals = form_props.values;
-      const _eval = () =>{
-        console.log(eval(exp_str));
+      const _eval = (xpr) => { 
+        console.log("Evaluating expression:", eval(xpr));
+        return eval(xpr); 
       }
 
       let exp = '1=0';
-        //check if visibility is based on another field
-        console.log("Evaluating depends on 2: ", formik_props.values)
-        if(expression){
-          let tmp = expression
-          if(tmp.indexOf('doc.') === -1){
-            //If we have an expression without doc. prefix
-            tmp = 'formik_props.values.' + tmp
-          }
-          exp = tmp.replace(/eval:/g, "").replace(/doc./g, "formik_props.values.");
-          
-          _eval();
-          // exp_str = 'var res = ' + exp;
-          // console.log("Exp str: ", exp_str);
+      //check if visibility is based on another field
+      console.log("Evaluating depends on 2: ", formik_props.values)
+      if (expression) {
+        console.log("Expression: ", expression, " for field: ", field.fieldname)
+        let tmp = expression
+        if(tmp.indexOf('doc.') === -1){
+          //If we have an expression without doc. prefix
+          tmp = 'formik_props.values.' + tmp
+        }
+        // exp = tmp.replace(/eval:/g, "").replace(/doc./g, "formik_props.values.");
+        exp = tmp.replace(/eval:/g, "");
 
-          // let zz = eval("formik_props.values.assignee_type=='System User'") 
-          //let res = eval?.(exp)
-          let res = _eval();
-          return res
-        } 
-        return true
+        // replace doc.[field] with actual values
+        let keys = Object.keys(formik_props.values) || [];
+        keys.forEach((key) => {
+            let re = new RegExp(`doc.${key}`, "g")
+            let val = formik_props.values?.[key];
+            if (isNaN(parseFloat(val))){
+              val = '"' + val + '"';  
+            }
+            exp = exp.replace(re, val);
+        }) 
+        console.log("Exp: ", exp);
+        _eval(exp);
+        // exp_str = 'var res = ' + exp;
+        // console.log("Exp str: ", exp_str);
+
+        // let zz = eval("formik_props.values.assignee_type=='System User'") 
+        //let res = eval?.(exp)
+        let res = _eval(exp);
+        return res
+      } 
+      return true
     }
 
       /**
@@ -716,9 +744,9 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
               <Formik 
                   innerRef={formik_ref /*ref*//*(f) => (ref.current = f)*/}
                   initialValues={initial_values}
-                  validationSchema={Yup.object().shape(form_config.validation_schema)}
+                  validationSchema={Yup.object().shape(form_config.validation_schema)} 
                   onSubmit={(values, actions) => { 
-                      on_submit(values);
+                      on_submit(values); 
                       //actions.resetForm();
                   }}
               >

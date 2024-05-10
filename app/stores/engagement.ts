@@ -83,6 +83,7 @@ const EngagementStore = class EngagementStore {
    * @param data 
    */
      static set_survey_form_data = (engagement: string, doctype: string, data:object, ) => { 
+        console.log("Setting survey data: ", engagement, doctype, data)
         this._set_form_value(engagement, SURVEY, doctype, data)
     }
 
@@ -117,10 +118,15 @@ const EngagementStore = class EngagementStore {
         if(!(engagement in this._store[engagement_type])){
             this._store[engagement_type][engagement] = {};
         }
+        console.log("Store: ", this._store, engagement_type, engagement)
+        if(!this._store[engagement_type][engagement]) {
+            this._store[engagement_type][engagement] = {};
+        }
         if(!(doctype in this._store[engagement_type][engagement])){
             this._store[engagement_type][engagement][doctype] = {};
         }
-        this._store[engagement_type][engagement][doctype] = data;
+        console.log("Setting store val: ", data)
+        this._store[engagement_type][engagement][doctype] = data || {};
     }
 
     /**

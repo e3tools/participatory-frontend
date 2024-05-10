@@ -12,7 +12,9 @@ export interface IMenuProps {
     /**
     * Content of the `Menu`.
     */
-    children: React.ReactNode;
+    children: React.ReactNode,
+    disabled: boolean,
+    anchor_size: number
 }
 
 export interface IMenuItemProps {

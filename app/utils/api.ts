@@ -1,5 +1,6 @@
 import { AxiosHandler } from "./api_handlers";
 import { UserStore } from '../modules/auth/stores/user_store';
+import { GLOBALS } from "../constants/defaults";
 
  /**
    * Get updated headers
@@ -27,23 +28,25 @@ const make_request = async (
   headers: object = {},
   data_property = 'data',
   is_upload=false,
-  is_export=false
+  is_export=false,
+  timeout: Number = GLOBALS.BACKEND_TIMEOUT
 ) => {
-   /**
+   /**r
    * Get updated headers
    */
   headers = await get_headers(headers)
   if(is_upload){
-    heaers['Accept'] = "application/x-www-form-urlencoded"
-  }
+    headers['Accept'] = "application/x-www-form-urlencoded"
+  }   
   return AxiosHandler.do_request(url,
     method,
     body,
     headers,
     data_property,
     is_upload,
-    is_export)
-};
-
+    is_export,
+    timeout
+  )
+}; 
 
 export { make_request, get_headers };

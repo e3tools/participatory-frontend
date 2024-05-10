@@ -1,5 +1,5 @@
 
-import { View, Text, StyleSheet, Alert, Dimensions } from 'react-native'
+import { View, Text, StyleSheet, Alert, Dimensions, Linking } from 'react-native'
 import React, { createRef, forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps'
 import AppMask from '../../../components/shared/AppMask';
@@ -10,21 +10,26 @@ import MapMarker from './layers/Marker';
 import GeoJsonLayer from './layers/GeoJsonLayer';
 import ImageOverlay from './layers/ImageOverlay'; 
 import WMSTileLayer from './layers/WMSTileLayer';
-import MapQueryDialog from './MapQueryDialog';
+import MapQueryDialog from './map_query_dialog';
 import { VectorService } from '@/app/services/vector';
 import { MAPUTIL } from '@/app/modules/mapping/utils/map';
-import { Avatar, Button, Card, Divider, IconButton, List, Menu, Paragraph, Provider } from 'react-native-paper';
+import { Avatar, Button, Card, Dialog, Divider, IconButton, List, Menu, Paragraph, Portal, Provider, Snackbar, Switch } from 'react-native-paper';
 import AppSelect from '@/app/components/form/controls/Select';
 import { APP } from '@/app/utils/app';
 import { AppMenu, AppMenuItem } from '@/app/common/components/Menu';
-import CardActions from 'react-native-paper/lib/typescript/components/Card/CardActions';
 import { TechnicalAnalysisService } from '@/app/services/technical_analysis';
-import { TechnicalAnalysisMenuItem } from './TechnicalAnalysisMenuItem'; 
-import Snackbar from 'react-native-paper'; 
+import { TechnicalAnalysisMenuItem } from './technical_analysis_menu_item'; 
 import { DATASOURCE, DATA_TYPE } from '../enums';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppButton } from '@/app/components/shared/AppButton';
 import Carousel from 'react-native-reanimated-carousel'; 
+import { AppIconButton } from '@/app/components/shared/AppIconButton';
+import AcaciaWater from './acacia_water';
+import SLMHelp from './slm_help';
+import MapLegend from './map_legend';
+import AnalysisDetails from './analysis_details';
+
+
+const SUSTAINABLE_LAND_MANAGEMENT = 'slm';
+const SELECTED_VECTOR_LAYER_NAME = 'Selected Vector'
 
 /**
  * Component that renders the map and all its layers
@@ -52,7 +57,13 @@ const AppMap = class AppMap extends React.Component<IMapProps> {
         raster_tiles: [], //list of raster tiles
         notify: false,
         notify_message: '',
-        layer_refs: {}, //layers on the map
+        layer_refs: {}, //layers on the map,
+        selected_point: {'lat': 0, 'lon': 0},
+        slm_enabled: true, // Is sustainable land management analysis enabled?
+        map_help_visible: false, //is SLMHelp popup to be shown
+        slm_snack_bar_visible: false, //Is SLM_SnackBar visible
+        active_analysis_visible: false, //Show details of the current analysis
+        active_analysis: null, //current analysis
     };
 
     /**
@@ -172,14 +183,21 @@ const AppMap = class AppMap extends React.Component<IMapProps> {
     select_feature = async (id: string, level: number, layer: object) => {
         this.setState({ selected_feature: null });
 
-        let feature = this.get_feature(id, layer)
+        let feature = this.get_feature(id, layer) 
         if(!feature){
           //try add the feature first
           const admin = await VectorService.get_admin(id, level);
-
-          const bounds = admin.bounds; 
-          this.fit_bounds(MAPUTIL.bounds_to_coordinates(bounds)); 
-          let added_layer = this.add_feature(JSON.parse(admin.geom)['features'][0], admin.name);
+          const bounds = admin.bounds;      
+          this.fit_bounds(MAPUTIL.bounds_to_coordinates(bounds));
+          let admin_geom = JSON.parse(admin.geom);
+          // some geojson come with FeatureCollection and Features properties while others do not.
+          // so check if `features` property exists
+          // use `SELECTED_VECTOR_LAYER_NAME` as the layer name so that we only have a single vector showing on the map
+          if ('features' in admin_geom){
+            let added_layer = this.add_feature(admin_geom['features'][0], SELECTED_VECTOR_LAYER_NAME /*admin.name*/);
+          } else {
+            let added_layer = this.add_feature({ 'geometry': admin_geom }, SELECTED_VECTOR_LAYER_NAME /*admin.name*/ );
+          }
           //   feature = this.get_feature(id, added_layer);
         }
         if(feature){ 
@@ -209,8 +227,7 @@ const AppMap = class AppMap extends React.Component<IMapProps> {
         //     geojson_layer = null
         // }
         const clone = Object.assign({}, geojson_feature);
-        const geom = geojson_feature.geometry
-
+        const geom = geojson_feature.geometry;
         const geojson = {
             "type": "FeatureCollection",
             "features": [
@@ -257,8 +274,10 @@ const AppMap = class AppMap extends React.Component<IMapProps> {
         return res;
     } 
     
-    fit_bounds = (coordinates) => { 
-        this.map_ref?.current?.fitToCoordinates(coordinates, { animated: true })
+    fit_bounds = (coordinates) => {  
+        if(coordinates){
+            this.map_ref?.current?.fitToCoordinates(coordinates, { animated: true });
+        }
     }
    
     /**
@@ -273,6 +292,11 @@ const AppMap = class AppMap extends React.Component<IMapProps> {
                 opac[el.name] = 0.5;
                 actives[el.name] = false;
             })
+
+            // Add sustainable land management
+            opac[SUSTAINABLE_LAND_MANAGEMENT] = 0.5;
+            actives[SUSTAINABLE_LAND_MANAGEMENT] = false;
+
             this.setState({ opacities: opac });
         })
     }
@@ -298,6 +322,7 @@ const AppMap = class AppMap extends React.Component<IMapProps> {
             //this ref will be used when rendering map components. If you create them in the render function of Map.tsx, React will go into an infinite loop
             const ref = datasource_type == DATASOURCE.RASTER ? createRef<typeof WMSTileLayer>() : (datasource_type == DATASOURCE.VECTOR ? createRef<typeof GeoJsonLayer>() : createRef());
             analysis['ref'] = ref;
+            analysis['results'] = {} // Results will be modified when analysis is completed. See WMSTileLayer
             next_state.push(analysis);
         } 
         this.setState((prev_state) => { 
@@ -443,20 +468,25 @@ const AppMap = class AppMap extends React.Component<IMapProps> {
         this.setState({ layer_refs: next_state });
     }
 
+    update_analysis_results = (analysis_name: string, results: {}) => { 
+        let index = this.state.selected_analyses?.findIndex(el=>el.name == analysis_name);
+        if(index != -1){
+            let next_state = this.state.selected_analyses;
+            next_state[index]['results'] = results;
+            this.setState({ selected_analyses: next_state });
+        }
+    }
+
     componentDidMount(): void {  
         VectorService.get_admin_tree(false).then((res) => {  
             this.setState({ admins: res });            
-            this.get_analyses_from_db().then(() => {
-            });
-            this.fit_bounds(MAPUTIL.bounds_to_coordinates(this.props.initial_bounds)); 
-        }); 
+            this.get_analyses_from_db().then(() => {});
+            this.fit_bounds(MAPUTIL.bounds_to_coordinates(this.props.initial_bounds));
+        });
     } 
-
-    //const [visible, setVisible] = React.useState(false);
-
-    openMenu = () => this.setState({ settings_visible: true })
   
-    closeMenu = () => this.setState({ settings_visible: false })
+    openMenu = () => this.setState({ settings_visible: true });  
+    closeMenu = () => this.setState({ settings_visible: false });
 
     render() {
         return (
@@ -464,8 +494,8 @@ const AppMap = class AppMap extends React.Component<IMapProps> {
             <View>
                 <Card>
                     <Card.Actions style={{ }}>
-                        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'flex-start' /*alignContent: 'flex-start',alignItems: 'flex-start', justifyContent: 'flex-start'*/ }} >
-                            <View style={{ flexBasis: '70%' }}>
+                        <View style={styles.toolbar}>
+                            <View style={styles.search_container}>
                                 <AppSelect
                                     style={{ flex: 2 }}
                                     options={this.state.admins}
@@ -475,7 +505,7 @@ const AppMap = class AppMap extends React.Component<IMapProps> {
                                     placeholder={APP._('MAP_PAGE.SEARCH_REGION')}
                                     on_change_value={(admin) => {  
                                             this.setState({ selected_admin: admin }, ()=> {
-                                                // select_admin(this.state.selected_admin);
+                                                // select_admin(this.state.selected_admin);  
                                                 if(admin){
                                                     this.select_feature(admin.name, admin.level, null);
                                                 }
@@ -484,29 +514,39 @@ const AppMap = class AppMap extends React.Component<IMapProps> {
                                     }
                                 />
 
-                            </View>  
-                            <View style={{ flexBasis: '25%'}}>
-                                <AppMenu 
-                                    visible={true}
-                                    anchor_icon='cog'
-                                    anchor_label={APP._('MAP_PAGE.OPTIONS')} 
-                                    // anchor={<Button onPress={() => { this.setState({ settings_visible : !this.state.settings_visible })}}>Rest</Button>}
-                                >
-                                    {
-                                        this.state.technical_analyses?.map((analysis, idx) => {
-                                            return <TechnicalAnalysisMenuItem key={idx} title={analysis.name} 
-                                                        on_checkbox_value_change={(checked)=>{ 
-                                                            this.toggle_analysis(analysis, checked);                                        
+                            </View> 
+                            <View style={[styles.toolbar_container, {flex: 1}]}> 
+                                <View style={styles.options_container}>
+                                    <Switch value={this.state.slm_enabled} onValueChange={()=> this.setState({ slm_enabled: !this.state.slm_enabled, slm_snack_bar_visible: true })} /> 
+
+                                    <AppIconButton disabled={false} size={18} tooltip="help" icon="help" mode='contained-tonal' on_press={()=>{
+                                        this.setState({ map_help_visible: true })
+                                    }} />  
+                                    
+                                    <AppMenu 
+                                        visible={true}
+                                        disabled={this.state.slm_enabled}
+                                        anchor_icon='cog'
+                                        anchor_label=''
+                                        anchor_size={18}
+                                        // anchor_label={APP._('MAP_PAGE.OPTIONS')}
+                                    >
+                                        {
+                                            this.state.technical_analyses?.map((analysis, idx) => {
+                                                return <TechnicalAnalysisMenuItem key={idx} title={analysis.name} 
+                                                            on_checkbox_value_change={(checked)=>{ 
+                                                                this.toggle_analysis(analysis, checked);                                        
+                                                                }
                                                             }
-                                                        }
-                                                        on_slider_value_change={(val: number) => { 
-                                                            this.change_map_opacity(analysis, val);
-                                                        }}
-                                                />
-                                        })
-                                    } 
-                                </AppMenu>    
-                            </View>                    
+                                                            on_slider_value_change={(val: number) => { 
+                                                                this.change_map_opacity(analysis, val);
+                                                            }}
+                                                    />
+                                            })
+                                        } 
+                                    </AppMenu>    
+                                </View>
+                            </View>   
                         </View>
                     </Card.Actions>
                     {/* <Card.Content > */}
@@ -524,7 +564,14 @@ const AppMap = class AppMap extends React.Component<IMapProps> {
                     zoomControlEnabled
                     zoomTapEnabled
                     ref={this.map_ref} 
-                >                    
+                    onPress={(e) => {  
+                        const coords = e.nativeEvent.coordinate;  
+                        this.setState({ selected_point: { 'lat': coords.latitude, 'lon': coords.longitude }});                    
+                    }}
+                    // onPoiClick={(e) => {
+                    //     console.log("on Point Of Interest...", e); // <------ add this 
+                    // }}
+                >       
                     {
                         /*Markers */
                         this._display_markers()
@@ -540,7 +587,8 @@ const AppMap = class AppMap extends React.Component<IMapProps> {
                                             analysis_name={analysis.name} 
                                             admin_id={this.state.selected_admin.name} 
                                             admin_level={this.state.selected_admin.level} 
-                                            ref={ref} />;
+                                            parent_state_updater={this.update_analysis_results}
+                                            ref={ref} />
                             } else if (analysis.datasource_type == DATASOURCE.VECTOR) {
                                 //this._set_layer_ref(analysis.name, ref);
                                 // this.add_analysis(analysis.name, this.state.selected_admin.name, this.state.selected_admin.level);
@@ -583,11 +631,28 @@ const AppMap = class AppMap extends React.Component<IMapProps> {
                     //        return <WMSTileLayer key={idx} url={entry.url} layer={entry.layer} ref2={layer.ref} />
                     //    })         
                     }
-                </MapView>  
+                    {
+                        this.state.slm_enabled === true && 
+                        this.state.selected_point && 
+                        <MapMarker title="" location={{ 
+                                latitude: this.state.selected_point?.lat,
+                                longitude: this.state.selected_point?.lon
+                            }} 
+                            />
+                    }
+                </MapView>   
                 {
-                    this.state.selected_analyses && <View style={{ flex: 1 }}>
+                    this.state.slm_enabled === true && 
+                        <Text style={styles.coordinates}>{this.state.selected_point?.lat} , {this.state.selected_point?.lon}</Text>
+                }
+                {  
+                    this.state.slm_enabled === true && <AcaciaWater point={this.state.selected_point} /> 
+                }
+                {
+                    this.state.slm_enabled === false && this.state.selected_analyses && 
+                    <View style={{ flex: 1 }}>
                         <Carousel
-                            loop
+                            loop={false}
                             width={this.width}
                             style={styles.legend}
                             // height={100}
@@ -610,12 +675,16 @@ const AppMap = class AppMap extends React.Component<IMapProps> {
                                         <Card.Title 
                                             title={item.analysis_name}
                                             left={(props) => <Avatar.Icon {...props} icon="map-legend" />}
-                                            right={(props) => <IconButton {...props} icon="dots-vertical" onPress={() => { Alert.alert("Pending", "More details will be shown here")}} />}
+                                            right={(props) => <IconButton {...props} icon="dots-vertical" onPress={() => { 
+                                                    this.setState({ active_analysis_visible: true, active_analysis: item}) 
+                                                }
+                                            } />}
                                             />
                                         <Card.Content>
-                                             <Paragraph style={styles.legend_content}>
+                                            <MapLegend items={item.results?.result?.legend } />
+                                             {/* <Paragraph style={styles.legend_content}>
                                                 {item.description} 
-                                            </Paragraph>  
+                                            </Paragraph>   */}
                                         </Card.Content>
                                     </Card>                                   
                                 </View>
@@ -623,6 +692,49 @@ const AppMap = class AppMap extends React.Component<IMapProps> {
                             }
                         />
                     </View>
+                }
+                {
+                    this.state.map_help_visible === true && 
+                    <Portal>
+                        <Dialog 
+                            visible={this.state.map_help_visible} 
+                            onDismiss={() => { 
+                                    this.setState({ map_help_visible: false });
+                                  }
+                                }
+                        >
+                            {/* <Dialog.Title style={styles.dialog_title}>{props.item?.category}</Dialog.Title> */}
+                            <Dialog.Content> 
+                               <SLMHelp />
+                            </Dialog.Content>
+                        </Dialog>
+                    </Portal> 
+                }
+                {
+                    <Portal>
+                        <Snackbar
+                            visible={this.state.slm_snack_bar_visible}
+                            onDismiss={()=>this.setState({slm_snack_bar_visible: false})}
+                            duration={2000} 
+                            // action={{
+                            // label: 'Undo',
+                            // onPress: () => {
+                            //     // Do something
+                            // },
+                            // }}
+                        >
+                           {this.state.slm_enabled ? APP._('MAP_PAGE.MESSAGES.SLM_ENABLED') : APP._('MAP_PAGE.MESSAGES.SLM_DISABLED')}
+                        </Snackbar>
+                    </Portal>
+                }
+                {
+                    this.state.active_analysis && this.state.active_analysis_visible &&
+                    <Portal>
+                        <Dialog visible={this.state.active_analysis_visible} onDismiss={()=> this.setState({ active_analysis_visible: false })}>
+                            <AnalysisDetails analysis={this.state.active_analysis} />
+                        </Dialog>
+                    </Portal>
+                    
                 }
                 {/* {
                     this.state.selected_admin && 
@@ -656,7 +768,6 @@ const AppMap = class AppMap extends React.Component<IMapProps> {
                                 zoomTapEnabled
                                 ref={this.map_ref}
                            />               */}
-
             </View>
         //   </Provider>
         )
@@ -676,5 +787,32 @@ const styles = StyleSheet.create({
     },
     legend_content: {
         textAlign: 'justify'
+    },
+    toolbar: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignContent: 'space-between',
+        alignItems: 'flex-start',
+        flexDirection: 'row',
+        flex: 1, 
+    },
+    toolbar_container: {
+        margin: 3, 
+        flex: 1
+        // borderWidth: 1,
+        // borderColor: 'gray' 
+    },
+    search_container: {
+        flexBasis: '60%',
+        margin: 3
+    },
+    options_container: {
+        display: 'flex', 
+        alignContent: 'space-between', 
+        flexDirection: 'row'
+    },
+    coordinates: {
+        marginLeft: 10,
+        fontStyle: 'italic'
     }
 })

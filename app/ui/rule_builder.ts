@@ -56,7 +56,8 @@ class RuleBuilder {
         // set required
         if(field.reqd) {
             // schema = schema.required(`${field.label}: ${APP._('VALIDATION.REQUIRED')}`);//APP._(`${field.label} is required`));
-            schema = schema.required(`${APP._('VALIDATION.REQUIRED')}`);//APP._(`${field.label} is required`));
+            // schema = schema.required(`${APP._('VALIDATION.REQUIRED')}`);//APP._(`${field.label} is required`));
+            schema = schema.required(`${field.label}. ${APP._('VALIDATION.REQUIRED')}`);//APP._(`${field.label} is required`));
         }
         return schema;
     }

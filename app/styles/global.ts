@@ -41,7 +41,11 @@ export const GlobalStyles = StyleSheet.create({
         // margin: 5
     },
     date_picker: {
-        marginTop: 10 
+        // marginTop: 10, 
+        // marginRight: 50,
+        paddingRight: 10,
+        height: 60
+        // width: 200
     },
     modal_container: {
         padding: 10
@@ -56,6 +60,8 @@ export const GlobalStyles = StyleSheet.create({
         padding: 0,
         borderWidth: 1,
         margin: 5,
+        marginBottom: 0,
+        height: 45
     },
     header: {
         fontSize: 26,

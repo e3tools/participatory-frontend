@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet, Alert } from 'react-native'
+import { View, Text, Pressable, StyleSheet, Alert, TouchableOpacity } from 'react-native'
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -27,31 +27,28 @@ export default function DrawerMenu(props: any) {
   const close_drawer = () => {
     navigation.dispatch(DrawerActions.closeDrawer());
   } 
-  const item_clicked = () => { 
-    alert('clicked twice');
-  }  
-
+  
   useEffect(() => {  
-    const load_engagements = async() => {  
-      let cfg = {} as IDBReadParam
-      cfg.filters = [['status', '=', 'Open'], ['is_published', '=', 1]]
-      cfg.fields = ["*"]// ['name', 'engagement_name', 'engagement_type', 'engagement_template', 'administration_level']
-      new DocTypeService('Engagement').get_list(cfg).then((recs) => { 
-        set_engagements(recs); 
-      })
-    } 
-      DashboardService.get_dashboards().then(recs => {   
-        set_dashboards(recs);      
-      });
-      load_engagements(); 
+      const load_engagements = async() => {  
+        let cfg = {} as IDBReadParam
+        cfg.filters = [['status', '=', 'Open'], ['is_published', '=', 1]]
+        cfg.fields = ["*"]// ['name', 'engagement_name', 'engagement_type', 'engagement_template', 'administration_level']
+        new DocTypeService('Engagement').get_list(cfg).then((recs) => { 
+          set_engagements(recs); 
+        })
+      } 
+
+      const load_dashboards = async() => {
+        DashboardService.get_dashboards().then(recs => {   
+          set_dashboards(recs);      
+        });
+      } 
+      if(auth.is_authenticated){
+        load_engagements(); 
+        load_dashboards();
+      }
   }, []);
   
-  useLayoutEffect(()=> {
-    // set_header_shown(auth.is_authenticated);
-    // console.log("Counter status changed to : ", auth.counter, props);  
-    // navigation.setOptions({ title: auth.counter?.toString(), headerShown: false }) 
-  }, [auth.counter])
-
   const navigate_engagement = (props, engagement: object) => {
     EngagementStore.set_current_engagement(engagement);
     if(engagement.has_data_forms){ 
@@ -79,12 +76,14 @@ export default function DrawerMenu(props: any) {
         style={{ flex: 1 }}
     >
         <DrawerContentScrollView {...props}>
-          <View style={{padding: 20}}>         
+          <View style={{padding: 20}}>     
+          <TouchableOpacity onPress={()=> APP.navigate_to_path(props.navigation, 'screens/home_screen')}>    
             <Image 
               source={require('../../assets/images/logo.png')}
               style={{height: 35}}
               resizeMode='contain'
-            ></Image>
+            /> 
+            </TouchableOpacity>
           </View>
           {/* <DrawerItemList {...props} /> */}
 
@@ -160,7 +159,7 @@ export default function DrawerMenu(props: any) {
             title={APP._('MAIN_LAYOUT.NAVIGATOR.DIAGNOSTICS_TITLE')} 
             left={props => <List.Icon {...props} icon='map-marker-distance' />}
             onPress={()=>{ 
-              APP.navigate_to_path(props.navigation, '/modules/mapping/screens/diagnostics_screen', {})
+              APP.navigate_to_path(props.navigation, 'modules/mapping/screens/diagnostics_screen', {})
               // APP.route_to_path('screens/diagnostics', {  
               //   }
               // )

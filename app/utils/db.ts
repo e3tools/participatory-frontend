@@ -16,4 +16,8 @@ import { URLS } from '../constants/enums';
 
 console.log("Frappe:", Frappe); 
 const DB = new Frappe(URLS.BACKEND);
-export { DB }
+
+const ping = async () => {
+    const res = await DB.call_api_endpoint("ping", {}, "POST", false, false, 30000); 
+}
+export { DB, ping }

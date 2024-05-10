@@ -10,7 +10,7 @@ type Props = {
 export default function AppLoader(props: Props) {
   return (
     <View style={styles.container}>
-      <ActivityIndicator animating={true} style={{ flex: 1 }} size={40} />
+      <ActivityIndicator animating={true} size={40} {...props} />
       {/* <Text style={{ flex: 1 }}>{loading_text}</Text> */}
     </View>
   )
@@ -20,6 +20,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'center', 
+    justifyContent: 'center',
+  },
+  indicator: {
+    flex: 1
   }
 })

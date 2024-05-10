@@ -28,8 +28,8 @@ const Frappe = class Frappe {
     this.frappe_custom_app = APPS.FRAPPE_CUSTOM_APP;
     this.api_url = `${this.url}/api/method/${this.frappe_custom_app}.api`;
   }
-  async login(data) {    
-    const response = await this.call_api_endpoint('login', data);  
+  async login(data) {
+    const response = await this.call_api_endpoint('login', data);   
     if(response && response.status_code == 200){
       this.headers['Authorization'] = `token ${response.token}`
       const user = await this._makeRequest(
@@ -73,14 +73,15 @@ const Frappe = class Frappe {
    * @param endpoint. API Endpoint name without prefix i.e non-fully qualified
    * @param method. Either GET/POST/PUT/DELETE
    */
-  async call_api_endpoint(endpoint: string, data: object = {}, method: 'POST', is_upload: boolean = false, is_export: boolean = false) {
+  async call_api_endpoint(endpoint: string, data: object = {}, method: string = 'POST', is_upload: boolean = false, is_export: boolean = false, timeout: number = GLOBALS.BACKEND_TIMEOUT) {
     return await this._makeRequest(
       `${this.url}/api/method/${this.frappe_custom_app}.api.${endpoint}`,
       method,
       data,
       'message',
       is_upload,
-      is_export
+      is_export,
+      timeout
     );
   }
 
@@ -99,6 +100,7 @@ const Frappe = class Frappe {
     data_property = 'data',
     is_upload: boolean = false,
     is_export: boolean = false, 
+    timeout: Number = GLOBALS.BACKEND_TIMEOUT
   ) { 
     //this.get_headers();
     const res = await make_request(
@@ -108,8 +110,10 @@ const Frappe = class Frappe {
       this.headers,
       data_property,
       is_upload,
-      is_export
+      is_export,
+      timeout
     );
+ 
     if (res?.status_code === 200) { 
       return await res?.data;
     } else {

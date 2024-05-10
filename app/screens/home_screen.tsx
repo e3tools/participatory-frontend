@@ -1,65 +1,79 @@
-import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useContext } from 'react'
+import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useContext, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context' 
 import { useNavigation, useRouter } from 'expo-router'
 import { APP } from '../utils/app'
 import { AuthService } from '../modules/auth/services/auth'
 import { useAuth } from '../contexts/auth'
 import { Button } from 'react-native'
+import WebView from 'react-native-webview'
+import FileUpload from '../components/media/media_handler'
+import { upload_audio, upload_image } from '../utils/media'
 
 const HomeScreen = () => {
     const navigation = useNavigation(); 
     const router = useRouter();
     const auth = useAuth();
+    const [show_media_handler, set_show_media_handler] = useState(false);
 
   return (
     <SafeAreaView style={{ flex: 1 }} key={APP.generate_random_string()}>
-        <View style={styles.logo_container}>
-            <Image 
-                source={require('../assets/images/pp4.jpg')}
-                style={styles.logo}
-                resizeMode='cover'
-            />
-        </View>
+        <ScrollView>
+            {/* <Button title="Attach file" onPress={() => set_show_media_handler(true)} />   */}
+            <FileUpload send_image_handler={upload_image} 
+                        send_audio_handler={upload_audio}
+                        visible={show_media_handler}
+                        on_dismiss={()=>{
+                            console.log("Dismissed")
+                            set_show_media_handler(false)
+                        }} />
+            <View style={styles.logo_container}>
+                <Image 
+                    source={require('../assets/images/pp4.jpg')}
+                    style={styles.logo}
+                    resizeMode='cover'
+                />
+            </View>
 
-        {/* <WebView source={{ uri: 'http://197.248.185.171/' }} style={{ display: 'flex', backgroundColor: 'red' , height: 50}} /> */}
+            {/* <WebView source={{ uri: 'https://whe.acaciadata.com/query/?lon=38.935546875&lat=2.8113711933311403' }} style={{ display: 'flex', backgroundColor: 'red' , height: 50}} /> */}
 
-        <View style={styles.content}>
-            <View style={styles.header}>
-                <View style={styles.app_name_container}>
-                    <Text style={styles.app_name}>Engage{String.fromCodePoint(8482)}</Text>
-                </View>
-                <Text style={styles.title}>
-                    {/* Enhance citizen engagement {'\n'} */}
-                    Enhance citizen engagement
-                    {/* <View style={styles.app_name_container}>
+            <View style={styles.content}>
+                <View style={styles.header}>
+                    <View style={styles.app_name_container}>
                         <Text style={styles.app_name}>Engage{String.fromCodePoint(8482)}</Text>
-                    </View> */}
-                </Text>
-                <Text style={styles.message}>
-                    Under key tenets of inform, consult, involve, Collaborate & Empower
+                    </View>
+                    <Text style={styles.title}>
+                        {/* Enhance citizen engagement {'\n'} */}
+                        Enhance citizen engagement
+                        {/* <View style={styles.app_name_container}>
+                            <Text style={styles.app_name}>Engage{String.fromCodePoint(8482)}</Text>
+                        </View> */}
+                    </Text>
+                    <Text style={styles.message}>
+                        Under key tenets of inform, consult, involve, Collaborate & Empower
+                    </Text>
+                </View>
+                
+                {/* <View>
+                    <View><Text>{`Counter: ${auth.counter}`}</Text></View> 
+                    <Button title='Increment' onPress={auth.increment} />
+                </View> */}
+    
+                <TouchableOpacity style={styles.button} onPress={async () => {
+                    if(auth.is_authenticated){ 
+                        APP.route_to_path('modules/engage/screens/engage_index_screen', {}, {});
+                    } else { 
+                        APP.route_to_path('modules/auth/screens/login_screen', {}, {});
+                    }
+                }}>
+                    <Text style={styles.button_text}>Let's go</Text>
+                </TouchableOpacity>
+
+                <Text style={styles.powered_by}>
+                    {String.fromCodePoint(169)}World Bank 2024
                 </Text>
             </View>
-            
-            {/* <View>
-                <View><Text>{`Counter: ${auth.counter}`}</Text></View> 
-                <Button title='Increment' onPress={auth.increment} />
-            </View> */}
-
-            <TouchableOpacity style={styles.button} onPress={async () => {
-                if(auth.is_authenticated){ 
-                    APP.route_to_path('modules/engage/screens/engage_index_screen', {}, {});
-                } else { 
-                    APP.route_to_path('modules/auth/screens/login_screen', {}, {});
-                }
-            }}>
-                <Text style={styles.button_text}>Let's go</Text>
-            </TouchableOpacity>
-
-            <Text style={styles.powered_by}>
-                {String.fromCodePoint(169)}World Bank 2024
-            </Text>
-        </View>
+        </ScrollView>
     </SafeAreaView>
   )
 }

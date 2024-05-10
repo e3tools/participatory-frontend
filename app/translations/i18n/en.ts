@@ -75,7 +75,8 @@ export default {
     NEW: 'New',
     SAVE: 'Save',
     SUBMIT: 'Submit',
-    ADD_ROW: 'Add row'
+    ADD_ROW: 'Add row',
+    UPLOAD: 'Upload'
   },
   VALIDATION: {
     MINLENGTH: 'Please enter more than {min} characters.',
@@ -195,7 +196,9 @@ export default {
     SEARCH_REGION: 'Search region',
     OPTIONS: 'Options',
     MESSAGES: {
-      NO_SELECTED_ADMIN: 'Please select a region'
+      NO_SELECTED_ADMIN: 'Please select a region',
+      SLM_ENABLED: 'SLM querying enabled. Click any point on the map to query interventions',
+      SLM_DISABLED: 'SLM querying disabled',
     }
     // TEMPERATURE: 'Temperature',
     // RAINFALL: 'Rainfall',
@@ -209,6 +212,15 @@ export default {
   FILE_UPLOADER: {
     UPLOAD_SINGLE_FILE: 'Upload file',
     UPLOAD_MULTIPLE_FILES: 'Upload {0} files'
+  },
+  MEDIA_HANDLER: {
+    NO_CAMERA_PERMISSIONS: 'We need your permission to show the camera',
+    REQUEST_CAMERA_PERMISSION: 'Grant permission',
+    FLIP_CAMERA: 'Flip Camera',
+    RECORD_AUDIO: 'Record audio',
+    SELECT_FILE: 'Select file',
+    LAUNCH_CAMERA: 'Launch camera',
+    UPLOAD_MEDIA: 'Upload'
   }
 };
   
