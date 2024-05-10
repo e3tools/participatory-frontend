@@ -111,3 +111,11 @@ https://www.youtube.com/playlist?list=PLcAweYhTtPJPLx_LXNFtp_ivoxnESX3wP
 
 Router
 https://medium.com/@christianchown/simple-routing-in-react-native-with-react-native-easy-router-6e529866519e
+
+Audio
+https://medium.com/@oluseyi.ged/voice-recording-and-playback-in-react-native-app-2a7bc822e346
+https://www.npmjs.com/package/react-native-audio-recorder-player
+https://medium.com/@hashem.nayra/record-video-capture-image-in-flutter-e1b166afaebd
+https://hackernoon.com/recording-audio-in-react-native-ca1d3uc8
+https://www.youtube.com/watch?v=jUvFNIw53i8
+https://github.com/SCasarotto/casarotto-chat/blob/e0e73b834dc6b8e060b19fb51b2898c79513eb47/src/pages/Main/Main.js
