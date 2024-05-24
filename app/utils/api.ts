@@ -35,9 +35,9 @@ const make_request = async (
    * Get updated headers
    */
   headers = await get_headers(headers)
-  if(is_upload){
-    headers['Accept'] = "application/x-www-form-urlencoded"
-  }   
+  // if(is_upload){
+  //   headers['Accept'] = "application/x-www-form-urlencoded"
+  // }   
   return AxiosHandler.do_request(url,
     method,
     body,

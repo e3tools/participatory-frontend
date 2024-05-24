@@ -18,6 +18,7 @@ interface IBaseFieldProps {
     reqd: boolean, //Is the field mandatory
     options: object, //It could be a string or an array. For select, this is an array, for special fields e.g email of Link fields, this is a primitive string
     on_change: (value: any) => void,
+    on_blur?: () => void
 }
 
 interface IDataProps extends IBaseFieldProps {  
@@ -55,6 +56,9 @@ interface IChildTableProps extends IBaseFieldProps {
 interface ITableMultiSelectProps extends ISelectProps, IChildTableProps { 
 }
 
+interface ISectionBreakProps extends IBaseFieldProps {  
+}
+
 export {
     IBaseFieldProps,
     IDataProps,
@@ -64,5 +68,6 @@ export {
     IDateProps,
     IPasswordProps,
     IChildTableProps,
-    ITableMultiSelectProps
+    ITableMultiSelectProps,
+    ISectionBreakProps
 }

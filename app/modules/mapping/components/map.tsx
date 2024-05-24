@@ -14,7 +14,7 @@ import MapQueryDialog from './map_query_dialog';
 import { VectorService } from '@/app/services/vector';
 import { MAPUTIL } from '@/app/modules/mapping/utils/map';
 import { Avatar, Button, Card, Dialog, Divider, IconButton, List, Menu, Paragraph, Portal, Provider, Snackbar, Switch } from 'react-native-paper';
-import AppSelect from '@/app/components/form/controls/Select';
+import AppSelect from '@/app/components/form/controls/select';
 import { APP } from '@/app/utils/app';
 import { AppMenu, AppMenuItem } from '@/app/common/components/Menu';
 import { TechnicalAnalysisService } from '@/app/services/technical_analysis';

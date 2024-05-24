@@ -1,10 +1,10 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react' 
 import * as ImagePicker from 'expo-image-picker';
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av'
 import { APP } from '@/app/utils/app';
 import { TextSize } from 'victory-native';
-import { Button, Dialog, Portal } from 'react-native-paper';
+import { Button, Dialog, Icon, IconButton, Portal } from 'react-native-paper';
 import { AppButton } from '../shared/AppButton';
 import { err } from 'react-native-svg';
 import { RecordingOptionsPresets } from 'expo-av/build/Audio';
@@ -12,13 +12,27 @@ import { RecordingOptionsPresets } from 'expo-av/build/Audio';
 import { upload_audio, upload_image } from '@/app/utils/media';
 import { UploadFileProps } from '@/app/utils/media';
 import { theme } from '@/app/core/theme';
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
+import { AppIconButton } from '../shared/AppIconButton';
+
+/**
+ * Type to store a select asset of either document, audio, video or photo
+ */
+export interface MediaAsset {
+    mime_type: string,
+    file_name: string, 
+    size?: number,
+    uri: string,
+    base64: string
+}
 
 // See https://github.com/SCasarotto/casarotto-chat/blob/e0e73b834dc6b8e060b19fb51b2898c79513eb47/src/pages/Main/Main.js#L203
-type IFileUpload = {
+type IMediaHandlerProps = {
     send_image_handler?: (file: UploadFileProps, doctype?: string, docname?: string, fieldname?: string) => void
     send_audio_handler?: (file: UploadFileProps, doctype?: string, docname?: string, fieldname?: string) => void
     visible: boolean,
-    on_ok: (asset: ImagePicker.ImagePickerAsset | Audio.Recording) => void,
+    on_ok: (asset: MediaAsset) => void,
     on_dismiss: () => void
 }
 
@@ -28,23 +42,37 @@ type RecordingState = {
     record_audio_visible: boolean, 
 }
 
-const MediaHandler = (props: IFileUpload) => {
-    // const [resource_path, set_resource_path] = useState({});
-    // const [image, set_image] = useState(null);
+/**
+ * Transform `source` asset into generic MediaAsset. This is Adapter Pattern
+ * @param source 
+ */
+const adapt_asset = async (source: ImagePicker.ImagePickerAsset | DocumentPicker.DocumentPickerAsset | Audio.Recording) => {
+    let dest = {} as MediaAsset;
+    dest.file_name = source.fileName || source.name;
+    dest.mime_type = source.mimeType;
+    dest.size = source.fileSize || source.size;
+    dest.uri = source.uri
+    dest.base64 = source.base64
+    if(!dest.base64 && dest.uri){
+        // if base64 string is not provided, read the file
+        dest.base64 = await FileSystem.readAsStringAsync(dest.uri, { encoding: FileSystem?.EncodingType?.Base64 });
+    } 
+    return dest
+}
+
+const MediaHandler = (props: IMediaHandlerProps) => {
     const [visible, set_visible] = useState(props.visible);
-    const [image, set_image] = useState<ImagePicker.ImagePickerAsset>(); 
+    const [asset, set_asset] = useState<MediaAsset>(); 
     const [audio_recording, set_audio_recording] = useState<RecordingState>({
         recording_active: false,
         recording: undefined,
         record_audio_visible: false
-    })
-
+    })   
     useEffect(()=>{
         set_visible(props.visible);
     }, [props.visible]);
     
     const select_image = async () => {
-        // Permissions.askAsync(Permissions.MEDIA_LIBRARY)
         ImagePicker.requestMediaLibraryPermissionsAsync()
             .then((response) => {
                 const { status, expires, permissions } = response; 
@@ -58,66 +86,17 @@ const MediaHandler = (props: IFileUpload) => {
                     })
                     .then((response) => {
                         if(!response.canceled){ 
-                            set_image(response.assets[0]);
-                            // for(const asst in response.assets){
-                            //     props.send_image_handler?.(asst);
-                            // }
+                            adapt_asset(response.assets[0]).then((asst: MediaAsset)=> set_asset(asst));
                         }
                     })
                     .catch((error) => console.log(error))
                 }
             }).catch((error) => console.log(error)); 
-
-        //     let result = await ImagePicker.launchImageLibraryAsync({
-        //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        //     allowsEditing: true,
-        //     base64: true,
-        //     aspect: [4, 3],
-        //     quality: 1,
-        // }); 
-
-        // if(!result.canceled) {
-        //     // set_resouce(result.assets[0]);
-        //     set_asset(result.assets[0]);
-        //     // console.log(result.assets[0]);
-        //     // console.log("base64: ", APP.file_to_base64(result.assets[0].uri))
-        // }
-        // let options = {
-        //     title: APP._('Select Image'),
-        //     customButtons: [
-        //         {
-        //             name: 'customOptionKey',
-        //             title: 'Choose file from Custom Option'
-        //         },
-        //     ],
-        //     storageOptions: {
-        //         skipBackup: true,
-        //         path: 'images',
-        //     }
-        // };
-        // ImagePicker.showImagePicker(options, res => {
-        //     console.log("Response = ", res)
-        //     if(res.didCancel) {
-        //         console.log('User cancelled image picker');
-        //     } else if (res.error) {
-        //         console.log('ImagePicker error: ', res.error);
-        //     } else if (res.customButton) {
-        //         console.log('User tapped custom button: ', res.customButton);
-        //         alert(res.customButton);
-        //     } else {
-        //         let source = res;
-        //         set_resource_path(source);
-        //     }
-        // })
     }
 
     const take_photo_video = () => {  
         console.log("Taking photo")   
         ImagePicker.requestCameraPermissionsAsync()
-        // Camera.requestCameraPermissionsAsync()
-        // ImagePicker.getCameraPermissionsAsync()
-        // Camera.getCameraPermissionsAsync()  
-        // Permissions.askAsync(Permissions.CAMERA, Permissions.MEDIA_LIBRARY)
             .then((response) => {    
                 const { status, expires, permissions } = response;
                 if(status === 'granted') {
@@ -129,12 +108,8 @@ const MediaHandler = (props: IFileUpload) => {
                         quality: 1,
                     })
                     .then((response) => {
-                        if(!response.canceled) {
-                            set_image(response.assets[0]);
-                            // props.send_image_handler?.(response.assets[0]);
-                            // for(const asst in response.assets){
-                            //     props.send_image_handler?.(asst);
-                            // }
+                        if(!response.canceled) { 
+                            adapt_asset(response.assets[0]).then((asst: MediaAsset)=> set_asset(asst));
                         }
                     })
                     .catch((error) => console.log(error));
@@ -253,64 +228,109 @@ const MediaHandler = (props: IFileUpload) => {
             })
     }
 
+    const select_document = async () => {
+        DocumentPicker.getDocumentAsync({
+            type: "*/*", 
+            multiple: false, 
+            copyToCacheDirectory: true
+        }) 
+        .then((response) => {
+            if(!response.canceled){  
+                adapt_asset(response.assets[0]).then((asst: MediaAsset)=> set_asset(asst));
+            }
+        })
+        .catch((error) => console.log(error))
+    }
 
   return (
     <Portal>
         <Dialog visible={visible} 
                 onDismiss={() => {
                     set_visible(false);
-                    props.on_dismiss() 
-                }} 
+                    props.on_dismiss();
+                }}  
         >
-            <View style={styles.container}>
-                <View style={styles.container}>
-                    <Image
-                        source={{
-                            // uri: 'data:image/png;base64,' + image?.base64,
-                            uri: `data:${image?.mimeType};base64,${image?.base64}`
-                            // uri: image?.uri
-                        }}
-                        style={{ width: 100, height: 100, borderColor: 'green', borderWidth: 1 }}
-                    />
-                    <Image 
-                        source={{ uri: image?.uri }}
-                        style={{ width: 200, height: 200, borderColor: 'red', borderWidth: 1 }}
-                    />
-                    {/* <Text style={{ alignItems: 'center' }}>
-                        { image?.uri }
-                    </Text> */}
-                    <View style={{ display: 'flex' }}>
-                        <Button onPress={select_image} mode='contained-tonal' style={styles.button}>
-                            <Text>{APP._('MEDIA_HANDLER.SELECT_FILE')}</Text>
-                        </Button>
-                        <Button onPress={take_photo_video} mode='contained-tonal'  style={styles.button}>
-                            <Text>{APP._('MEDIA_HANDLER.LAUNCH_CAMERA')}</Text>
-                        </Button>
-                        <Button onPress={start_audio_record} mode='contained-tonal' style={styles.button}>
-                            <Text>{APP._('MEDIA_HANDLER.RECORD_AUDIO')}</Text>
-                        </Button>
-                    </View>
-                    <View style={{ display: image ? 'flex' : 'none'}}>
-                        <AppButton label={APP._('BUTTON.SAVE')} on_press={() => {
-                            if(image){ 
-                                upload_image(new Array(image));
-                                props.on_ok(image);
+            <View style={styles.dialog_title_container}>
+                    <IconButton icon='close' onPress={()=>{
+                            set_visible(false);
+                            props.on_dismiss();
+                        }
+                    }></IconButton>
+                    <Text style={styles.dialog_title}>{APP._('MEDIA_HANDLER.DIALOG_TITLE')}</Text> 
+                    <Button 
+                        mode='text' 
+                        // style={{ display: asset ? 'flex' : 'none' }}
+                        onPress={() => {
+                            if(asset){ 
+                                // upload_image(new Array(image));
+                                props.on_ok(asset);
+                                set_visible(false);
                             }
                             if(audio_recording?.recording) { 
                                 props.on_ok(audio_recording?.recording);
                             }
-                        }} />
-                        <AppButton label={APP._('BUTTON.UPLOAD')} on_press={() => {
-                            if(image){ 
-                                upload_image(new Array(image));
+                        }}
+                    >
+                        {APP._('BUTTON.SAVE')}
+                    </Button>
+                    <Button 
+                        mode='text' 
+                        style={{ display: asset ? 'none' : 'none' }}
+                        onPress={() => {
+                            if(asset){ 
+                                upload_image(new Array(asset));
                             }
                             if(audio_recording?.recording) { 
                                 upload_audio(audio_recording?.recording);
                             }
-                        }} />
-                    </View> 
+                        }}
+                    >
+                        {APP._('BUTTON.UPLOAD')}
+                    </Button>
+                </View>   
+            <Dialog.Content>
+            {/* <View style={styles.container}> */}
+                <View style={styles.preview_container}>
+                    {
+                        asset && asset.mime_type?.includes('image/') && (
+                            <View>
+                                {/* <Image
+                                    source={{
+                                        uri: `data:${asset?.mime_type};base64,${asset?.base64}`
+                                    }}
+                                    style={{ width: 100, height: 100, borderColor: 'green', borderWidth: 1 }}
+                                /> */}
+                                <Image 
+                                    source={{ uri: asset?.uri }}
+                                    style={{ width: 200, height: 200, borderColor: theme.colors.error, borderWidth: 1 }}
+                                />
+                            </View>
+                        )
+                    }
+                    {
+                        asset && !asset.mime_type?.includes('image/') && (
+                            <Text style={styles.selected_file}>
+                                { asset?.file_name }
+                            </Text>
+                        )
+                    } 
                 </View>
-            </View>
+                <View style={ styles.actions_container }>
+                    <Button icon='image' onPress={select_image} mode='contained-tonal' style={styles.button}>
+                        <Text>{APP._('MEDIA_HANDLER.SELECT_IMAGE_VIDEO')}</Text>
+                    </Button>
+                    <Button icon='text-box-search-outline' onPress={select_document} mode='contained-tonal' style={styles.button}>
+                        <Text>{APP._('MEDIA_HANDLER.SELECT_DOCUMENT')}</Text>
+                    </Button>
+                    <Button icon='camera' onPress={take_photo_video} mode='contained-tonal'  style={styles.button}>
+                        <Text>{APP._('MEDIA_HANDLER.LAUNCH_CAMERA')}</Text>
+                    </Button>
+                    <Button icon='microphone' onPress={start_audio_record} mode='contained-tonal' style={[styles.button, {display: 'none'}]}>
+                        <Text>{APP._('MEDIA_HANDLER.RECORD_AUDIO')}</Text>
+                    </Button> 
+                </View>
+            {/* </View> */}
+            </Dialog.Content>
         </Dialog>
     </Portal>
   )
@@ -327,6 +347,19 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: '#fff'
     },
+    preview_container: {
+        display: 'flex',
+        // flex: 1,
+        // padding: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#fff'
+    },
+    actions_container: {
+        display: 'flex',
+        alignItems: 'center',
+        backgroundColor: '#fff'
+    },
     button: {
         marginTop: 5,
         marginBottom: 5,
@@ -334,5 +367,23 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         width: 200
-    } 
+    },
+    dialog_title: {
+        fontWeight: 'bold'
+    },
+    dialog_title_container: {
+        display: 'flex', 
+        alignItems:'center', 
+        flexDirection:'row', 
+        justifyContent: 'space-between',
+        // backgroundColor: 'green'
+    },
+    selected_file: { 
+        textAlign: 'center',
+        margin: 5,
+        width: '90%',
+        fontWeight: '500',
+        fontSize: 12,
+        color: theme.colors.secondary
+    }
 })

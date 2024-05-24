@@ -75,8 +75,11 @@ const FileUploader = ({ type=['*/*'], multiple=false, ...rest}) => {
             const data = new FormData();           
             for(const file of selected_files) {
                 //use selected_file.uri to get the file path for upload
-                data.append("doc[]", {
-                    url: file.uri,
+                data.append("files[]", {
+                    file_url: file.uri,
+                    file_name: file.name,
+                    is_private: false,
+                    optimize: false, 
                     type: file.mimeType,
                     name: file.name,
                     size: file.size

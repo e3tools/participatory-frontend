@@ -155,11 +155,15 @@ const Frappe = class Frappe {
    * @returns
    */
   async update_doc(doctype: string, docname: string, data: object) {
+    // Replace api/resource/doctype/docname call with call_api_endpoint so that we can intercept handling of files
+    data['doctype'] = doctype
+    data['docname'] = docname
+    return await this.call_api_endpoint("upsert_doc", data, 'POST')
+
     return await this._makeRequest(
       `${this.resource_url}/${doctype}/${docname}`,
       'PUT',
-      data
-      //JSON.stringify(data)
+      data 
     );
   }
 
@@ -222,6 +226,11 @@ const Frappe = class Frappe {
    * @returns
    */
   async create_doc(doctype: string, data: object) {
+    // Replace api/resource/doctype/docname call with call_api_endpoint so that we can intercept handling of files
+    data['doctype'] = doctype
+    data['docname'] = null
+    return await this.call_api_endpoint("upsert_doc", data, 'POST')
+
     return await this._makeRequest(
       `${this.resource_url}/${doctype}`,
       'POST',

@@ -128,7 +128,6 @@ class AxiosHandler {
      * @returns
      */
     static async handle_response(res: object, data_property: string, is_upload: boolean = false, is_export: boolean = false){ 
-      // console.log("Ress: ", res.data)      
       if (res?.status == 200) {
         if(is_export){
           const file_name = await res.headers?.['content-disposition'];

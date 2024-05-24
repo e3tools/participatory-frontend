@@ -6,11 +6,10 @@ import { AppButton } from '@/app/components/shared/AppButton'
 import Header from '@/app/components/shared/Header'
 import { APP } from '@/app/utils/app'
 import { Avatar, Card, IconButton, TextInput } from 'react-native-paper'
-import BaseTextInput from '@/app/components/form/controls/BaseTextInput'
+import BaseTextInput from '@/app/components/form/controls/base_text_input'
 import { Formik } from 'formik';
 import * as Yup from "yup"; 
-import { SafeAreaView } from 'react-native-safe-area-context';
-import PureTextInput from '@/app/components/form/controls/PureInputText';
+import { SafeAreaView } from 'react-native-safe-area-context'; 
 import { AppData, AppPassword } from '@/app/components/form/controls'
 import { AuthService } from '../services/auth'
 import { useNavigation } from 'expo-router'

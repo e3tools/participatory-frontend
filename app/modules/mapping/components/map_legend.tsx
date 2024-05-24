@@ -16,8 +16,7 @@ type ILegendProps = {
     items: Array<ILegendItem>
 }
 
-const MapLegendItem = (props: ILegendItemProps) => {
-    console.log("Item: ", props)
+const MapLegendItem = (props: ILegendItemProps) => { 
   return (
     <View style={styles.item_container}>
         <View style={[styles.color, { backgroundColor: props.item?.color }]}></View>

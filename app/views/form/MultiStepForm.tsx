@@ -10,7 +10,7 @@ import { DocTypeService } from "@/app/services/doctype";
 import Component from "react-native-paper/lib/typescript/components/List/ListItem"; 
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import DocForm from "../DocForm";
-import useDynamicRefs from "@/app/hooks/dynamicRefs";
+import useDynamicRefs from "@/app/hooks/dynamic_refs";
 import { GLOBALS } from "@/app/constants/defaults";
 import { UIUtil } from "@/app/utils/ui";
 import { StyleSheet } from "react-native";
@@ -80,10 +80,13 @@ export default function MultiStepForm(props) {
     // const values = form.get_values();
     const errors = await form.validate();
     const valid = await form.is_valid(); 
+    console.log("values: ", form)
 
     if (valid) {
       const doctype = await form.get_doc_type(); 
       const vals = await form.get_values(); 
+
+      
       EngagementStore.set_survey_form_data(engagement.name, doctype, vals); 
       if (step == engagement_template?.items?.length - 1) { 
         //is the last step. submit data
@@ -117,7 +120,13 @@ export default function MultiStepForm(props) {
         set_step(p => p+1);
       }
     } else {
-       APP.show_error(JSON.stringify(errors), APP._("VALIDATION.VALIDATION_ERRORS"));
+      let vals = Object.values(errors);
+        let msg = '';
+        vals.map((el, idx) => {
+           msg += `${idx + 1}.${el}\n`;
+        })
+        msg += ''
+       APP.show_error(msg, APP._("VALIDATION.VALIDATION_ERRORS"));
     }
   };
 

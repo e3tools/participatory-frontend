@@ -119,3 +119,9 @@ https://medium.com/@hashem.nayra/record-video-capture-image-in-flutter-e1b166afa
 https://hackernoon.com/recording-audio-in-react-native-ca1d3uc8
 https://www.youtube.com/watch?v=jUvFNIw53i8
 https://github.com/SCasarotto/casarotto-chat/blob/e0e73b834dc6b8e060b19fb51b2898c79513eb47/src/pages/Main/Main.js
+
+Offline
+https://www.bacancytechnology.com/blog/react-native-offline-support
+
+Reusable modal
+https://github.com/oolio-group/rn-use-modal/blob/master/src/Modal.tsx

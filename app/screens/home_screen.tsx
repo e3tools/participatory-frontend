@@ -7,7 +7,7 @@ import { AuthService } from '../modules/auth/services/auth'
 import { useAuth } from '../contexts/auth'
 import { Button } from 'react-native'
 import WebView from 'react-native-webview'
-import FileUpload from '../components/media/media_handler'
+import MediaHandler from '../components/media/media_handler'
 import { upload_audio, upload_image } from '../utils/media'
 
 const HomeScreen = () => {
@@ -20,13 +20,12 @@ const HomeScreen = () => {
     <SafeAreaView style={{ flex: 1 }} key={APP.generate_random_string()}>
         <ScrollView>
             {/* <Button title="Attach file" onPress={() => set_show_media_handler(true)} />   */}
-            <FileUpload send_image_handler={upload_image} 
-                        send_audio_handler={upload_audio}
-                        visible={show_media_handler}
-                        on_dismiss={()=>{
-                            console.log("Dismissed")
+            <MediaHandler send_image_handler={upload_image} 
+                          send_audio_handler={upload_audio}
+                          visible={show_media_handler}
+                          on_dismiss={()=>{
                             set_show_media_handler(false)
-                        }} />
+                          }} />
             <View style={styles.logo_container}>
                 <Image 
                     source={require('../assets/images/pp4.jpg')}
@@ -35,7 +34,7 @@ const HomeScreen = () => {
                 />
             </View>
 
-            {/* <WebView source={{ uri: 'https://whe.acaciadata.com/query/?lon=38.935546875&lat=2.8113711933311403' }} style={{ display: 'flex', backgroundColor: 'red' , height: 50}} /> */}
+            {/* <WebView source={{ uri: 'https://whe.acaciadata.com/query/?lon=38.935546875&lat=2.8113711933311403' }} style={{ display: 'flex', backgroundColor: theme.colors.error , height: 50}} /> */}
 
             <View style={styles.content}>
                 <View style={styles.header}>

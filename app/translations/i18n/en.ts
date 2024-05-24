@@ -206,8 +206,9 @@ export default {
   },
   BASE_CONTROLS: {
     ATTACH_FILE: 'Attach',
-    INVALID_FILE_TYPES: 'Invalid file type',
-    MAX_FILE_SIZE_EXCEEDED: 'File selected is too big'
+    INVALID_IMAGE_FILE: 'Invalid image file',
+    INVALID_FILE_TYPE: 'Invalid file type',
+    MAX_FILE_SIZE_EXCEEDED: 'File selected is too big. File size must be less than '
   },
   FILE_UPLOADER: {
     UPLOAD_SINGLE_FILE: 'Upload file',
@@ -218,9 +219,11 @@ export default {
     REQUEST_CAMERA_PERMISSION: 'Grant permission',
     FLIP_CAMERA: 'Flip Camera',
     RECORD_AUDIO: 'Record audio',
-    SELECT_FILE: 'Select file',
+    SELECT_IMAGE_VIDEO: 'Select photo/video',
+    SELECT_DOCUMENT: 'Select document',
     LAUNCH_CAMERA: 'Launch camera',
-    UPLOAD_MEDIA: 'Upload'
+    UPLOAD_MEDIA: 'Upload',
+    DIALOG_TITLE: 'Select media'
   }
 };
   

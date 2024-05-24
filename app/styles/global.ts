@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { theme } from "../core/theme";
+import { GLOBALS } from "../constants/defaults";
 
 export const GlobalStyles = StyleSheet.create({
     container: {
@@ -26,11 +27,13 @@ export const GlobalStyles = StyleSheet.create({
     },
     form_field: {
         borderWidth: 1,
-        borderColor: '#ddd',
-        // padding: 10,
-        // fontSize: 18,
+        borderColor: '#ddd', 
         borderRadius: 6,
-        margin: 5
+        margin: GLOBALS.FORM_FIELD.MARGIN.ALL,
+        height: GLOBALS.FORM_FIELD.HEIGHT, 
+    },
+    field_label: {
+        fontSize: 20
     },
     data: {
         // borderWidth: 1,
@@ -43,8 +46,10 @@ export const GlobalStyles = StyleSheet.create({
     date_picker: {
         // marginTop: 10, 
         // marginRight: 50,
-        paddingRight: 10,
-        height: 60
+        paddingRight: 0,
+        marginLeft: 2,
+        height: GLOBALS.FORM_FIELD.HEIGHT,
+        borderWidth: 1
         // width: 200
     },
     modal_container: {
@@ -61,7 +66,7 @@ export const GlobalStyles = StyleSheet.create({
         borderWidth: 1,
         margin: 5,
         marginBottom: 0,
-        height: 45
+        height: GLOBALS.FORM_FIELD.HEIGHT
     },
     header: {
         fontSize: 26,

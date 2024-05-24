@@ -4,6 +4,7 @@ import React, { createRef, forwardRef, useEffect, useImperativeHandle } from 're
 // import { DocTypeService } from '@/app/services/doctype'
 import DocGrid from '../../../views/DocGrid'
 import { IChildTableProps } from '@/app/interfaces/inputs'
+import FieldLabel from './field_label'
 
 const ChildTable = (props: IChildTableProps, ref) => { 
   // const ref = createRef(null);
@@ -11,7 +12,8 @@ const ChildTable = (props: IChildTableProps, ref) => {
     get_rows: () => ref?.current?.get_rows()
   }, []); 
   return ( 
-    <View>  
+    <View>
+      <FieldLabel {...props} />
       <DocGrid
         field_name={props.field_name}
         ref={ref}

@@ -20,7 +20,9 @@ import { ExporterService } from '@/app/services/exporter'
 import ViewerWeb from '../components/shared/ViewerWeb'
 import { FileUtil } from '@/app/utils/file'
 import { IGridProps } from '../ui/interfaces/ui'
-import AppLoader from '../components/shared/AppLoader'
+import AppLoader from '../components/shared/AppLoader';
+import { MediaAsset } from '../components/media/media_handler'
+import { theme } from '../core/theme'
 
 const DocGrid = (props: IGridProps, ref ) => {
   //const { columns, data, doctype, ...rest } = props; 
@@ -213,7 +215,6 @@ const DocGrid = (props: IGridProps, ref ) => {
     }
     else {
       const curr_engagement = params.engagement;
-      console.log("DD: ", params, row, is_editing)
       APP.navigate_to_path(navigation, 'views/form/MultiStepForm', {
           'engagement': curr_engagement,
           'entry': is_editing ? row.name : GLOBALS.NEW_RECORD_ID
@@ -238,7 +239,7 @@ const DocGrid = (props: IGridProps, ref ) => {
    * Add a new row to grid
    * @param row 
    */
-  const insert_new_row = (row) => {      
+  const insert_new_row = (row) => { 
     let rows = data ? [...data] : []; 
     if(current_row){
       const idx = rows.findIndex((el, indx) => el == current_row); 
@@ -327,86 +328,99 @@ const DocGrid = (props: IGridProps, ref ) => {
       load_data();
     }
   }, [page]);
+
+  /**
+   * Format cell value
+   * @param cell_value 
+   */
+  const cell_formatter = (cell_value) => { 
+    if (cell_value instanceof Array){
+      return cell_value?.map((itm) => itm.file_name)?.join(", ")
+    }
+    return cell_value?.toString();
+  }
  
   return (
     is_loading ? <AppLoader /> : 
-    <View style={props.style}>
+    <View style={[props.style, {borderWidth: 1, borderColor: theme.colors.inversePrimary }]}>
       {
-        props.label && <Title>{props.label}</Title>
+        !props.is_child_table && props.label && <Title>{props.label}</Title>
       }
-      <Card>
-        <Card.Actions>
-          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
-            <View>
-              {
-                !is_report && (selected_rows.length > 0) && ( 
-                  <AppButton
-                    icon="delete-forever"
-                    mode="outlined"
-                    label={APP._('BUTTON.DELETE')}
-                    style={{ marginTop: 0, display: props.is_child_table ? 'none' : 'flex' }}
-                    on_press={() => {
-                      set_confirm_delete(true); 
-                    }}
-                  />
-                )
-              }
-            </View>
-            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
-              <View style={{ alignSelf: 'flex-end' }}>
-                <AppIconButton
-                  icon="refresh"
-                  mode='contained-tonal'
-                  style={{ marginTop: 0, display: props.is_child_table ? 'none' : 'flex' }}
-                  tooltip={APP._('BUTTON.REFRESH')}
-                  size={16}
-                  on_press={()=> {  
-                    on_refresh(); 
-                  }} 
-                /> 
-              </View>
-              {
-                !is_report ? <View style={{ alignSelf: 'flex-start' }}>
-                  <AppButton
-                    icon="plus"
-                    mode='contained'
-                    style={{ display: props.is_child_table ? 'none' : 'flex' }}
-                    on_press={()=> { 
-                        open_form_view(false); 
+      { !props.is_child_table && 
+        <Card>
+          <Card.Actions>
+            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
+              <View>
+                {
+                  !is_report && (selected_rows.length > 0) && ( 
+                    <AppButton
+                      icon="delete-forever"
+                      mode="outlined"
+                      label={APP._('BUTTON.DELETE')}
+                      style={{ marginTop: 0, display: props.is_child_table ? 'none' : 'flex' }}
+                      on_press={() => {
+                        set_confirm_delete(true); 
                       }}
-                    label={APP._('BUTTON.NEW')}
+                    />
+                  )
+                }
+              </View>
+              <View style={{ flex: 1, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
+                <View style={{ alignSelf: 'flex-end' }}>
+                  <AppIconButton
+                    icon="refresh"
+                    mode='contained-tonal'
+                    style={{ marginTop: 0, display: props.is_child_table ? 'none' : 'flex' }}
+                    tooltip={APP._('BUTTON.REFRESH')}
+                    size={16}
+                    on_press={()=> {  
+                      on_refresh(); 
+                    }} 
                   /> 
-                </View> : <View>
-                            <AppMenu
-                                  visible={true}                                  
-                                  anchor_label={APP._('REPORT_VIEW_PAGE.BUTTON.ACTIONS')} 
-                                  anchor_icon='dots-vertical-circle'
-                                  // anchor={<Button onPress={() => { this.setState({ settings_visible : !this.state.settings_visible })}}>Rest</Button>}
-                              >
-                                <Menu.Item leadingIcon="microsoft-excel" title={APP._('REPORT_VIEW_PAGE.BUTTON.EXPORT')} onPress={async () => {
-                                  const url = await ExporterService.export_to_excel(props.doctype);
-                                  FileUtil.download_file(url);
-                                  set_download_url(url);
-                                  set_downloading(true);
-                                   // setTimeout(()=>{
-                                  //   //reset downloading after 5 seconds
-                                  //   set_downloading(false);
-                                  // }, 5000);
-                                  console.log("Exported file: ", url)
-                                }} />
-                                <Menu.Item leadingIcon="printer-outline" title={APP._('REPORT_VIEW_PAGE.BUTTON.PRINT')} onPress={() => {
-                                   Alert.alert("Print")
-                                }} /> 
-                              </AppMenu>    
-                              {
-                                  downloading && <ViewerWeb url={download_url} />
-                              }
-                          </View>
-              }
-            </View>
-          </View>  
-        </Card.Actions>
-      </Card>
+                </View>
+                {
+                  !is_report ? <View style={{ alignSelf: 'flex-start' }}>
+                    <AppButton
+                      icon="plus"
+                      mode='contained'
+                      style={{ display: props.is_child_table ? 'none' : 'flex' }}
+                      on_press={()=> { 
+                          open_form_view(false); 
+                        }}
+                      label={APP._('BUTTON.NEW')}
+                    /> 
+                  </View> : <View>
+                              <AppMenu
+                                    visible={true}                                  
+                                    anchor_label={APP._('REPORT_VIEW_PAGE.BUTTON.ACTIONS')} 
+                                    anchor_icon='dots-vertical-circle'
+                                    // anchor={<Button onPress={() => { this.setState({ settings_visible : !this.state.settings_visible })}}>Rest</Button>}
+                                >
+                                  <Menu.Item leadingIcon="microsoft-excel" title={APP._('REPORT_VIEW_PAGE.BUTTON.EXPORT')} onPress={async () => {
+                                    const url = await ExporterService.export_to_excel(props.doctype);
+                                    FileUtil.download_file(url);
+                                    set_download_url(url);
+                                    set_downloading(true);
+                                    // setTimeout(()=>{
+                                    //   //reset downloading after 5 seconds
+                                    //   set_downloading(false);
+                                    // }, 5000);
+                                    console.log("Exported file: ", url)
+                                  }} />
+                                  <Menu.Item leadingIcon="printer-outline" title={APP._('REPORT_VIEW_PAGE.BUTTON.PRINT')} onPress={() => {
+                                    Alert.alert("Print")
+                                  }} /> 
+                                </AppMenu>    
+                                {
+                                    downloading && <ViewerWeb url={download_url} />
+                                }
+                            </View>
+                }
+              </View>
+            </View>  
+          </Card.Actions>
+        </Card>
+      }
       {/* Data grid */}
       <DataTable>
           <DataTable.Header>
@@ -424,7 +438,10 @@ const DocGrid = (props: IGridProps, ref ) => {
                 {
                   columns?.map((column, col_idx) => { 
                     // if(column.fieldname === 'name'){
+                    let col_value = cell_formatter(item[column.fieldname]);
+                    let col_key = `${column.fieldname}_${item.name}`;
                     if(col_idx == 0){
+                      let link_label = `${col_value}`;
                       return (
                         <DataTable.Cell key={`${column.fieldname}_${item.name}`} >
                           <View style={styles.id_container}>
@@ -433,7 +450,7 @@ const DocGrid = (props: IGridProps, ref ) => {
                               onPress={() => handle_row_select(item)}
                             /> 
                             <HyperLink
-                              label={item[column.fieldname]}
+                              label={link_label}
                               href={`views/form?doctype=${doctype}&docname=${item.name}`}
                               on_press={()=> {
                                   set_current_row(item);
@@ -457,7 +474,9 @@ const DocGrid = (props: IGridProps, ref ) => {
                       )
                     }
                     return ( 
-                      <DataTable.Cell key={`${column.fieldname}_${item.name}`}>{item[column.fieldname]}</DataTable.Cell>
+                      <DataTable.Cell key={col_key}>
+                        <Text>{col_value}</Text>
+                      </DataTable.Cell>
                     )
                   })
                 } 
@@ -480,8 +499,8 @@ const DocGrid = (props: IGridProps, ref ) => {
           }
       </DataTable>
       {
-        <Card>
-          <Card.Actions>
+        // <Card>
+        //   <Card.Actions>
             <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
               {
                 !is_report &&
@@ -490,7 +509,7 @@ const DocGrid = (props: IGridProps, ref ) => {
                   (selected_rows.length > 0) && ( 
                     <AppButton
                       icon="delete-forever"
-                      mode="outlined"
+                      mode="text"
                       label={APP._('BUTTON.DELETE')}
                       style={{ display: props.is_child_table ? 'flex' : 'none' }}
                       on_press={() => {
@@ -499,7 +518,7 @@ const DocGrid = (props: IGridProps, ref ) => {
                     />
                   )
                 }
-              </View>
+                </View>
               }
               <View style={{ flex: 1, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'flex-start' }}>               
                 <View style={{ alignSelf: 'flex-start' }}>
@@ -529,8 +548,8 @@ const DocGrid = (props: IGridProps, ref ) => {
                 }
               </View>
             </View>  
-          </Card.Actions>
-        </Card> 
+        //   </Card.Actions>
+        // </Card> 
       }
       {
         confirm_delete ? (<Confirm

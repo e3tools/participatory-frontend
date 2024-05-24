@@ -3,7 +3,7 @@ import { TextInput } from 'react-native-paper';
 import React, { useState } from 'react'; 
 import { GlobalStyles } from '@/app/styles/global';
 import { Field } from 'formik';
-import BaseTextInput from './BaseTextInput';
+import BaseTextInput from './base_text_input';
 import { IDataProps } from '@/app/interfaces/inputs';
 
 export default function AppData(props: IDataProps){
@@ -11,7 +11,7 @@ export default function AppData(props: IDataProps){
   return (    
     <BaseTextInput 
         {...rest}
-        style={[style ? style : null, GlobalStyles.Data]}
+        style={[style ? style : null ]}
     />
   )
 } 

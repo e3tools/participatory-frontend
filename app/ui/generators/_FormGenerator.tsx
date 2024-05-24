@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import { FIELD_TYPE, SPECIAL_TEXT_FIELD_TYPE } from "@/app/constants/enums";
 import { Dimensions, Keyboard, ScrollView, StyleSheet, View } from "react-native";
 import { Transformer } from "../transformer";
-import { IDateProps, ISelectProps, INumericProps, ICheckBoxProps, IDataProps, ITableMultiSelectProps } from "@/app/interfaces/inputs";
+import { IDateProps, ISelectProps, INumericProps, ICheckBoxProps, IDataProps, ITableMultiSelectProps, ISectionBreakProps } from "@/app/interfaces/inputs";
 import { APP } from "@/app/utils/app";
 import { AppButton } from "@/app/components/shared/AppButton";
 import { UIUtil } from "@/app/utils/ui";  
@@ -25,7 +25,8 @@ import {
     AppPassword, 
     AppSmallText,
     ChildTable,
-    MultiSelectChildTable
+    MultiSelectChildTable,
+    MediaHandler
 } from '../../components/form/controls';
 import { DocTypeService } from "../../services/doctype";
 import { RuleBuilder } from "../rule_builder";
@@ -38,10 +39,12 @@ import withStore from "../../components/hoc/withStoreValue";
 import KeyboardAvoidingWrapper from "../../components/shared/KeyboardAvoidingWrapper";
 import { useNavigation } from "expo-router";
 import AppLoader from "@/app/components/shared/AppLoader";
+import Attach from "@/app/components/form/controls/attach";
+import SectionBreak from "@/app/components/form/controls/section_break";
 
 const NON_FORM_FIELDS = [
     'Tab Break',
-    'Section Break',
+    // 'Section Break',
     'Column Break'
 ]
 
@@ -56,10 +59,10 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
     const [tabs, set_tabs] = useState([]);
     const [form_tabs, set_form_tabs] = useState({});
     const [active_tab, set_active_tab] = useState(null);
-    //const [form_fields, set_form_fields] = useState([]); 
+    const [form_fields, set_form_fields] = useState([]); 
     const [doc, set_doc] = useState(form_props.doc || {}); 
     const db = new DocTypeService(form_props.doctype);
-    const [initial_values, set_initial_values] = useState(form_props.initial_values) ;//({ name: '' });
+    const [initial_values, set_initial_values] = useState<object>(form_props.initial_values) ;//({ name: '' });
     const [form_config, set_form_config] = useState({'fields': [], 'validation_schema': {}}); //form_props.form_config
     const [segment, set_segment] = useState('');// set segment for the navigation buttons 
     const [loading, set_loading] = useState(true);
@@ -68,8 +71,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
     const { width, height } = Dimensions.get('window');
 
 
-    useEffect(()=> {
-      console.log("Values changed")
+    useEffect(()=> { 
     }, [formik_ref.current?.values])
     /**
    * Get form record
@@ -141,8 +143,8 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
             }
             return !NON_FORM_FIELDS.includes(df.fieldtype)
         })
-        //set_form_fields(flds);
-        return flds;
+        set_form_fields(flds);
+        // return flds;
     }
 
     /**
@@ -153,9 +155,8 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
      * @param formik_props 
      * @returns 
      */
-    const evaluate_depends_on = (field: object, expression:string, /*selected_field: object,*/ formik_props: object) => {     
-      let exp_str;
-      var vals = form_props.values;
+    const evaluate_depends_on = (field: object, expression:string, /*selected_field: object,*/ form_values: object) => {     
+      let exp_str; 
       const _eval = (xpr) => { 
         console.log("Evaluating expression:", eval(xpr));
         return eval(xpr); 
@@ -163,22 +164,23 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
 
       let exp = '1=0';
       //check if visibility is based on another field
-      console.log("Evaluating depends on 2: ", formik_props.values)
+      console.log("Evaluating depends on 2: ", form_values)
       if (expression) {
         console.log("Expression: ", expression, " for field: ", field.fieldname)
+        console.log("Formik valus:", form_values)
         let tmp = expression
         if(tmp.indexOf('doc.') === -1){
           //If we have an expression without doc. prefix
-          tmp = 'formik_props.values.' + tmp
+          tmp = 'form_values.' + tmp
         }
-        // exp = tmp.replace(/eval:/g, "").replace(/doc./g, "formik_props.values.");
+        // exp = tmp.replace(/eval:/g, "").replace(/doc./g, "form_values.");
         exp = tmp.replace(/eval:/g, "");
 
         // replace doc.[field] with actual values
-        let keys = Object.keys(formik_props.values) || [];
+        let keys = Object.keys(form_values) || [];
         keys.forEach((key) => {
             let re = new RegExp(`doc.${key}`, "g")
-            let val = formik_props.values?.[key];
+            let val = form_values?.[key];
             if (isNaN(parseFloat(val))){
               val = '"' + val + '"';  
             }
@@ -189,7 +191,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
         // exp_str = 'var res = ' + exp;
         // console.log("Exp str: ", exp_str);
 
-        // let zz = eval("formik_props.values.assignee_type=='System User'") 
+        // let zz = eval("form_values.assignee_type=='System User'") 
         //let res = eval?.(exp)
         let res = _eval(exp);
         return res
@@ -230,7 +232,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
     useImperativeHandle(ref, () => ({
         is_valid: () => formik_ref?.current?.isValid,
         validate: async () => { return await formik_ref?.current?.validateForm() },
-        get_values: () => { 
+        get_values: () => {  
             if(formik_ref.current){ 
                 if(formik_ref.current.isValid){
                     let vals = formik_ref.current.values;
@@ -264,6 +266,10 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
     useEffect(() => {
         make_form_config(); 
     }, [doc])
+
+    useEffect(() => {
+      get_form_fields(initial_values);
+    }, [initial_values])
     // // Grab values and submitForm from context
     // const { values, submitForm } = useFormikContext();
     // React.useEffect(() => {
@@ -454,9 +460,24 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
         return prps;
       }
 
-        if(!field) return null;
+      /**
+       * Change form field value
+       * @param field_name 
+       * @param new_field_val 
+       */
+      const _set_field_value = (field: object, new_field_val: object) => {
+          formik_props.values[field.fieldname] = new_field_val; 
+          // get_form_fields(formik_props.values); //trigger this so that evaluation of depends_on happens as form_fields state will change
+      }
+
+      const _trigger_depends_on_evaluation = () => {
+        console.log("Triggering")
+        get_form_fields(formik_props.values); //trigger this so that evaluation of depends_on happens as form_fields state will change
+      }
+
+      if(!field) return null;
  
-        const field_type = field.fieldtype;
+        const field_type = field.fieldtype; 
         let el = null;
         let props = null;
         
@@ -471,14 +492,16 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                 //props.on_change_value=formik_props.handleChange(field.fieldname);
                 el = (
                     <AppData 
-                        {...props} 
+                        {...props}
                         doctype={form_props.doctype}
                         docname={form_props.docname}
                         on_change_value={(val) => {
                             //formik_props.handleChange(props.field_name); 
-                            formik_props.values[props.field_name] = val; 
+                            //formik_props.values[props.field_name] = val; 
+                            _set_field_value(field, val);
                           }
-                        }  
+                        } 
+                        on_blur={_trigger_depends_on_evaluation}
                     />
                 );  
             break;
@@ -490,7 +513,8 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                         {...props}  
                         on_change_value={val => {
                             // formik_props.handleChange(props.field_name);
-                            formik_props.values[props.field_name] = val;  
+                            //formik_props.values[props.field_name] = val;  
+                            _set_field_value(field, val);
                           }
                         }    
                     />
@@ -503,7 +527,8 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                     <AppDate 
                         {...props} 
                         on_change_value={val => { 
-                            formik_props.values[props.field_name] = val;  
+                            //formik_props.values[props.field_name] = val;  
+                            _set_field_value(field, val);
                           }
                         }  
                     />
@@ -519,7 +544,8 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                         <AppSelect 
                             {...props}  
                             on_change_value={val => {
-                                formik_props.values[props.field_name] = val;  
+                                //formik_props.values[props.field_name] = val;  
+                                _set_field_value(field, val);
                               }
                             }  
                         />
@@ -532,7 +558,8 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                         <AppLink 
                             {...props} 
                             on_change_value={val => {
-                                formik_props.values[props.field_name] = val;  
+                                //formik_props.values[props.field_name] = val;  
+                                _set_field_value(field, val);
                               }
                             }  
                         />
@@ -545,9 +572,11 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                         <AppInt 
                             {...props} 
                             on_change_value={val => {
-                                formik_props.values[props.field_name] = val;  
+                                //formik_props.values[props.field_name] = val;  
+                                _set_field_value(field, val);
                               }
-                            }  
+                            } 
+                            on_blur={_trigger_depends_on_evaluation} 
                         />
                     );
             break;
@@ -558,9 +587,11 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                         <AppFloat 
                             {...props} 
                             on_change_value={val => {
-                                formik_props.values[props.field_name] = val;  
+                                //formik_props.values[props.field_name] = val;  
+                                _set_field_value(field, val);
                               }
-                            }  
+                            }
+                            on_blur={_trigger_depends_on_evaluation}  
                         />
                     );
             break;
@@ -571,9 +602,11 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                         <AppCurrency 
                             {...props} 
                             on_change_value={val => {
-                                formik_props.values[props.field_name] = val;  
+                                //formik_props.values[props.field_name] = val;  
+                                _set_field_value(field, val);
                               }
-                            }  
+                            }
+                            on_blur={_trigger_depends_on_evaluation} 
                         />
                     );
             break;
@@ -584,9 +617,11 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                         <AppCheckBox 
                             {...props} 
                             on_change_value={val => {
-                                formik_props.values[props.field_name] = val;  
+                                //formik_props.values[props.field_name] = val;  
+                                _set_field_value(field, val);
                               }
-                            }  
+                            }
+                            on_blur={_trigger_depends_on_evaluation} 
                         />
                     );
                 break;
@@ -596,9 +631,11 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                     <AppSmallText   
                         {...props}
                         on_change_value={val => {
-                            formik_props.values[props.field_name] = val;  
+                            //formik_props.values[props.field_name] = val;  
+                            _set_field_value(field, val);
                           }
-                        }  
+                        }
+                        on_blur={_trigger_depends_on_evaluation}   
                     />
                 );  
             break;
@@ -608,9 +645,11 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                     <AppLongText  
                         {...props}
                         on_change_value={val => {
-                            formik_props.values[props.field_name] = val;  
+                            //formik_props.values[props.field_name] = val;  
+                            _set_field_value(field, val);
                           }
-                        }  
+                        }
+                        on_blur={_trigger_depends_on_evaluation}  
                     />
                 );  
             break;
@@ -622,11 +661,24 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                         type={field_type == FIELD_TYPE.ATTACH ? ["*/*"] : ["image/*"]}
                         multiple={false}  
                         on_change_value={val => {
-                            formik_props.values[props.field_name] = val;  
+                            //formik_props.values[props.field_name] = val;  
+                            _set_field_value(field, val);
                           }
-                        }  
+                        }
+                        on_blur={_trigger_depends_on_evaluation}   
                     />
                 );  
+                el = (<Attach 
+                        {...props}
+                        type={field_type == FIELD_TYPE.ATTACH ? ["*/*"] : ["image/*"]}
+                        multiple={false}  
+                        on_change={val => { 
+                            //formik_props.values[props.field_name] = val;
+                            _set_field_value(field, val);
+                          }
+                        } 
+                        on_blur={_trigger_depends_on_evaluation}  
+                      />)
             break;
             case FIELD_TYPE.TABLE:
                 props = _transform(field) as IChildTableProps;   
@@ -644,10 +696,11 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                         // field={props} 
                         // value={initial_values[props.field_name]} 
                         on_change={(rows) => {                            
-                            // const rows = table_ref?.current?.get_rows();  
-                            formik_props.values[props.field_name] = rows; 
+                            //formik_props.values[props.field_name] = rows; 
+                            _set_field_value(field, rows);
                           }
                         }
+                        on_blur={_trigger_depends_on_evaluation} 
                     />
                 );  
             break;
@@ -676,12 +729,24 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                               }
                               docs.push(new_doc)
                             })  
-                            formik_props.values[props.field_name] = docs; 
+                            //formik_props.values[props.field_name] = docs; 
+                            _set_field_value(field, docs);
                           }
                         }
+                        on_blur={_trigger_depends_on_evaluation} 
                     />
                 );  
             break;
+
+            case FIELD_TYPE.SECTION_BREAK:
+                props = _transform(field) as ISectionBreakProps;   
+                el = (
+                    <SectionBreak 
+                        {...props}
+                    />
+                );                
+            break;
+
             default: 
             break;
         }
@@ -745,8 +810,8 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                   innerRef={formik_ref /*ref*//*(f) => (ref.current = f)*/}
                   initialValues={initial_values}
                   validationSchema={Yup.object().shape(form_config.validation_schema)} 
-                  onSubmit={(values, actions) => { 
-                      on_submit(values); 
+                  onSubmit={(values, actions) => {  
+                    on_submit(values);
                       //actions.resetForm();
                   }}
               >
@@ -779,10 +844,11 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                                       }
                                       <View>
                                         {/* Doc specific fields */}                                
-                                        <AppData visible={false} name='doctype' field={{ name:'doctype', fieldtype:'Data', fieldname:'doctype', hidden: 1 }} style={{ display: 'none'}} value={form_props.doctype} />
-                                        <AppData visible={false} name='docname' field={{ name:'doctype', fieldtype:'Data', fieldname:'doctype', hidden: 1 }} style={{ display: 'none'}} value={form_props.docname} />
+                                        <AppData hidden={true} name='doctype' field={{ name:'doctype', fieldtype:'Data', fieldname:'doctype', hidden: 1 }} style={{ display: 'none'}} value={form_props.doctype} />
+                                        <AppData hidden={true} name='docname' field={{ name:'doctype', fieldtype:'Data', fieldname:'doctype', hidden: 1 }} style={{ display: 'none'}} value={form_props.docname} />
                                         {       
-                                            get_form_fields(formik_props)?.map((field, idx) => { 
+                                            // get_form_fields(formik_props)?.map((field, idx) => { 
+                                            form_fields?.map((field, idx) => { 
                                                 return render_layout(field, formik_props);
                                             })                            
                                             // form_config.fields.map((field, idx) => { 

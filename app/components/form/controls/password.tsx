@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native'
 import React from 'react'
-import BaseTextInput from './BaseTextInput';
+import BaseTextInput from './base_text_input';
 import { GlobalStyles } from '@/app/styles/global';
 import { TextInput } from 'react-native-paper'; 
 import { IPasswordProps } from '@/app/interfaces/inputs';

@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native'
 import React from 'react' 
-import BaseTextInput from './BaseTextInput';
+import BaseTextInput from './base_text_input';
 
 export default function BaseNumeric(props) {
   const { value, ...rest } = props;
@@ -9,7 +9,7 @@ export default function BaseNumeric(props) {
     <BaseTextInput 
         // style={GlobalStyles.Numeric}
         style={props?.style}
-        {...rest} 
+        {...rest}         
         value={converted_val}  
     /> 
   )

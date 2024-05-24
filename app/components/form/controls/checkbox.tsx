@@ -22,6 +22,7 @@ export default function AppCheckBox(props: ICheckBoxProps) {
           status={checked ? 'checked' : 'unchecked'}
           onPress={(chk) => {
             set_checked(!checked); 
+            props.on_blur?.();
                 // set_checked(chk); 
             }
           }

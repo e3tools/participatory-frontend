@@ -9,8 +9,8 @@ type Props = {
 
 export default function AppLoader(props: Props) {
   return (
-    <View style={styles.container}>
-      <ActivityIndicator animating={true} size={40} {...props} />
+    <View style={[StyleSheet.absoluteFill, styles.loader]}>
+      <ActivityIndicator color='#fff' animating={true} size={40} {...props} />
       {/* <Text style={{ flex: 1 }}>{loading_text}</Text> */}
     </View>
   )
@@ -21,6 +21,11 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
+  },
+  loader: {
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   indicator: {
     flex: 1

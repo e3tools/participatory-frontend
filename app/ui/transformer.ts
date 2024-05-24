@@ -6,7 +6,8 @@ import {
     IDateProps, 
     ICheckBoxProps, 
     IChildTableProps, 
-    ITableMultiSelectProps} from "../interfaces/inputs"; 
+    ITableMultiSelectProps,
+    ISectionBreakProps} from "../interfaces/inputs"; 
 import { FIELD_TYPE } from "../constants/enums";
 import {  } from "../interfaces/inputs";
 
@@ -105,6 +106,14 @@ class Transformer {
         return dst;
     }
 
+    static _section_break_props(field_cfg: object) : ISectionBreakProps {
+        let cfg = this._base_transform(field_cfg) as IBaseFieldProps;
+        let dst = {} as ISectionBreakProps;
+        Object.assign(dst, cfg);
+        dst.on_change = () => {};
+        return dst;
+    }
+
     /**
      * Transform any Frappe field definition into generic format
      * @param field_cfg 
@@ -151,6 +160,10 @@ class Transformer {
             case FIELD_TYPE.ATTACH:
             case FIELD_TYPE.ATTACH_IMAGE:
                 props = Transformer._data_props(field_cfg) as IDataProps;
+            break;
+
+            case FIELD_TYPE.SECTION_BREAK:
+                props = Transformer._section_break_props(field_cfg) as ISectionBreakProps;
             break;
 
             default: 

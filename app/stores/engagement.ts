@@ -117,15 +117,13 @@ const EngagementStore = class EngagementStore {
         }
         if(!(engagement in this._store[engagement_type])){
             this._store[engagement_type][engagement] = {};
-        }
-        console.log("Store: ", this._store, engagement_type, engagement)
+        } 
         if(!this._store[engagement_type][engagement]) {
             this._store[engagement_type][engagement] = {};
         }
         if(!(doctype in this._store[engagement_type][engagement])){
             this._store[engagement_type][engagement][doctype] = {};
-        }
-        console.log("Setting store val: ", data)
+        } 
         this._store[engagement_type][engagement][doctype] = data || {};
     }
 

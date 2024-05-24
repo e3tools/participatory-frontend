@@ -1,14 +1,14 @@
 import { View, Text } from 'react-native'
 import React, { useEffect, useState } from 'react'
-// import DropDownPicker from 'react-native-dropdown-picker';
 import { Dropdown } from 'react-native-element-dropdown';
 import { AntDesign } from '@expo/vector-icons';
 import { DocTypeService } from '@/app/services/doctype';
 import { IDBReadParam } from '@/app/interfaces/database'; 
 import { ISelectProps } from '@/app/interfaces/inputs';
 import { GlobalStyles } from '@/app/styles/global';
-import { APP } from '@/app/utils/app';
 import { SelectStyles } from './styles/select';
+import FieldLabel from './field_label';
+import { theme } from '@/app/core/theme';
 
 export default function AppLink(props: ISelectProps) {
   const [open, set_open] = useState(false);
@@ -53,8 +53,9 @@ export default function AppLink(props: ISelectProps) {
   
   return (
     <View>
+      <FieldLabel label={props.label} reqd={props.reqd} hidden={props.hidden} />
       <Dropdown
-        style={[GlobalStyles.select, props?.style]}
+        style={[GlobalStyles.form_field, GlobalStyles.select, props?.style, { borderColor: props.reqd && !value ? theme.colors.error : theme.colors.primary }]}
         placeholderStyle={SelectStyles.placeholderStyle}
         selectedTextStyle={SelectStyles.selectedTextStyle}
         inputSearchStyle={SelectStyles.inputSearchStyle}
@@ -67,13 +68,15 @@ export default function AppLink(props: ISelectProps) {
         value={value}
         disable={props.readonly}
         // placeholder={!focus? 'Select item' : '...'}
-        placeholder={!focus? place_holder : '...'}
+        placeholder2={!focus? place_holder : '...'}
+        placeholder={''}
         searchPlaceholder='Search...'
         onFocus={()=>set_focus(true)}
         onBlur={()=>set_focus(false)}
         onChange={item => { 
           set_value(item.name);
           set_focus(false);
+          props.on_blur?.();
         }}
         renderLeftIcon={() => {
           <AntDesign

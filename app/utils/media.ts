@@ -1,10 +1,14 @@
-import { Alert } from "react-native";
+import { Alert, Platform } from "react-native";
 import { APP } from "./app";
 import { make_request } from "./api";
 import { ImagePickerAsset, ImagePickerResult } from "expo-image-picker";
 import { Audio } from "expo-av";
 import { StringOrNumberOrCallback } from "victory-core";
 import { contains } from "cheerio/lib/static";
+import * as FileSystem from "expo-file-system"
+import { err } from "react-native-svg";
+import { UserStore } from "../modules/auth/stores/user_store";
+import { DocumentPickerAsset } from "expo-document-picker";
 
 type ImagePicker = {
     uri: string,
@@ -40,17 +44,98 @@ export const upload_image = async (assets: Array<ImagePickerAsset>, doctype?: st
         file.file_obj = null
         file.file_url = null
         file.uri = asset.uri
-    
-        await _upload_file(file, doctype, docname, fieldname);
+        await _upload_file2(asset)
+        // await _upload_file(file, doctype, docname, fieldname);
         console.log('File upload', `File ${asset.fileName} has been uploaded successfully`);
     } 
 }
 
 export const upload_audio = (props: Audio.Recording) => {
-    console.log("Uploading audion upload")
+    console.log("Uploading audio upload")
     const uri = props.getURI()
     if(uri){
         console.log(`Audio file path ${uri}`)
+    }
+}
+
+const _upload_file2 = async(asset: ImagePickerAsset) => {
+    // get file from the uri pointing to local file
+    asset.base64 = ''
+    const file_data = await fetch(asset.uri);
+
+    // check if file is valid
+    if(!file_data.ok){
+        APP.alert_error("Invalid file")
+        return;
+    }
+
+    // Get file contents to upload
+    const blob = await file_data.blob();
+
+    // try upload
+    try {
+        //send file to server
+        const upload_url = APP.make_frappe_api_endpoint('upload_file', false);
+        console.log("upload url: ", upload_url)
+        
+        const token = await UserStore.get_auth_token();
+        const headers = {}
+        headers['Authorization'] = `token ${token}`;
+        headers["Accept"] = "application/json";
+        headers['Content-Type'] = 'multipart/form-data'
+        const rre = await FileSystem.uploadAsync(upload_url, asset.uri, { 
+            httpMethod: 'POST',
+            uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+            fieldName: 'file',
+            headers: headers 
+        }) 
+        const formData = new FormData();
+        formData.append("cow", "dd")
+        formData.append('file', {
+            uri: asset.uri,
+            name: asset.fileName || "teset.jpeg",
+            type: asset.type,
+        });
+        const options = {
+            method: 'POST',
+            body: formData,
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'multipart/form-data',
+                'Authorization': `token ${token}`
+            },
+        };
+        return await fetch(upload_url, options);
+
+
+        const form_data = new FormData(); 
+        //form_data.append("file", blob);
+        form_data.append('file', {
+            name: file.name,
+            type: file.type,
+            uri: Platform.OS === 'ios' ? 
+                 file.uri.replace('file://', '')
+                 : file.uri,
+          });
+
+        form_data.append("cow", "dd")
+        const result = await fetch(upload_url, {
+            method: 'POST',
+            //headers: { "Content-Type": file_data.}
+            headers,
+            body: form_data
+        })
+        
+        if(!result.ok) {
+            APP.alert_error("Failed to upload");
+            return;
+        }
+
+        // if uploaded successfully, return server id of the file
+        return result.json()
+
+    } catch (error) {
+        console.log("Error on upload: ", error)
     }
 }
 
@@ -58,10 +143,11 @@ const _upload_file = async (file: UploadFileProps, doctype?: string, docname?: s
     const form_data = new FormData();           
     const file_name = file.file_name ? file.file_name : APP.generate_random_string(10); 
 
-    if (file.file_obj) {
+    console.log("File obj: ", file.file_obj)
+    if (file.file_obj) {        
         form_data.append("file", file.file_obj, file_name);
     }
-    form_data.append("is_private", "0");
+    form_data.append("is_private", 0);
     // form_data.append("folder", props.folder);
 
     if (file.file_url) {
@@ -111,14 +197,11 @@ const _upload_file = async (file: UploadFileProps, doctype?: string, docname?: s
         xhr.send(null)
     })
     .then((blob) => {
-        console.log("Blob file: ", blob, file_name);
-        form_data.append('file_obj', blob, blob.name);
-
-        console.log("JOSM", form_data)
-
+        form_data.append('file', blob, blob.name);
          //open the request
          var xhr = new XMLHttpRequest();
-         xhr.open('POST', APP.make_frappe_api_endpoint('do_upload'))
+         //xhr.open('POST', APP.make_frappe_api_endpoint('do_upload'), true)
+         xhr.open("POST", APP.make_frappe_api_endpoint('upload_file', false), true)
         //  xhr.setRequestHeader("Content-Type", "application/json");
          xhr.setRequestHeader("Accept", "application/json");
  

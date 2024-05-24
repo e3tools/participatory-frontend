@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { DrawerActions } from '@react-navigation/native';
 import { useNavigation } from 'expo-router';
 import { Image /*, Button*/ } from 'react-native';
-import { List } from 'react-native-paper';
+import { List, PaperProvider } from 'react-native-paper';
 import { DashboardService } from '@/app/services/dashboard';
 import { AuthService } from '@/app/modules/auth/services/auth';
 import { APP } from '@/app/utils/app';

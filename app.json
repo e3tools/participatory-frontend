@@ -40,9 +40,22 @@
       "expo-router",
       "expo-localization",
       "expo-secure-store",
+      [
+        "@morrowdigital/watermelondb-expo-plugin",
+        {
+          "databases": ["engage.db"],
+          "disableJSI": true
+        }
+      ],
       ["expo-build-properties", {
         "android": {
-          "usesCleartextTraffic": true
+          "usesCleartextTraffic": true,
+          "kotlinVersion": "1.6.10",
+            "packagingOptions": {
+              "pickFirst": [
+                "**/libc++_shared.so"
+              ]
+            }
         }
       }]
     ],
