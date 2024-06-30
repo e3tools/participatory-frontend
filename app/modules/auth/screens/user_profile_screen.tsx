@@ -5,6 +5,8 @@ import UpdateUserProfile from '../components/update_user_details'
 import ChangePassword from '../components/change_password'
 import { useNavigation } from 'expo-router'
 import { APP } from '@/app/utils/app'
+import KeyboardAvoidingWrapper from '@/app/components/shared/KeyboardAvoidingWrapper'
+import { ScrollView } from 'react-native'
 
 const UserProfileScreen = () => {
   const navigation = useNavigation();
@@ -14,10 +16,12 @@ const UserProfileScreen = () => {
   }, []); 
   
   return (
-    <SafeAreaView>
-      <UpdateUserProfile />
-      <ChangePassword />
-    </SafeAreaView>
+    <KeyboardAvoidingWrapper>
+      <ScrollView>
+        <UpdateUserProfile />
+        <ChangePassword />
+      </ScrollView>
+    </KeyboardAvoidingWrapper>
   )
 }
 

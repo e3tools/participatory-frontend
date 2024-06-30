@@ -32,7 +32,7 @@ const AppMenu = (props: IMenuProps) => {
                         disabled={disabled} 
                         size={props.anchor_size}  
                         icon={props.anchor_icon} 
-                        mode='contained-tonal' 
+                        // mode={props.anchor_mode} 
                         on_press={open_menu}
                     >                        
                     </AppIconButton>} 

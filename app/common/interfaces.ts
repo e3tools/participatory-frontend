@@ -8,6 +8,7 @@ export interface IMenuProps {
     // anchor: React.Component<any>, //component upon which the menu is anchored
     anchor_label: string, //title of the component where menu is anchored
     anchor_icon: string, //icon to use for the anchor
+    anchor_mode: string, //icon to use for the anchor
     //menu_items: Array<IMenuItemProps>
     /**
     * Content of the `Menu`.

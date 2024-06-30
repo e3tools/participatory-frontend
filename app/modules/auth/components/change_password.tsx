@@ -36,7 +36,7 @@ const ChangePassword = () => {
 
     const db = new DocTypeService('User');
 
-    const on_change_password = async (values) => {
+    const on_change_password = async (values) => {  
       let obj = {...doc};
       const login_as = doc.name || doc.username || doc.mobile_no || doc.email; 
       // check new password by logging in
@@ -47,13 +47,14 @@ const ChangePassword = () => {
         const res = await AuthService.change_password(doc.name, values.new_password);
         if(res) {
           // If password changed successfully, relogin since Frappe will destroy all sessions on password change
-          APP.notify(APP._('GLOBAL.SAVE_SUCCESS_MESSAGE'));
-          // const [sc, us] = await AuthService.login(login_as, values.new_password);
+          APP.notify(APP._('GLOBAL.SAVE_SUCCESS_MESSAGE')); 
+
+          // Try login again, if there is failure, take user to login screen
           const [sc, us] = await auth.login(login_as, values.new_password);
           if(!sc){
             // await AuthService.logout();
             await auth.logout();
-            APP.navigate_to_path(navigation, '/modules/auth/screens/login_screen', {}, {});
+            APP.navigate_to_path(navigation, 'modules/auth/screens/login_screen', {});
           }
         } else {
           APP.notify_error(APP._('GLOBAL.SAVE_ERROR_MESSAGE'));
@@ -75,7 +76,7 @@ const ChangePassword = () => {
     }, []);
 
   return (
-    <KeyboardAvoidingWrapper> 
+    // <KeyboardAvoidingWrapper> 
           <View style={GlobalStyles.container}> 
             <View>
               <Formik         
@@ -142,7 +143,7 @@ const ChangePassword = () => {
               </Formik> 
             </View> 
           </View>  
-    </KeyboardAvoidingWrapper>  
+    // </KeyboardAvoidingWrapper>  
   )
 }
 

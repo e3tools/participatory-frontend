@@ -5,7 +5,7 @@ import KeyboardAvoidingWrapper from '@/app/components/shared/KeyboardAvoidingWra
 import { AppButton } from '@/app/components/shared/AppButton' 
 import Header from '@/app/components/shared/Header'
 import { APP } from '@/app/utils/app'
-import { Avatar, Card, IconButton, TextInput } from 'react-native-paper'
+import { ActivityIndicator, Avatar, Card, IconButton, TextInput } from 'react-native-paper'
 import BaseTextInput from '@/app/components/form/controls/base_text_input'
 import { Formik } from 'formik';
 import * as Yup from "yup"; 
@@ -16,16 +16,19 @@ import { useNavigation } from 'expo-router'
 import { Text } from 'react-native-paper'
 import { UserStore } from '../stores/user_store'
 import { useAuth } from '@/app/contexts/auth'
+import { Sync } from '@/app/utils/sync'
+import AppLoader from '@/app/components/shared/AppLoader'
  
 const Login = () => { 
   const navigation = useNavigation();
   const auth = useAuth();
   
-  const [username, set_username] = useState({ value: 'Administrator', error: '' });
-  const [password, set_password] = useState({ value: '123', error: '' });
-  // const [username, set_username] = useState({ value: '', error: '' });
-  // const [password, set_password] = useState({ value: '', error: '' });
+  // const [username, set_username] = useState({ value: 'Administrator', error: '' });
+  // const [password, set_password] = useState({ value: '123', error: '' });
+  const [username, set_username] = useState({ value: '', error: '' });
+  const [password, set_password] = useState({ value: '', error: '' });
   const [loading, set_loading] = useState(false);
+  const [is_syncing, set_is_syncing] = useState(true);
 
   const initial_values = {'username': '', password: ''};
   const validation_schema = Yup.object().shape({
@@ -56,6 +59,13 @@ const Login = () => {
       // APP.notify(APP._('LOGIN_PAGE.LOGIN_SUCCESS_MESSAGE')); 
       // APP.navigate_to_path(navigation, 'index');
       // APP.navigate_to_path(navigation, '/modules/engage/screens/engage_index_screen');
+
+      // synchronize LocalDB
+      set_is_syncing(true);
+      APP.notify("GLOBAL.SYNC_IN_PROGRESS")
+      await Sync.sync_down();
+      set_is_syncing(false);
+      APP.notify("GLOBAL.SYNC_COMPLETED")
       APP.route_to_path('/modules/engage/screens/engage_index_screen');
     } else {
       APP.show_message(APP._('LOGIN_PAGE.LOGIN_FAILURE_MESSAGE'));
@@ -71,9 +81,8 @@ const Login = () => {
   return (    
       <SafeAreaView>
         <KeyboardAvoidingWrapper> 
-          <View style={styles.container}> 
-          
-            <View>
+          <View style={styles.container}>            
+            <View> 
               <Text style={styles.app_name}>{APP._('APP_NAME')}</Text>
               <Formik          
                 initialValues={initial_values}
@@ -97,7 +106,7 @@ const Login = () => {
                               <Avatar.Icon size={80} icon="account-key" />
                             </View>                    
                             <Text style={{ textAlign: 'center', fontWeight: '700', padding: 10 }} variant='bodyLarge'>{APP._('LOGIN_PAGE.TITLE')}</Text>
-                            <Card.Content> 
+                            <Card.Content>                            
                             <AppData
                               style={styles.input}
                               field_type='Data'

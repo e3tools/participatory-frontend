@@ -21,6 +21,8 @@ const UserStore = class UserStore {
         obj.username = user.username
         obj.email = user.email
         obj.full_name = user.full_name
+        obj.first_name = user.first_name
+        obj.last_name = user.last_name
         obj.token = user.token
         // let obj = {'name': user.name, 'username': user.username, 'email': user.email, 'full_name': user.full_name, 'token': user.token }; 
         return await set_value(KEY, obj);

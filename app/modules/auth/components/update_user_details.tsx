@@ -15,8 +15,8 @@ import KeyboardAvoidingWrapper from '@/app/components/shared/KeyboardAvoidingWra
 
 const UpdateUserDetails = () => {
     const navigation = useNavigation();
-    const [initial_values, set_initial_values] = useState({ first_name: '', middle_name: '', last_name: ''});
-    const [doc, set_doc] = useState();
+    const [initial_values, set_initial_values] = useState(undefined);//{ first_name: '', middle_name: '', last_name: ''});
+    const [doc, set_doc] = useState(); 
     const validation_schema = Yup.object().shape({
       first_name: Yup.string().required(APP._('VALIDATION.REQUIRED')),
       middle_name: Yup.string().nullable(),
@@ -30,93 +30,104 @@ const UpdateUserDetails = () => {
       obj.first_name = values.first_name;
       obj.middle_name = values.middle_name;
       obj.last_name = values.last_name;
-      const res = await db.update_doc(obj, obj.name);
-      if(res) {
+      const res = await db.update_doc(obj, obj.name);      
+      if(res) { 
         APP.notify(APP._('GLOBAL.SAVE_SUCCESS_MESSAGE'))
+        set_doc(res); //reset doc to saved record other wise a TimeStampMismatchError may occur if user clicks update again
       } else {
         APP.notify_error(APP._('GLOBAL.SAVE_ERROR_MESSAGE'));
       }
-    }
+    } 
     useEffect(()=> {
       const load = async() => {
-        const usr = await AuthService.get_current_user(); 
+        const usr = await AuthService.get_current_user();  
         if(usr){
           const usr_doc = await db.get_doc(usr.name);
           set_doc(usr_doc); 
-          if(usr_doc){
-            set_initial_values({first_name: usr_doc.first_name, middle_name: usr_doc?.middle_name, last_name: usr_doc?.last_name });
+          if(usr_doc){ 
+            set_initial_values({ 'first_name': usr_doc.first_name, 'middle_name': usr_doc?.middle_name, 'last_name': usr_doc?.last_name });
           }
         }
       }
-      load();
+      load(); 
     }, []);
+ 
+    useEffect(()=> { 
+    }, [initial_values])
 
   return ( 
         <KeyboardAvoidingWrapper>
           <View style={GlobalStyles.container}> 
             <View>
-              <Formik         
-                initialValues={initial_values}
-                validationSchema={validation_schema}
-                onSubmit={(values, actions) => { 
-                    on_update_profile(values);
-                    //actions.resetForm();
-                }}
-              >
-                { 
-                    (formik_props) => (       
-                        <Card>
-                          {/* <Card.Cover source={{ uri: 'https://as2.ftcdn.net/v2/jpg/03/28/17/19/1000_F_328171945_cMFEZy3PEXC9pnNvBifFVr0IrouZMqkp.jpg'}} /> */}
-                          <Card.Title style={{ alignItems: 'center'}} title={APP._('USER_PROFILE_PAGE.TITLES.PAGE')} subtitle={APP._('USER_PROFILE_PAGE.TITLES.USER_DETAILS')} />  
-                            <Card.Content> 
-                            <AppData
-                              field_name='first_name'
-                              label={APP._('USER_PROFILE_PAGE.LABELS.FIRST_NAME')}
-                              form_state={formik_props} 
-                              on_change_value={(text)=> { 
-                                formik_props.values['first_name'] = text;  
-                              }} 
-                              returnKeyType="next" 
-                            />
+              {
+                  initial_values && <Formik         
+                    initialValues={initial_values}
+                    validationSchema={validation_schema}
+                    onSubmit={(values, actions) => { 
+                        on_update_profile(values);
+                        //actions.resetForm();
+                    }}
+                  >
+                    {  
+                        (formik_props) => (       
+                            <Card>
+                              {/* <Card.Cover source={{ uri: 'https://as2.ftcdn.net/v2/jpg/03/28/17/19/1000_F_328171945_cMFEZy3PEXC9pnNvBifFVr0IrouZMqkp.jpg'}} /> */}
+                              <Card.Title style={{ alignItems: 'center'}} title={APP._('USER_PROFILE_PAGE.TITLES.PAGE')} subtitle={APP._('USER_PROFILE_PAGE.TITLES.USER_DETAILS')} />  
+                                <Card.Content> 
+                                <AppData
+                                  field_name='first_name'
+                                  name='first_name'
+                                  label={APP._('USER_PROFILE_PAGE.LABELS.FIRST_NAME')}
+                                  form_state={formik_props} 
+                                  value={initial_values.first_name}
+                                  on_change_value={(text)=> { 
+                                    formik_props.values['first_name'] = text;  
+                                  }} 
+                                  returnKeyType="next" 
+                                />
+                                <AppData
+                                  field_name='middle_name'
+                                  name='middle_name'
+                                  label={APP._('USER_PROFILE_PAGE.LABELS.MIDDLE_NAME')}
+                                  form_state={formik_props} 
+                                  value={initial_values.middle_name}
+                                  on_change_value={(text)=> { 
+                                    formik_props.values['middle_name'] = text;  
+                                  }} 
+                                  returnKeyType="next" 
+                                />
 
-                            <AppData
-                              field_name='middle_name'
-                              label={APP._('USER_PROFILE_PAGE.LABELS.MIDDLE_NAME')}
-                              form_state={formik_props} 
-                              on_change_value={(text)=> { 
-                                formik_props.values['middle_name'] = text;  
-                              }} 
-                              returnKeyType="next" 
-                            />
-
-                            <AppData
-                              field_name='last_name'
-                              label={APP._('USER_PROFILE_PAGE.LABELS.LAST_NAME')}
-                              form_state={formik_props} 
-                              on_change_value={(text)=> { 
-                                formik_props.values['last_name'] = text;  
-                              }} 
-                              returnKeyType="done" 
-                            />
-                              <View style={styles.update_button_container}>
-                                <AppButton 
-                                    icon='content-save' 
-                                    mode='contained'
-                                    compact
-                                    label={APP._("USER_PROFILE_PAGE.BUTTONS.UPDATE_USER_INFO")} 
-                                    on_press={()=> {   
-                                        formik_props.validateForm().then((res) => { 
-                                        })
-                                        formik_props.handleSubmit();
-                                      } 
-                                    }
-                                  /> 
-                              </View>  
-                            </Card.Content>    
-                        </Card>
-                    )
-                }
-              </Formik> 
+                                <AppData
+                                  field_name='last_name'
+                                  name='last_name'
+                                  label={APP._('USER_PROFILE_PAGE.LABELS.LAST_NAME')}
+                                  form_state={formik_props} 
+                                  value={initial_values.last_name}
+                                  on_change_value={(text)=> { 
+                                    formik_props.values['last_name'] = text;  
+                                  }} 
+                                  returnKeyType="done" 
+                                />
+                                  <View style={styles.update_button_container}>
+                                    <AppButton 
+                                        icon='content-save' 
+                                        mode='contained'
+                                        compact
+                                        label={APP._("USER_PROFILE_PAGE.BUTTONS.UPDATE_USER_INFO")} 
+                                        on_press={()=> {   
+                                            formik_props.validateForm().then((res) => { 
+                                            })
+                                            formik_props.handleSubmit();
+                                          } 
+                                        }
+                                      /> 
+                                  </View>  
+                                </Card.Content>    
+                            </Card>
+                        )
+                    }
+                  </Formik> 
+              }              
             </View> 
           </View> 
         </KeyboardAvoidingWrapper> 

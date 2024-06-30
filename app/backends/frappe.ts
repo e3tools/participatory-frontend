@@ -10,7 +10,10 @@ import { make_request } from '../utils/api';
 import { APPS } from '../constants/enums';
 import { GLOBALS } from '../constants/defaults';
 import { UserStore } from '../modules/auth/stores/user_store';
- 
+import { APP } from '../utils/app';
+import { LocalDB } from './localDB';
+import { DocTypeService } from '../services/doctype';
+import { LocalDBState$ } from '../stores/db';
 
 /**
  * Class to manage CRUD operations to a Frappe backend
@@ -128,23 +131,17 @@ const Frappe = class Frappe {
    * @returns An object
    */
   async get_doc(doctype: string, docname: string) {
-    return await this._makeRequest(
-      `${this.resource_url}/${doctype}/${docname}`,
-      'GET'
-    );
-  }
-
-  /**
-   * Retrieve a document
-   * @param doctype Model name
-   * @param docname Unique identifier for record
-   * @returns An object
-   */
-  async get_doc_v2(config: IDBReadSingleParam) {
-    return await this._makeRequest(
-      `${this.resource_url}/${config.doctype}/${config.docname}`,
-      'GET'
-    );
+    // return await this._makeRequest(
+    //   `${this.resource_url}/${doctype}/${docname}`,
+    //   'GET'
+    // );
+    console.log("Get get_doc", doctype, docname)
+    const data = {'doctype': doctype, 'docname': docname};
+    if(await this.is_online()){
+      return await this.call_api_endpoint("get_doc", data, 'POST');
+    } else {
+      return await LocalDB.get_doc(doctype, docname);
+    }
   }
 
   /**
@@ -158,13 +155,16 @@ const Frappe = class Frappe {
     // Replace api/resource/doctype/docname call with call_api_endpoint so that we can intercept handling of files
     data['doctype'] = doctype
     data['docname'] = docname
-    return await this.call_api_endpoint("upsert_doc", data, 'POST')
-
-    return await this._makeRequest(
-      `${this.resource_url}/${doctype}/${docname}`,
-      'PUT',
-      data 
-    );
+    if(await this.is_online()){
+      return await this.call_api_endpoint("upsert_doc", data, 'POST')
+    } else {
+      return await LocalDB.upsert(doctype, data);
+    }
+    // return await this._makeRequest(
+    //   `${this.resource_url}/${doctype}/${docname}`,
+    //   'PUT',
+    //   data 
+    // );
   }
 
   /**
@@ -189,16 +189,22 @@ const Frappe = class Frappe {
    * @returns
    */
   async get_doctype(doctype: string) {
-    const url = `${this.api_url}.get_doctype`;
-    const args = { doctype: doctype, with_parent: 1, cached_timestamp: null };
-    const obj = await this._makeRequest(
-      `${url}`,
-      'POST',
-      args, // JSON.stringify(args),
-      'docs'
-    );
-    const matches = obj ? obj.filter((itm) => itm.name == doctype) : {};
-    return matches ? matches[0] : {};
+    console.log("Loadign doctype")
+    if(await this.is_online()){
+      const url = `${this.api_url}.get_doctype`;
+      const args = { doctype: doctype, with_parent: 1, cached_timestamp: null };
+      const obj = await this._makeRequest(
+        `${url}`,
+        'POST',
+        args, // JSON.stringify(args),
+        'docs'
+      );
+      const matches = obj ? obj.filter((itm) => itm.name == doctype) : {};
+      return matches ? matches[0] : {};
+    } else {
+      console.log("Get doctype offline", doctype)
+      return await LocalDB.get_doc("DocType", doctype);
+    }
   }
 
   /**
@@ -229,13 +235,16 @@ const Frappe = class Frappe {
     // Replace api/resource/doctype/docname call with call_api_endpoint so that we can intercept handling of files
     data['doctype'] = doctype
     data['docname'] = null
-    return await this.call_api_endpoint("upsert_doc", data, 'POST')
-
-    return await this._makeRequest(
-      `${this.resource_url}/${doctype}`,
-      'POST',
-      data //JSON.stringify(data)
-    );
+    if(await this.is_online()) {
+      return await this.call_api_endpoint("upsert_doc", data, 'POST');
+    } else {
+      return await LocalDB.upsert(doctype, data);
+    }
+    // return await this._makeRequest(
+    //   `${this.resource_url}/${doctype}`,
+    //   'POST',
+    //   data //JSON.stringify(data)
+    // );
   }
 
   /**
@@ -259,10 +268,14 @@ const Frappe = class Frappe {
    * @returns
    */
   async delete_doc(doctype: string, docname: string) {
-    return await this._makeRequest(
-      `${this.resource_url}/${doctype}/${docname}`,
-      'DELETE'
-    );
+    if(await this.is_online()){
+      return await this._makeRequest(
+        `${this.resource_url}/${doctype}/${docname}`,
+        'DELETE'
+      );
+    } else {
+      return await LocalDB.delete(doctype, docname);
+    }
   }
 
   /**
@@ -276,6 +289,22 @@ const Frappe = class Frappe {
       `${this.resource_url}/${config.doctype}/${config.docname}`,
       'DELETE'
     );
+  }
+
+    /**
+   * Get all documents
+   * @param doctype Model to retrieve data for 
+   * @returns
+   */
+  async get_all(doctype: string) {
+    let cfg = {} as IDBReadParam     
+    cfg.doctype = doctype
+    cfg.fields = ['name']; 
+    if(await this.is_online()){
+      return await this.get_list(cfg, false)
+    } else {
+      return await LocalDB.get_all(doctype)
+    }
   }
 
   /**
@@ -317,12 +346,25 @@ const Frappe = class Frappe {
     else {
       url = url + `&limit_page_length=${GLOBALS.MAX_DATA_ROWS }`;
     }
-    const docs = await this._makeRequest(`${url}`, 'GET'); 
-    let total_count = docs?.length || 0;
-    if(get_global_count){
-      total_count = await this.call_api_endpoint('get_count', { filters, doctype: config.doctype, fields: ['name'] }, 'POST');
+
+    console.log("Retrieving list...")
+    if(await this.is_online()){
+      const docs = await this._makeRequest(`${url}`, 'GET'); 
+      let total_count = docs?.length || 0;
+      if(get_global_count){
+        total_count = await this.call_api_endpoint('get_count', { filters, doctype: config.doctype, fields: ['name'] }, 'POST');
+      }
+      return get_global_count ? [docs, total_count] : docs
+    } else {
+      console.log("Getting list...offline", LocalDBState$)
+      const docs = await LocalDB.get_list(config.doctype, config.filters, config.or_filters, config.order_by)
+      console.log("Offline recs", docs)
+      let total_count = docs?.length || 0;
+      if(get_global_count){
+        total_count = await LocalDB.get_count(config.doctype);
+      }
+      return get_global_count ? [docs, total_count] : docs;
     }
-    return get_global_count ? [docs, total_count] : docs
   }
 
   /***
@@ -338,9 +380,38 @@ const Frappe = class Frappe {
     if (config.or_filters) {
       filters = JSON.stringify(config.or_filters); 
     } 
-    let count = await this.call_api_endpoint('get_count', { filters, doctype: config.doctype, fields: fields }, 'POST'); 
-    return count || 0;
+    console.log("Getting count...")
+    if(await this.is_online()){
+      let count = await this.call_api_endpoint('get_count', { filters, doctype: config.doctype, fields: fields }, 'POST'); 
+      return count || 0;
+    } else {
+      // @TODO implement LocalDB filters
+      let count = await LocalDB.get_count(config.doctype, config.filters, config.or_filters, config.order_by);
+      return count;
+    }
   }
+
+  /**
+   * Is backend server up and running
+   * @returns 
+   */
+  async is_online() {
+    let res = await this.ping();
+    return res === 'pong';
+  }
+
+  /**
+   * Ping backend server
+   * @returns 
+   */
+  async ping() {
+    try {
+      const res = await this.call_api_endpoint("ping", {}, "POST", false, false, 30000); 
+      return res;
+    } catch (error) {
+      console.log("Server error")
+    }  
+  }  
 
   /**
    * Get PDF

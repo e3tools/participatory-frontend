@@ -1,4 +1,4 @@
-import { Dimensions, SafeAreaView, StyleSheet, Text, View } from 'react-native'
+import { Dimensions, KeyboardAvoidingView, SafeAreaView, StyleSheet, Text, View } from 'react-native'
 import React, { Children } from 'react'
 import { ScrollView } from 'react-native'
 
@@ -13,9 +13,11 @@ const AppContainer = (props: APPContainerProps) => {
     //    {props.children} 
     // </SafeAreaView>
     <SafeAreaView style={{ flex: 1 }}>
+      <KeyboardAvoidingView>
       {/* <ScrollView style={{ flex:1, flexGrow: 1, maxHeight: height * 0.70 }} >  */}
           {props.children} 
       {/* </ScrollView> */}
+      </KeyboardAvoidingView>
     </SafeAreaView>
   )
 }
