@@ -5,6 +5,8 @@ import { Alert, ToastAndroid } from 'react-native';
 import * as Random from 'randomstring';   
 // import { NavigationActions } from 'react-navigation';
 import { CommonActions, DrawerActions } from '@react-navigation/native';
+import * as Updates from 'expo-updates';
+import { useNetInfo } from '@react-native-community/netinfo';
 
 String.prototype.format = function (...args) {
   // Storing arguments into an array
@@ -52,6 +54,14 @@ const APP = class AppUtil {
   }
 
   /**
+   * Reload the application especially after a new update is found
+   */
+  static reload_app =  async() => {
+    console.log("Reload")
+    await Updates.reloadAsync();
+  }
+
+  /**
    * Show message to user
    * @param title
    * @param message
@@ -82,7 +92,7 @@ const APP = class AppUtil {
    */
   static show_error(
     message: string,
-    title = '',
+    title: string = '',
     // on_ok = null,
     // on_cancel = null,
     // on_dismiss = null
@@ -266,7 +276,7 @@ const APP = class AppUtil {
    * @param show 
    */
   static toggle_loading = (show: boolean) => {
-
+    console.log("Loading...", show)
   }
 
   /**
@@ -448,5 +458,17 @@ const APP = class AppUtil {
   static clip_text = (str: string, num: number) => { 
       return str?.length > num ? str?.substring(0, num) + '...' : str 
   }  
+
+  /**
+   * Is online
+   * @returns 
+   */
+  static is_connected_to_internet = async () => {
+    const netinfo = useNetInfo();
+    if(netinfo.type !== 'unknown' && netinfo.isInternetReachable === false){
+      return false;
+    }
+    return true; 
+  } 
 };
 export { APP };

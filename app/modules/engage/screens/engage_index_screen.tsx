@@ -248,7 +248,7 @@ const EngagementIndexScreen = () => {
     const load_engagements = async() => {  
       let cfg = {} as IDBReadParam;
       cfg.filters = [['status', '=', 'Open'], ['is_published', '=', 1]];
-      cfg.fields = ["*"];
+      cfg.fields = ["*"]; 
       new DocTypeService('Engagement').get_list(cfg).then((recs) => { 
         set_engagements(recs);
       });
@@ -262,12 +262,13 @@ const EngagementIndexScreen = () => {
 
   return (
     <AppContainer>
-      <ScrollView style={{ flex: 1 }} key={APP.generate_random_string()}>
+      <ScrollView style={{ display: 'flex' }} key={APP.generate_random_string()}>
         <View style={styles.container}> 
-          {engagements?.map((engagement) => ( 
-            <Engagement engagement={engagement} key={engagement.name} /> 
-          ))        
-        }      
+          {
+            engagements?.map((engagement) => (  
+               <Engagement engagement={engagement} key={engagement.name} /> 
+            ))     
+          }  
         </View>
       </ScrollView>
     </AppContainer>
@@ -279,6 +280,6 @@ export default EngagementIndexScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: 10, 
   },
 })

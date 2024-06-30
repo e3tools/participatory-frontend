@@ -8,7 +8,7 @@ import { GLOBALS } from '@/app/constants/defaults';
 import { theme } from '@/app/core/theme';
 
 const EngagementHeader = ({ engagement }) => {
-    const navigation = useNavigation();
+    const navigation = useNavigation(); 
   return (
     <View style={styles.parent}>
       <View style={styles.container}>

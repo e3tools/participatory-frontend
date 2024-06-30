@@ -2,7 +2,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Drawer } from "expo-router/drawer";
 import Ionicons from '@expo/vector-icons/Ionicons'; 
 import DrawerMenu from "./components/navigation/drawer_menu";
-import { PaperProvider } from 'react-native-paper'; 
+import { Button, IconButton, PaperProvider } from 'react-native-paper'; 
 import { useContext, useEffect, useLayoutEffect, useState } from "react"; 
 import { theme } from "./core/theme";
 import { Image, SafeAreaView, Text, TouchableOpacity } from "react-native";  
@@ -14,6 +14,8 @@ import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite'
 
 import schema from "./model/schema";
 import migrations from "./model/migrations";
+import AppHeader from "./components/navigation/app_header";
+import { APP } from "./utils/app";
 
 // // First, create the adapter to the underlying database:
 // const adapter = new SQLiteAdapter({
@@ -44,6 +46,7 @@ export default function Layout() {
   const auth = useAuth(); 
   const [header_shown, set_header_shown] = useState(false); 
   const navigation = useNavigation();
+  const [root_key, set_root_key] = useState(APP.generate_random_string());
  
   useEffect(()=> {
     set_header_shown(auth.is_authenticated); 
@@ -53,19 +56,28 @@ export default function Layout() {
     console.log("Pinging....")
     ping();
   }, [])
+
+  /**
+   * This will reset the root component key to force a re-render of all components
+   * when the language has been switched
+   */
+  const reset_root_key = () => { 
+    const key = APP.generate_random_string(); 
+    set_root_key(key);
+  }
  
   return (
     <PaperProvider theme={theme}>     
       <GestureHandlerRootView style={{ flex: 1 }}>
          <SafeAreaView style={{ flex: 1 }}>
             <AuthProvider>  
-               <Drawer
+               <Drawer key={root_key}
                   screenOptions={{
                     headerShown: header_shown, // authenticated,
                     headerStyle: {
                       // backgroundColor: theme.colors.primary,  
                       // height: 60
-                    },
+                    }, 
                     headerTitleStyle: {
                       fontSize: 20,
                       // color: '#fff',
@@ -78,6 +90,8 @@ export default function Layout() {
                       textAlign: 'center',
                       fontSize: 40
                     }, 
+                    // headerRight: () => <IconButton icon='camera' />
+                    headerRight: () => <AppHeader reset_root_key_func={reset_root_key} />
                   }}
                   drawerContent={(props) => <DrawerMenu {...props} />}        
                   initialRouteName="modules/engage/screens/engage_index_screen"

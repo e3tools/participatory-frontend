@@ -2,7 +2,7 @@ import { IDBReadParam } from "../interfaces/database";
 import { DB } from "../utils/db";
 
 class DocTypeService {
-  constructor(doctype: string) {
+  constructor(doctype: string) { 
     this.db = DB;
     this.doctype = doctype;
   }
@@ -86,6 +86,23 @@ class DocTypeService {
       config.fields = ['name']
     } 
     return await this.db.get_list(config, get_global_count);
+  }
+
+    /**
+   * Get a list of documents
+   * @param config 
+   * @returns 
+   */
+  async get_all(fields: Array<string> = []) {
+    let cfg = {} as IDBReadParam;
+    // If the field is not *, then append name
+    if (!fields.includes("*")){
+      fields.push("name"); //name must be pulled
+    }
+    cfg.doctype = this.doctype;
+    cfg.fields = fields;  
+    const recs = await this.get_list(cfg, false); 
+    return recs
   }
 
   /**

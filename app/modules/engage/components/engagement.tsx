@@ -11,8 +11,8 @@ const Engagement = ({ engagement }) => {
   return (
     <View 
         key={engagement.name} 
-        style={styles.card} 
-        mode='contained'>
+        style={styles.card}
+    >
        <EngagementHeader engagement={engagement} />      
        <EngagementBody engagement={engagement} /> 
        <EngagementFooter engagement={engagement} /> 
