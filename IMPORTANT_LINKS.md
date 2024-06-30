@@ -125,3 +125,12 @@ https://www.bacancytechnology.com/blog/react-native-offline-support
 
 Reusable modal
 https://github.com/oolio-group/rn-use-modal/blob/master/src/Modal.tsx
+
+Testing for responsiveness
+https://dev.to/jenc/stop-resizing-your-browser-improve-testing-for-responsiveness-4pbm
+
+Important libraries
+https://medium.com/@hire-laravel-developers/best-react-native-developer-tools-libraries-and-ecosystem-to-use-in-2024-347aac2b0729
+
+couch-db one-many relations
+https://danielwertheim.se/couchdb-many-to-many-relations/

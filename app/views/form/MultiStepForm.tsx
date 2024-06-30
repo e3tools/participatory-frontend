@@ -188,6 +188,7 @@ export default function MultiStepForm(props) {
   } 
 
   const refresh_content = () => {
+    console.log("Refreshing form content", engagement_template)
     let contents = [];
     for(let i=0; i< engagement_template?.items?.length; i++) {
       let form = engagement_template.items[i]; 
@@ -230,8 +231,6 @@ export default function MultiStepForm(props) {
         active={step}
         buttonStyle={styles.buttons}
         stepStyle={styles.step}
-        buttonStyle2={{ padding: 10, borderRadius: 6, alignSelf: 'center', marginRight: 10, marginLeft: 25, backgroundColor: '#a1a1a1'}} 
-        stepStyle2={{backgroundColor: '#1976d2', width: 30, height: 30, borderRadius: 30, justifyContent: 'center', alignItems: 'center', opacity: 1}}
         content={content}
         onBack={() => {
             on_back_step();

@@ -26,6 +26,7 @@ class AxiosHandler {
     ){
        
       try {
+        APP.toggle_loading(true);
           const payload = {  
               headers: headers,
           };
@@ -42,8 +43,10 @@ class AxiosHandler {
             headers: headers,
             timeout: timeout
           }) 
-        return await this.handle_response(res, data_property, is_upload, is_export);
-      } catch (error: AxiosError) { 
+          APP.toggle_loading(false);
+          return await this.handle_response(res, data_property, is_upload, is_export);
+         } catch (error: AxiosError) { 
+          APP.toggle_loading(false);
           if (error.response) {
             // Request made but the server responded with an error
             console.log("RESP DATA:", error.response.data);
