@@ -1,0 +1,23 @@
+{
+  "name": "data-layer",
+  "version": "1.0.0",
+  "description": "Standalone app to handle data access between backend and frontend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "\"data-layer",
+    "data-access\""
+  ],
+  "author": "Steve Nyaga",
+  "license": "ISC", 
+  "peerDependencies": {
+    "@react-native-community/netinfo": "11.1.0",
+    "i18n-js": "^4.4.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-native": "0.73.6",
+    "common": "*"
+  }
+}

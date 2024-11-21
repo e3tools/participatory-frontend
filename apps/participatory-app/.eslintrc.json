@@ -1,0 +1,17 @@
+{
+    "globals": {
+      "JSX": true
+    },
+    "env": {
+      "jest": true
+    },
+    "parser": "@typescript-eslint/parser",
+    "plugins": ["@typescript-eslint", "prettier"],
+    "extends": ["next", "plugin:prettier/recommended", "plugin:react-hooks/recommended"],
+    "rules": {
+      "semi": 1,
+      "eol-last": 1,
+      "quotes": [2, "single", { "avoidEscape": true }]
+    }
+  }
+  
