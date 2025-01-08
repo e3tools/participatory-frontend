@@ -1,18 +1,18 @@
-import { Alert, View } from 'react-native'
-import React, { useEffect, useState, forwardRef, useRef, useImperativeHandle } from 'react'
+import { View } from 'react-native'
+import React, { useEffect, useState, forwardRef } from 'react'
 import { DocTypeService } from 'data-layer/services/doctype';
 import { APP } from 'common';
 import FormGenerator from './_FormGenerator'; 
 import { RuleBuilder } from '../rule_builder'; 
-import { format_date } from 'common/utils/date';
+import { formatDate } from "common/utils/date";
 import { FIELD_TYPE } from '../constants/enums'; 
 import { IDocFormProps } from '../interfaces/ui';
 import { UIUtil } from '../utils/ui';
 import * as CONFIG from '../config';
-import { reset_form_store, update_field_store_value } from '../utils/state';
+import { reset_form_store } from '../utils/state';
 import { useNavigation } from 'expo-router';
 import { Transformer } from '../transformer';
-import AppLoader from "../components/shared/app_loader";
+import AppLoader from "../components/shared/app-loader";
 
 const non_form_fields = ['Tab Break',
                         'Section Break',
@@ -32,7 +32,7 @@ const GLOBALS = CONFIG.GLOBALS;
 const FrappeUIGenerator = (props: IDocFormProps, ref) => { 
   // const { navigation } = props;
   const navigation = useNavigation();
-  const { docname, show_save_button = true, ...rest} = props; 
+  const { docname, showSaveButton = true, ...rest} = props; 
   const [selected_tab, set_selected_tab] = useState(null);
   const [doc, set_doc] = useState(props.doc || {});
   const [doctype, set_doctype] = useState({});
@@ -40,10 +40,10 @@ const FrappeUIGenerator = (props: IDocFormProps, ref) => {
   const [selected_field, set_selected_field] = useState(null);
   const [selected_field_value, set_selected_field_value] = useState(null);
   const [form_fields, set_form_fields] = useState([]);
-  const [initial_values, set_initial_values] = useState(props.initial_values || { name: '' });
+  const [initialValues, set_initial_values] = useState(props.initialValues || { name: '' });
   const [form_config, set_form_config] = useState({'fields': [], 'validation_schema': {}});
   const [loading, set_loading] = useState(true);
-  const [form_tabs, set_form_tabs] = useState({});
+  const [, set_form_tabs] = useState({});
   const [active_tab, set_active_tab] = useState(null);
   // const form_ref = useRef(null);
 
@@ -102,11 +102,11 @@ const FrappeUIGenerator = (props: IDocFormProps, ref) => {
    * Get form record
    */
   const get_doc = async () => {    
-    if (docname && docname != undefined && !UIUtil.is_new_record(docname)){
+    if (docname && docname != undefined && !UIUtil.isNewRecord(docname)){
       const fdoc = await db.get_doc(docname); 
       set_doc(fdoc);
     } else { 
-      const fdoc = await db.new_doc(initial_values)
+      const fdoc = await db.new_doc(initialValues)
       set_doc(fdoc);
     }
     // if(doc && doc !== undefined){ 
@@ -156,9 +156,9 @@ const FrappeUIGenerator = (props: IDocFormProps, ref) => {
     set_doc(curr_state) 
   }
 
-  const on_change_value = (value: object) => {   
+  const on_change = (value: object) => {
     set_selected_field_value(value);
-  }
+  };
 
   const evaluate_depends_on = (expression:string, selected_field: object) => {      
     console.log("Evaluating depends on 3")
@@ -205,7 +205,7 @@ const FrappeUIGenerator = (props: IDocFormProps, ref) => {
   }, [doc, form_fields]);
  
   useEffect(() => {  
-  }, [initial_values])
+  }, [initialValues])
 
   const make_form_config = (fields: Array<object> = []) => {
     let data_obj = { doctype: doctype_name, docname: docname };
@@ -252,7 +252,7 @@ const FrappeUIGenerator = (props: IDocFormProps, ref) => {
       for(const fld of date_fields){
         let dt = values[fld.fieldname];
         if(dt){
-          values[fld.fieldname] = format_date(dt);
+          values[fld.fieldname] = formatDate(dt);
         }
       }
     }    
@@ -262,11 +262,11 @@ const FrappeUIGenerator = (props: IDocFormProps, ref) => {
 
   const handle_submit = async (values) => {
     /**
-     * If props.on_insert_child_row is specified, run it ignoring the form submit routine
+     * If props.onInsertChildRow is specified, run it ignoring the form submit routine
      */
     values = await sanitize_values(values);
-    if(props.on_insert_child_row) {      
-      props.on_insert_child_row(values);
+    if(props.onInsertChildRow) {      
+      props.onInsertChildRow(values);
       reset_form_store(values.doctype);
       return
     }
@@ -277,7 +277,7 @@ const FrappeUIGenerator = (props: IDocFormProps, ref) => {
       if (res){
         //reset form state
         reset_form_store(doctype_name);
-        APP.navigate_to_path(navigation, 'views/list/[doctype]', {
+        APP.navigateToPath(navigation, 'views/list/[doctype]', {
           doctype: doctype_name
         }); 
       } else {
@@ -291,47 +291,36 @@ const FrappeUIGenerator = (props: IDocFormProps, ref) => {
   }, []);
 
   return (
-    <View> 
+    <View>
       {
         /* Create segmented buttons (equivalent to vertical tabs). Use segmented because there is no supported
            button group element in reactnativepaper lib.
         */
         // Where there is more than 1 Tab break
-        // tabs?.length > 0 && render_tabs() 
+        // tabs?.length > 0 && render_tabs()
       }
-      { 
-        (doctype && doctype.fields?.length > 0) ? <FormGenerator 
+      {doctype && doctype.fields?.length > 0 ? (
+        <FormGenerator
           doctype={doctype_name}
           docname={docname}
           doc={doc}
           fields={doctype.fields}
-          form_config={form_config} 
-          initial_values={initial_values} 
-          on_submit={handle_submit}
-          is_child_table={doctype.istable}
-          show_save_button={show_save_button}
+          // form_config={form_config}
+          initialValues={initialValues}
+          onSubmit={handle_submit}
+          isChildTable={doctype.istable}
+          showSaveButton={showSaveButton}
           ref={ref}
           navigation={navigation}
-        /> : <AppLoader />
-        // (loading === false && initial_values 
-        //   && doctype && form_config 
-        //   && form_config.fields.length > 0) ? <FormGenerator 
-        //   doctype={doctype_name}
-        //   docname={docname}
-        //   doc={doc}
-        //   fields={doctype.fields}
-        //   form_config={form_config} 
-        //   initial_values={initial_values} 
-        //   on_submit={handle_submit}
-        //   show_save_button={show_save_button}
-        //   ref={ref}
-        // /> : <AppLoader />
-      }  
-      {        
-        // (loading === false && initial_values) ? form_tabs[active_tab] : <AppLoader />
-      } 
-    </View> 
-  )
+        />
+      ) : (
+        <AppLoader />
+      )}
+      {
+        // (loading === false && initialValues) ? form_tabs[active_tab] : <AppLoader />
+      }
+    </View>
+  );
 }
 
 export default forwardRef(FrappeUIGenerator)

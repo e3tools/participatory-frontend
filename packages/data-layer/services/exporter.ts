@@ -6,7 +6,7 @@ export class ExporterService {
     static backend = new Frappe(APP.backendURL)
 
     static export_to_excel = async (doctype: string, fields="*", filters=[]) => {
-        const res = await this.backend.call_api_endpoint("export_data", { 
+        const res = await this.backend.callApiEndpoint("export_data", { 
             doctype: doctype,
             title: doctype,
             file_format_type: "Excel",

@@ -1,5 +1,5 @@
-import { AxiosHandler } from "./api_handlers";
-import { UserStore } from 'auth/stores/user_store';
+import { AxiosHandler } from "./api-handlers";
+import { UserStore } from 'auth/stores/user-store';
 import * as CONFIG from "../../config";
 
 const GLOBALS = CONFIG.GLOBALS;

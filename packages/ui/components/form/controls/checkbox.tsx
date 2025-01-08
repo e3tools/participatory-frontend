@@ -8,7 +8,7 @@ export default function AppCheckBox(props: ICheckBoxProps) {
   const[checked, set_checked] = React.useState(props.value || false);
   React.useEffect(() => { 
     // Trigger setting of values in the parent component
-    props.on_change_value(checked);
+    props.on_change(checked);
   }, [checked]);
 
   React.useEffect(() => {
@@ -60,7 +60,7 @@ export default function AppCheckBox(props: ICheckBoxProps) {
 //         value={value}
 //         mode='flat'
 //         dense
-//         onChangeText={text => {set_value(text); props.on_change_value(text);}}
+//         onChangeText={text => {set_value(text); props.on_change(text);}}
 //       /> 
 //   )
 // }

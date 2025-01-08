@@ -1,11 +1,11 @@
 import { Image, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useMemo, useState } from 'react'
-import MediaHandler, { MediaAsset } from '../../media/media_handler'
+import MediaHandler, { MediaAsset } from '../../media/media-handler'
 import * as FileSystem from "expo-file-system";
 import { upload_audio, upload_image } from '../../../utils/media'; 
 import { Button, Icon, IconButton } from 'react-native-paper';
 import { IDataProps } from '../../../interfaces/inputs';
-import FieldLabel from './field_label';
+import FieldLabel from './field-label';
 import { GlobalStyles } from '../../styles/global';
 import { theme } from '../../theme/theme';
 import { APP } from 'common'; 
@@ -106,7 +106,7 @@ const Attach = (props: IAttachProps) => {
             send_image_handler={upload_image}  
             send_audio_handler={upload_audio}
             visible={popup_visible}
-            on_dismiss={()=>{
+            onDismiss={()=>{
                 set_popup_visible(false)
             }}
             on_ok={(asset) => add_asset(asset)}

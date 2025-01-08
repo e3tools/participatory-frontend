@@ -86,25 +86,26 @@ const light_theme = {
     container: {
         padding: 10
     },
-    chart_container: {
-        flex: 1,
-        flexWrap: 'wrap',
-        padding: 20,
-        flexDirection: 'row',
-        alignContent: 'flex-start',
-    },    
-    chart_title: {
-        fontWeight: '700'
-    },
-    chart: {
-        flexBasis: 90,
-        height: 200,
-        padding: 10,
-        margin: 10,
-        borderColor: 'red',
-        borderStyle: 'solid',
-        borderWidth: 2
-    },
+    // chart_container: {
+    //     flex: 1,
+    //     flexWrap: 'wrap',
+    //     padding: 20,
+    //     flexDirection: 'row',
+    //     alignContent: 'flex-start',
+    // },    
+    // chart_title: {
+    //     fontWeight: '700',
+    //     fontSize: 20,
+    // },
+    // chart: {
+    //     flexBasis: 90,
+    //     height: 200,
+    //     padding: 10,
+    //     margin: 10,
+    //     borderColor: 'red',
+    //     borderStyle: 'solid',
+    //     borderWidth: 2
+    // },
     form_field: {
         borderWidth: 1,
         borderColor: '#ddd', 

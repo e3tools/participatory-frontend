@@ -65,14 +65,14 @@ const APP = class AppUtil {
    * @param message
    * @param on_ok
    * @param on_cancel
-   * @param on_dismiss
+   * @param onDismiss
    */
   static show_message(
     message: string,
     title: string = '',
     // on_ok = null,
     // on_cancel = null,
-    // on_dismiss = null
+    // onDismiss = null
   ) {
     if (!title) {
       title = this._('GLOBAL.DEFAULT_INFO_MESSAGE_TITLE');
@@ -86,14 +86,14 @@ const APP = class AppUtil {
    * @param message
    * @param on_ok
    * @param on_cancel
-   * @param on_dismiss
+   * @param onDismiss
    */
   static show_error(
     message: string,
     title: string = '',
     // on_ok = null,
     // on_cancel = null,
-    // on_dismiss = null
+    // onDismiss = null
   ) {
     if (title === '' || !title) {
       title = this._('GLOBAL.DEFAULT_ERROR_MESSAGE_TITLE');
@@ -101,7 +101,7 @@ const APP = class AppUtil {
     this._show_dialog(title, message, null, null, null, true, false);
   }
 
-  static confirm(message: string, title: '', on_ok =null, on_cancel = null, on_dismiss=null) {
+  static confirm(message: string, title: '', on_ok =null, on_cancel = null, onDismiss=null) {
     if (title === '' || !title) {
       title = this._('GLOBAL.DEFAULT_ERROR_MESSAGE_TITLE');
     }
@@ -113,7 +113,7 @@ const APP = class AppUtil {
    * @param message
    * @param on_ok
    * @param on_cancel
-   * @param on_dismiss
+   * @param onDismiss
    * @param is_error
    */
   static _show_dialog(
@@ -121,7 +121,7 @@ const APP = class AppUtil {
     message: string,
     on_ok = null,
     on_cancel = null,
-    on_dismiss = null,
+    onDismiss = null,
     is_error = false,
     is_confirm = false
   ) {
@@ -139,7 +139,7 @@ const APP = class AppUtil {
     }
     let options = {
       cancelable: true,
-      onDismiss: ()=> { if(on_dismiss) on_dismiss(); }
+      onDismiss: ()=> { if(onDismiss) onDismiss(); }
     }   
     Alert.alert(
         title,
@@ -169,8 +169,8 @@ const APP = class AppUtil {
         }
       })
       .onDismiss(() => {
-        if(on_dismiss) {
-          on_dismiss();
+        if(onDismiss) {
+          onDismiss();
         }
       });*/
     }
@@ -255,9 +255,9 @@ const APP = class AppUtil {
     | "bottom"
     | "left"
     | "right"
-    | "center" = 'bottom', timeout=3000) => {
-      // this.notify(message, true, position); 
-      this.show_error(message);
+    | "center" = 'bottom', timeout=4000) => {
+      this.notify(message, true, position, timeout); 
+      //this.show_error(message);
     }
 
   // /**
@@ -306,7 +306,7 @@ const APP = class AppUtil {
    * @param params 
    * @param query_string 
    */
-  static navigate_to_path = (navigation: object, url: string, params: object = {}, query_string: string = '') => { 
+  static navigateToPath = (navigation: object, url: string, params: object = {}, query_string: string = '') => { 
     const clone_params = { ...params }
     // clone['navigation'] = navigation;
     // clone['_t'] = this.generate_random_string(16);  

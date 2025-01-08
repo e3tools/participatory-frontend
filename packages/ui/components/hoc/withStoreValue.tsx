@@ -17,7 +17,7 @@ const withStoreValue = (WrappedComponent) => (props) => {
             let val = get_field_store_value(props.doctype, props.field_name, forms); 
             if(!val)
             {
-                if(!UIUtil.is_new_record(props.docname)){
+                if(!UIUtil.isNewRecord(props.docname)){
                     const doc = await db.get_doc(props.docname); 
                     if(doc) { 
                         set_form_store(props?.doctype, doc);

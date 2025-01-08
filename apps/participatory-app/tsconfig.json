@@ -13,5 +13,5 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-, "../ui/components/shared/app_menu.tsx", "../ui/components/shared/Slider.tsx", "../../packages/data-layer/stores/db.ts", "../../packages/data-layer/utils/db.ts"  ]
+, "../ui/components/shared/app-menu.tsx", "../ui/components/shared/Slider.tsx", "../../packages/data-layer/stores/db.ts", "../../packages/data-layer/utils/db.ts"  ]
 }

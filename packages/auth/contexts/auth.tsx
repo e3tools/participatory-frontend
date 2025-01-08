@@ -1,14 +1,14 @@
 import { View, Text } from 'react-native'
 import React, { createContext, useContext, useEffect, useState } from 'react' 
 import { AuthService } from '../services/auth';
-import { UserData } from '../stores/user_store';
+import { UserData } from '../stores/user-store';
 import { LoginResponse } from '../types';
 
 type AuthContextData = {
   auth_data?: UserData;
   is_authenticated: boolean;
   is_loading: boolean;
-  login(usr: string, pwd: string): Promise<[boolean, unknown]>;
+  login(usr: string, pwd: string): Promise<LoginResponse>;
   logout(): Promise<unknown>;
   counter: number;
   increment(): void;
@@ -19,7 +19,7 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 const AuthProvider = (props) => {
   const [is_authenticated, set_is_authenticated] = useState(false);
-  const [is_loading, set_is_loading] = useState(true); //start with loading is true until data is loaded
+  const [is_loading, setIsLoading] = useState(false); //start with loading is true until data is loaded
   const [auth_data, set_auth_data] = useState<UserData>();
   const [counter, set_counter] = useState(0)
 
@@ -34,7 +34,7 @@ const AuthProvider = (props) => {
   const check_authentication_status = async () => { 
     const user: UserData = await AuthService.get_current_user(); 
     set_is_authenticated(user != null);
-    set_is_loading(false);
+    setIsLoading(false);
   }
 
   const login = async (username: string, password: string) : Promise<LoginResponse> => {

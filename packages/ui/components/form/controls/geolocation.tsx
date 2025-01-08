@@ -3,7 +3,7 @@ import React, { createRef, Fragment, useEffect, useState } from 'react';
 import MapView, { PROVIDER_GOOGLE, Region } from 'react-native-maps'; 
 import MapMarker from 'gis/components/layers/marker';
 import { IGeolocationProps, IMarkerProps } from 'gis/interfaces';
-import FieldLabel from 'ui/components/form/controls/field_label';
+import FieldLabel from 'ui/components/form/controls/field-label';
 import { MAPUTIL } from 'gis/utils/map'; 
 
 const GeoLocation = (props: IGeolocationProps) => {
@@ -40,7 +40,7 @@ const GeoLocation = (props: IGeolocationProps) => {
         });
     }
     useEffect(() => {
-        props?.on_change_value?.(value); 
+        props?.on_change?.(value); 
       }, [value])
 
     useEffect(()=>{

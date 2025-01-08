@@ -1,13 +1,9 @@
 const InstanceStore = class InstanceStore {
-    static set_current_instance = (proxy: object) => { 
-    }
+  static set_current_instance = (proxy: object) => {};
 
-    static get_current_instance = () => { 
-    } 
-}
-export { InstanceStore }
- 
-import { Store } from "pullstate";
+  static get_current_instance = () => {};
+};
+export { InstanceStore };
 
 /**
  * Lightweight store to hold form values as the user is capturing them
@@ -15,7 +11,7 @@ import { Store } from "pullstate";
  */
 
 /**
- * Values will be stored as an object to ensure it can hold state for multiple forms especially for the case 
+ * Values will be stored as an object to ensure it can hold state for multiple forms especially for the case
  * of multi-step forms
  */
 // interface IAppInstanceStore {

@@ -100,7 +100,7 @@ class UIUtil {
      * @param docname 
      * @returns 
      */
-    static is_new_record = (docname: string) => {
+    static isNewRecord = (docname: string) => {
         if(docname && docname.toString().toLocaleLowerCase().trim().split('-')[0] == GLOBALS.NEW_RECORD_ID.toLocaleLowerCase()) return true;
         return false;
     }

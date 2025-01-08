@@ -25,8 +25,7 @@ export class FileUtil {
      * @param url 
      */
     static get_extension = (url: string) => {
-        const ext = url.split(/[#?]/)[0].split(".").pop().trim();
-        console.log("Extension:", ext, url)
+        const ext = url.split(/[#?]/)[0].split(".").pop().trim(); 
         return ext;
     }
 
@@ -44,16 +43,25 @@ export class FileUtil {
         return name.replace(`.${ext}`, "");
     }
 
+    static ensure_directory_exists = async(directory: string) => {
+        const dirInfo = await FileSystem.getInfoAsync(directory);
+        if (!dirInfo.exists) {
+            await FileSystem.makeDirectoryAsync(directory, { intermediates: true });
+        }
+    }
+
     /**
      * Download file allowing for resumption
      * @param url 
      * @returns 
      */
-    static download_file = async (url: string) => { 
+    static download_file = async (url: string, destFolder?: string) : Promise<string | undefined>=> { 
         const file_name = this.get_file_name(url);
-
+        const dest_folder = destFolder || this.store_path;
         const ext = this.get_extension(url);
-        const dest_file_path = `${this.store_path}/${file_name}.${ext}`
+        const dest_file_path = `${dest_folder}/${file_name}.${ext}`;
+
+        await this.ensure_directory_exists(dest_folder);
 
         const download_resumable = FileSystem.createDownloadResumable(
             url,

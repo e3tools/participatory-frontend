@@ -6,7 +6,7 @@ import { ISelectProps } from '../../../interfaces/inputs';
 import { GlobalStyles } from '../../styles/global'; 
 import { HelperText, useTheme } from 'react-native-paper';
 import { SelectStyles } from './styles/select';
-import FieldLabel from './field_label';
+import FieldLabel from './field-label';
 
 export default function AppSelect(props: ISelectProps) {
   const [open, set_open] = useState(false);
@@ -43,10 +43,10 @@ export default function AppSelect(props: ISelectProps) {
   useEffect(()=> { 
     // Trigger setting of values in the parent component
     if(is_options_an_object()){  
-      props.on_change_value(value);  
+      props.on_change(value);  
     }
     else { 
-      props.on_change_value(typeof value == 'string' ? value : value?.name) 
+      props.on_change(typeof value == "string" ? value : value?.name); 
     }
   }, [value]);
 

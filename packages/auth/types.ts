@@ -1,5 +1,7 @@
+import { User } from "./state/state.types"
 
 export interface LoginResponse {
   loggedIn: boolean
-  result: object | string
+  user?: User,
+  error?: string
 }

@@ -1,5 +1,5 @@
 import React from 'react';  
-import BaseTextInput from './base_text_input';
+import BaseTextInput from './base-text-input';
 import { IDataProps } from '../../../interfaces/inputs';
 
 export default function AppData(props: IDataProps){

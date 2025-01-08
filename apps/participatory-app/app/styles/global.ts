@@ -1,6 +1,6 @@
-import * as CONFIG from "../config";
+import * as CONFIG from '../config';
 
-const GLOBALS = CONFIG.GLOBALS;
+// const GLOBALS = CONFIG.GLOBALS;
 export const GlobalStyles = CONFIG.GlobalStyles;
 
 /*

@@ -1,5 +1,5 @@
 import { Frappe } from '../backends/frappe';
-import { LocalDB } from '../backends/localDB'; 
+import { LocalDB } from '../backends/local-db'; 
 import { IBackend } from '../interfaces/backend'; 
 import { IDBReadParam } from '../../../apps/participatory-app/app/interfaces/database';
 import * as CONFIG from '../config';
@@ -15,12 +15,12 @@ export const DBManager = class DBManager implements IBackend {
         return '';
     }
 
-    async get_doc(doctype: string, docname: string) : Promise<object>{
+    async get_oc(doctdype: string, docname: string) : Promise<object>{
         return await LocalDB.get_doc(doctype, docname);
     }
 
-    async call_api_endpoint(endpoint: string, data: object, method: string, is_upload: boolean, is_export: boolean , timeout: number = CONFIG.GLOBALS.BACKEND_TIMEOUT) : Promise<object>{
-        return await FrappeBackend.call_api_endpoint(endpoint, data, method, is_upload, is_export , timeout);
+    async callApiEndpoint(endpoint: string, data: object, method: string, is_upload: boolean, is_export: boolean , timeout: number = CONFIG.GLOBALS.BACKEND_TIMEOUT) : Promise<object>{
+        return await FrappeBackend.callApiEndpoint(endpoint, data, method, is_upload, is_export , timeout);
     }
 
     async update_doc(doctype: string, docname: string, data: object) : Promise<object>{

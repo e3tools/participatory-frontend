@@ -8,6 +8,9 @@ export interface User {
     last_name: string;
     mobile_no: string;
     token: string;
+    roles: string[];
+    is_locked: boolean;
+    language: string;
 }
 
 export interface LoginCredentials {

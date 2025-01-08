@@ -17,7 +17,7 @@ const _LastWriteWins = async (localDoc: any, serverDoc: any, doctype: string) =>
          //compare timestamps
         if(localDoc.modified > serverDoc.modified) {
             // local copy is newer, so overwrite the server
-            // const res = await DB.call_api_endpoint('sync_records', {
+            // const res = await DB.callApiEndpoint('sync_records', {
             //     docs: [localDoc],
             //     doctype: doctype 
             // }); 
@@ -54,7 +54,7 @@ const _ManualConflictResolution = async (localDoc: any, serverDoc: any, doctype:
                         text: 'Keep Local',
                         onPress: async () => {
                             // Overwrite the server with local changes
-                            const res = await DB.call_api_endpoint('sync_records', {
+                            const res = await DB.callApiEndpoint('sync_records', {
                                 docs: [localDoc],
                                 doctype: doctype 
                             }); 

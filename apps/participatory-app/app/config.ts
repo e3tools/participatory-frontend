@@ -1,4 +1,4 @@
-const sharedConfig2 = require('../../../base-config'); 
+const sharedConfig2 = require('../../../base-config');
 module.exports = {
-    ...sharedConfig2
+  ...sharedConfig2,
 };

@@ -29,3 +29,10 @@ export {
     FIELD_TYPE, 
     SPECIAL_TEXT_FIELD_TYPE, 
 }
+
+export interface IMenuItemProps {
+  style?: object, //Style to be applied
+  title?: string, //menu item title
+  onPress?: () => void, //function to call onPress
+  is_divider?: boolean, //is it a divider
+}

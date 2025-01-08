@@ -1,30 +1,26 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit"; 
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface BackendState {
-    isBackendConnected: boolean,
-    loading: boolean,
+  isBackendConnected: boolean;
+  loading: boolean;
 }
 
 const initialState: () => BackendState = () => ({
-    isBackendConnected: false,
-    loading: false,
-})
+  isBackendConnected: false,
+  loading: false,
+});
 
 const backendSlice = createSlice({
-    name: 'backend',
-    initialState: initialState(),
-    reducers: {
-        setIsBackendConnected(state, action: PayloadAction<boolean>) {
-            state.isBackendConnected = action.payload
-        }
+  name: 'backend',
+  initialState: initialState(),
+  reducers: {
+    setIsBackendConnected(state, action: PayloadAction<boolean>) {
+      state.isBackendConnected = action.payload;
     },
-    extraReducers: builder => {
-         
-    }
-})
+  },
+  extraReducers: (builder) => {},
+});
 
-export const {
-    setIsBackendConnected
-} = backendSlice.actions
+export const { setIsBackendConnected } = backendSlice.actions;
 
 export default backendSlice.reducer;

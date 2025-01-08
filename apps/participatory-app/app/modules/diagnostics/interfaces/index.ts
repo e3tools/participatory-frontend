@@ -1,96 +1,94 @@
- 
-import { ImageRequireSource, ImageURISource } from "react-native";
-import { Region } from "react-native-maps";
-import { LEGEND_TYPE, DATASOURCE } from "../enums";
-import { IMenuItemProps } from "common/interfaces";
-import { IDataProps } from "ui/interfaces/inputs";
+import { ImageRequireSource, ImageURISource } from 'react-native';
+import { Region } from 'react-native-maps';
+import { LEGEND_TYPE } from '../enums';
+import { IMenuItemProps } from 'ui/constants/enums';
+import { IDataProps } from 'ui/interfaces/inputs';
 
 /**
  * General map
  */
 export interface IMapProps {
-    initial_region: Region,
-    initial_bounds: [],
-    show_user_location?: boolean,
-    show_my_location_button?: boolean
+  initial_region: Region;
+  initial_bounds: [];
+  show_user_location?: boolean;
+  show_my_location_button?: boolean;
 }
 
 /**
  * App Marker
  */
 export interface IMarkerProps {
-    title: string,
-    description?: string,
-    location: {
-        latitude: number,
-        longitude: number,
-    },
-    draggable?: boolean
+  title: string;
+  description?: string;
+  location: {
+    latitude: number;
+    longitude: number;
+  };
+  draggable?: boolean;
 }
 
 /**
  * GeoJSON geometry
  */
 interface IGeometry {
-    type: string,
-    coordinates: []
+  type: string;
+  coordinates: [];
 }
 
 /**
  * GeoJson Feature
  */
 interface IFeature {
-    type: string,
-    properties: {},
-    geometry: IGeometry
+  type: string;
+  properties: {};
+  geometry: IGeometry;
 }
 
 /**
- * GeoJSON 
+ * GeoJSON
  */
 export interface IGeoJsonProps {
-    type: string,
-    features: Array<IFeature>
+  type: string;
+  features: IFeature[];
 }
 
 /**
  * Image Overlay
  */
 export interface IImageOverlayProps {
-    image: ImageURISource | ImageRequireSource,
-    bounds: [[], []],
-    opacity: number
+  image: ImageURISource | ImageRequireSource;
+  bounds: [[], []];
+  opacity: number;
 }
-   
+
 interface ILegendItem {
-    operator: string
-    item_type: typeof LEGEND_TYPE,
-    // alphatext_value: string,
-    // numeric_value: number,
-    // date_value: Date,
-    absolute_val: object,
-    lower_val: object,
-    upper_val: object,
-    label: string,
-    color: string
+  operator: string;
+  item_type: typeof LEGEND_TYPE;
+  // alphatext_value: string,
+  // numeric_value: number,
+  // date_value: Date,
+  absolute_val: object;
+  lower_val: object;
+  upper_val: object;
+  label: string;
+  color: string;
 }
 
 /**
  * Interface for menu items when use clicks on options/settings button of the mapping page
  */
 export interface IMappingOptionMenuItemProps extends IMenuItemProps {
-    on_checkbox_value_change: (val)=>void, //handler for change of checkbox value
-    on_slider_value_change: (val)=>void, //handler for change of opacity slider 
+  on_checkbox_value_change: (val) => void; //handler for change of checkbox value
+  on_slider_value_change: (val) => void; //handler for change of opacity slider
 }
 
-
 export interface IAnalysisProps {
-    analysis_name: string, // name of analysis
-    admin_id: string, //admin for which analysis is happening
-    admin_level: number, //level of the admin
-    datasource_type: 'Raster' | 'Vector' | 'Tabular', // DATASOURCE.RASTER | DATASOURCE.VECTOR | DATASOURCE.TABULAR,
+  analysisName: string; // name of analysis
+  adminId: string; //admin for which analysis is happening
+  adminLevel: number; //level of the admin
+  datasourceType: 'Raster' | 'Vector' | 'Tabular'; // DATASOURCE.RASTER | DATASOURCE.VECTOR | DATASOURCE.TABULAR,
 }
 
 export interface IGeolocationProps extends IDataProps {
-    initial_bounds: [],
+  initialBounds: [];
 }

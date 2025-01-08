@@ -1,26 +1,18 @@
-import { DB, LocalDB } from "data-layer/utils/db";
-import { store } from "../state/store";
-import { isOnline } from "./backend";
-
+import { DB, LocalDB } from 'data-layer/utils/db';
 
 class DashboardService {
-  constructor() {
-    // const backend = new Frappe(APP.backendURL)
-   
-  }
-  static backend = DB; // new Frappe(APP.backendURL);
-  
+  static backend = DB;
+
   /**
    * Get list of dashboards
    */
-  static async get_dashboards() {  
+  static async getDashboards() {
     let res = null;
-    if(await this.backend.is_online()){
-      res = await DB.call_api_endpoint('get_dashboards'); 
+    if (await this.backend.is_online()) {
+      res = await DB.callApiEndpoint('get_dashboards');
     } else {
-      res = await LocalDB.get_all('Dashboard')
+      res = await LocalDB.get_all('Dashboard');
     }
-    console.log("Dashboards: ", res)
     return res;
   }
 
@@ -28,8 +20,8 @@ class DashboardService {
    * Get list of charts that make up the dashboard
    * @param dashboard_name name of the dashboard
    */
-  static async get_dashboard_charts(dashboard_name: string) {
-    const res = await this.backend.call_api_endpoint('get_dashboard_charts', {
+  static async getDashboardCharts(dashboard_name: string) {
+    const res = await this.backend.callApiEndpoint('get_dashboard_charts', {
       dashboard_name: dashboard_name,
     });
     return res;
@@ -37,12 +29,12 @@ class DashboardService {
 
   /**
    * Load data for a specific chart
-   * @param chart_name 
-   * @returns 
+   * @param chart_name
+   * @returns
    */
-  static async get_chart_data(chart_name: string) {
-    if(await this.backend.is_online()){ 
-      const res = await this.backend.call_api_endpoint('get_dashboard_chart', {
+  static async getChartData(chart_name: string) {
+    if (await this.backend.is_online()) {
+      const res = await this.backend.callApiEndpoint('get_dashboard_chart', {
         chart_name: chart_name,
         chart: null,
         no_cache: null,
@@ -56,7 +48,7 @@ class DashboardService {
       });
       return res;
     } else {
-      return []
+      return [];
     }
   }
 }

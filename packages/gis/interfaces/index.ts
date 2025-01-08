@@ -2,7 +2,7 @@
 import { ImageRequireSource, ImageURISource } from "react-native";
 import { Region } from "react-native-maps";
 import { LEGEND_TYPE, DATASOURCE } from "../enums";
-import { IMenuItemProps } from "@/app/common/interfaces";
+import { IMenuItemProps } from "ui/constants/enums";
 import { IDataProps } from "ui/interfaces/inputs";
 
 /**

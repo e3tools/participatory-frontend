@@ -2,11 +2,17 @@ import { View, Text } from 'react-native'
 import React, { useEffect, useState } from 'react'
 //import { VictoryPie } from 'victory-pie';
 import { VictoryPie } from 'victory-native';
-import AppLoader from '../shared/app_loader';
+import AppLoader from '../shared/app-loader';
+import { barDataItem, PieChart as PieGraph } from "react-native-gifted-charts";
 
-export default function PieChart(/*{ data: []}*/) {
+interface Props {
+  data: barDataItem[]
+}
+
+export default function PieChart(props: Props/*{ data: []}*/) {
     //See https://medium.com/wolox/how-to-animate-a-pie-chart-with-victory-in-react-native-db5997b991a5 on how to animate
     //See https://commerce.nearform.com/open-source/victory/docs
+    /*
     const data = [{ y: 10 }, { y: 50 }, { y: 40 }];
     const default_data = [{ y: 0 }, { y: 0 }, { y: 100 }];
     const colors = ['#388087', '#6fb3b8', '#badfe7'];
@@ -31,5 +37,8 @@ export default function PieChart(/*{ data: []}*/) {
         /> : <AppLoader />
       }
     </View>
-  )
+  )*/
+  return ( 
+      <PieGraph data={props.data} showText /> 
+  );
 }

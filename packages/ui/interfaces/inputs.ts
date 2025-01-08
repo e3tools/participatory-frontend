@@ -22,6 +22,8 @@ interface IBaseFieldProps {
 }
 
 interface IDataProps extends IBaseFieldProps {  
+    left?: React.ReactNode,
+    right?: React.ReactNode
 }
 
 interface ISelectProps extends IBaseFieldProps {

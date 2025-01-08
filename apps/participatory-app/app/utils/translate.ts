@@ -1,16 +1,16 @@
 // import i18n from "i18n-js";
 // import * as Localization from 'expo-localization';
 
-// See https://medium.com/@anujguptawork/how-to-add-multi-language-support-in-react-native-using-i18-js-and-expo-localization-quick-ee6af6154fe8 
-// https://docs.expo.dev/guides/localization/ 
+// See https://medium.com/@anujguptawork/how-to-add-multi-language-support-in-react-native-using-i18-js-and-expo-localization-quick-ee6af6154fe8
+// https://docs.expo.dev/guides/localization/
 // https://medium.com/@lasithherath00/implementing-react-native-i18n-and-language-selection-with-asyncstorage-b24ae59e788e
 // https://crowdbotics.com/posts/blog/how-to-offer-multi-language-support-in-a-react-native-app/
 
-import { getLocales } from "expo-localization";
-import { I18n } from "i18n-js";
-import en from "../translations/i18n/en";
-import sw from "../translations/i18n/sw";
-import {set_value, get_value} from 'common/utils/storage';
+import { getLocales } from 'expo-localization';
+import { I18n } from 'i18n-js';
+import en from '../translations/i18n/en';
+import sw from '../translations/i18n/sw';
+import { set_value, get_value } from 'common/utils/storage';
 
 // const languages = {
 //     en: {
@@ -23,8 +23,8 @@ import {set_value, get_value} from 'common/utils/storage';
 
 const LANG_KEY = 'lang.setting';
 const languages = {
-    en: en,
-    sw: sw,
+  en: en,
+  sw: sw,
 };
 // set the locale once at the beginning of the app
 //const languages = new Language()
@@ -36,24 +36,24 @@ i18n.locale = getLocales()[0].languageCode ?? 'en';
 i18n.enableFallback = true;
 
 const change_language = async (lang: string) => {
-    i18n.locale = lang;  
-    await set_value(LANG_KEY, lang); 
-}
+  i18n.locale = lang;
+  await set_value(LANG_KEY, lang);
+};
 
 const get_language = async () => {
-    const lang = await get_value(LANG_KEY); 
-    if (lang){
-        i18n.locale = lang;
-    } else {
-        i18n.locale = getLocales()[0].languageCode ?? 'en';
-    }
-    return lang;
-}
+  const lang = await get_value(LANG_KEY);
+  if (lang) {
+    i18n.locale = lang;
+  } else {
+    i18n.locale = getLocales()[0].languageCode ?? 'en';
+  }
+  return lang;
+};
 
 const _ = (text: string) => {
-    // set the locale once at the beginning of the app
-    //const languages = new Language()
-    /*const i18n = new I18n(languages);
+  // set the locale once at the beginning of the app
+  //const languages = new Language()
+  /*const i18n = new I18n(languages);
 
     // Set the locale once at the beginning of your app.
     i18n.locale = 'en';//getLocales()[0].languageCode; 
@@ -61,11 +61,11 @@ const _ = (text: string) => {
     // When a value is missing from a language it'll fall back to another language with the key present.
     i18n.enableFallback = true;
     */
-    return i18n.t(text); 
-}
+  return i18n.t(text);
+};
 
 get_language();
-export { i18n, change_language, get_language, _ }
+export { i18n, change_language, get_language, _ };
 
 /*
 console.log("Translating...", text)

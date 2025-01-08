@@ -3,66 +3,68 @@
 // import cio from 'react-native-cheerio';
 const cheerio = require('react-native-cheerio');
 
-const extract_interventions = (html: string) : [] => {
-    const $ = cheerio.load(html); 
-    const res = []; 
-    const get_intervention_types = () => {
-        return $('.carousel-container'); 
-    }
- 
-    let intervention_types = get_intervention_types();  
-    intervention_types.each((idx, typ) => {
-        let entry = {
-            'category': $(typ).find('.caption').text(),
-            'interventions': []
-        } 
-        $(typ).find('.carousel-item').each((j, intervention) => {            
-            const imgs = $(intervention).find('img');
-            imgs.each((n, img) => {
-                let obj = {
-                    'src': $(img).attr('src'),
-                    'alt': $(img).attr('alt'),
-                    'title': $(img).attr('title'),
-                }
-                entry.interventions.push(obj);
-            }); 
-        }); 
-        res.push(entry);
-    });
-    return res; 
-    //     // define function which accepts body and cheerio as args
-    // function extract(input, cheerio) {
-    //     // return object with extracted values              
-    //     let $ = cheerio.load(input);
-    //   	let types = $('.carousel-container'); 
-    //   console.log('types', types)
-    //   types.each((i, elem, x, y) => {
-    // 	//parsedItems.push($(elem).text());
-    //     console.log('EL', $(elem).text(), i, x, y)
-    //    	console.log('Title', $(elem).find('.caption').text()) 
-    //     let kids = $(elem).find('.carousel-item');
-    //     kids.each((j, kid) => {
-    //     	console.log('KID', $(kid))
-    //       	let imgs = $(kid).find('img')
-    //         imgs.each((z, im) => {
-    //         	console.log('Src', $(im).attr('src'))
-    //         });
-    //     });
-    // });
-    //   console.log('NEW')
-    //   	types.map((i, itm) => {
-    //       console.log('ITEM', itm)
-    //     	/*let res = $(itm).find('div');
-    //         console.log('RES:',res)
-    //       	res.map((j)=> {
-    //         	console.log('RES2:',j)
-    //         });*/
-    //     });
-    //     return {
-    //         title: $('div.carousel-inner').text().trim()
-    //     };
-    // }
-}
+const extract_interventions = (html: string): [] => {
+  const $ = cheerio.load(html);
+  const res = [];
+  const get_intervention_types = () => {
+    return $('.carousel-container');
+  };
+
+  let intervention_types = get_intervention_types();
+  intervention_types.each((idx, typ) => {
+    let entry = {
+      category: $(typ).find('.caption').text(),
+      interventions: [],
+    };
+    $(typ)
+      .find('.carousel-item')
+      .each((j, intervention) => {
+        const imgs = $(intervention).find('img');
+        imgs.each((n, img) => {
+          let obj = {
+            src: $(img).attr('src'),
+            alt: $(img).attr('alt'),
+            title: $(img).attr('title'),
+          };
+          entry.interventions.push(obj);
+        });
+      });
+    res.push(entry);
+  });
+  return res;
+  //     // define function which accepts body and cheerio as args
+  // function extract(input, cheerio) {
+  //     // return object with extracted values
+  //     let $ = cheerio.load(input);
+  //   	let types = $('.carousel-container');
+  //   console.log('types', types)
+  //   types.each((i, elem, x, y) => {
+  // 	//parsedItems.push($(elem).text());
+  //     console.log('EL', $(elem).text(), i, x, y)
+  //    	console.log('Title', $(elem).find('.caption').text())
+  //     let kids = $(elem).find('.carousel-item');
+  //     kids.each((j, kid) => {
+  //     	console.log('KID', $(kid))
+  //       	let imgs = $(kid).find('img')
+  //         imgs.each((z, im) => {
+  //         	console.log('Src', $(im).attr('src'))
+  //         });
+  //     });
+  // });
+  //   console.log('NEW')
+  //   	types.map((i, itm) => {
+  //       console.log('ITEM', itm)
+  //     	/*let res = $(itm).find('div');
+  //         console.log('RES:',res)
+  //       	res.map((j)=> {
+  //         	console.log('RES2:',j)
+  //         });*/
+  //     });
+  //     return {
+  //         title: $('div.carousel-inner').text().trim()
+  //     };
+  // }
+};
 
 // import * as htmlparser2 from "htmlparser2";
 
@@ -135,4 +137,4 @@ const extract_interventions = (html: string) : [] => {
 //     },
 // });
 
-export { extract_interventions }
+export { extract_interventions };

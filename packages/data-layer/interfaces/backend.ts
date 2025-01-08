@@ -3,7 +3,7 @@ import { IDBReadParam } from "./database";
 export interface IBackend {
     login(data: object) : Promise<string>;
     get_doc(doctype: string, docname: string) : Promise<object>;
-    call_api_endpoint?(endpoint: string, data: object, method: string, is_upload: boolean, is_export: boolean , timeout: number) : Promise<object>;
+    callApiEndpoint?(endpoint: string, data: object, method: string, is_upload: boolean, is_export: boolean , timeout: number) : Promise<object>;
     update_doc(doctype: string, docname: string, data: object) : Promise<object>;
     get_doctype(doctype: string): Promise<object>;
     delete_doc(doctype: string, docname: string): Promise<object>;

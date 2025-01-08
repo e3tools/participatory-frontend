@@ -1,24 +1,26 @@
-import { Image, StyleSheet, Text, View } from 'react-native'
-import React, { useState } from 'react'
-// import { useIsFocused } from '@react-navigation/native'
-// import Timeline from 'react-native-timeline-flatlist'
- 
+import { Text, View } from 'react-native';
+import React, { useEffect } from 'react';
 
 const App = () => {
+  useEffect(() => {
+    console.log('App page loaded');
+  }, []);
   return (
+    // <AuthStack />
     <View>
-      <Text>Entry point to the App</Text>
+      <Text>App Text content</Text>
+      {/* <AuthStack /> */}
     </View>
-  )
-}
+  );
+};
 
-export default App
+export default App;
 
 // const styles = StyleSheet.create({})
 
 // const AppTimeline = () => {
 //     const is_focused = useIsFocused();
-//     const [selected, set_selected] = useState(); 
+//     const [selected, set_selected] = useState();
 //     const data = [
 //         {
 //             time: '01:00',
@@ -37,7 +39,7 @@ export default App
 //             description: 'Give the public chances to comment, convene focus groups design public meetings that aim for dialogue',
 //             color: 'orange',
 //             icon: 'record_voice_over'
-//           }, 
+//           },
 //           {
 //             time: '03:00',
 //             image_url: null,
@@ -46,7 +48,7 @@ export default App
 //             description: 'Conduct workshops; place interested or affected members on decision-making boards or groups',
 //             color: 'blue',
 //             icon: 'settings'
-//           }, 
+//           },
 //           {
 //             time: '04:00',
 //             image_url: null,
@@ -55,7 +57,7 @@ export default App
 //             description: 'Create committees with members who have decision making authority',
 //             color: 'blue',
 //             icon: 'thumb_up'
-//           }, 
+//           },
 //           {
 //             time: '05:00',
 //             image_url: null,
@@ -66,9 +68,9 @@ export default App
 //             icon: 'done_all'
 //           },
 //       ]
-    
+
 //   return (
-//     <Timeline 
+//     <Timeline
 //         style={styles.list}
 //         data={data}
 //         circleSize={20}
@@ -81,7 +83,7 @@ export default App
 //             style:{paddingTop:5}
 //         }}
 //         innerCircle={'icon'}
-//         onEventPress={(data) => { 
+//         onEventPress={(data) => {
 //             set_selected(data);
 //         }}
 //         renderDetail={(row_data, section_id, row_id) => {
@@ -89,12 +91,12 @@ export default App
 //             var desc = null
 //             if(row_data.description && row_data.image_url)
 //                 desc = (
-//                     <View style={styles.descriptionContainer}>   
+//                     <View style={styles.descriptionContainer}>
 //                         <Image source={{uri: row_data.imageUrl}} style={styles.image}/>
 //                         <Text style={[styles.textDescription]}>{row_data.description}</Text>
 //                     </View>
 //                 )
-            
+
 //             return (
 //                 <View style={{flex:1}}>
 //                     {title}

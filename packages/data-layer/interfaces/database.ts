@@ -11,9 +11,9 @@ interface IDBReadSingleParam {
  */
 interface IDBReadParam {
   doctype: string;
-  filters: Array<[]>;
-  or_filters: Array<[]>;
-  fields: Array<string>;
+  filters: any[][];
+  or_filters: any[][];
+  fields: string[];
   order_by: string;
   limit_start: number;
   limit_page_length: number;

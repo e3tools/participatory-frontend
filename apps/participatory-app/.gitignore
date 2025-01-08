@@ -46,3 +46,5 @@ android/*
 eas_OLD.json
 
 reference_materials/*
+
+.env

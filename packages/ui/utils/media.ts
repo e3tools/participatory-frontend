@@ -2,7 +2,7 @@ import { APP } from "common";
 import { ImagePickerAsset,   } from "expo-image-picker";
 import { Audio } from "expo-av"; 
 import * as FileSystem from "expo-file-system" 
-import { UserStore } from "auth/stores/user_store"; 
+import { UserStore } from "auth/stores/user-store"; 
 
 type ImagePicker = {
     uri: string,

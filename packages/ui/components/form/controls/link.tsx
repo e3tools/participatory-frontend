@@ -7,13 +7,15 @@ import { IDBReadParam } from 'data-layer/interfaces/database';
 import { ILinkProps } from '../../../interfaces/inputs';
 import { GlobalStyles } from '../../styles/global'; 
 import { SelectStyles } from './styles/select';
-import FieldLabel from './field_label';
+import FieldLabel from './field-label';
 import { theme } from '../../theme/theme';
 
 export default function AppLink(props: ILinkProps) {
   const [open, set_open] = useState(false);
   const [value, set_value] = useState(props.value || '');
   const [focus, set_focus] = useState(false);
+  const [titleField, setTitleField] = useState('name');
+
   // const options = props.field.options;
   // const data = options ? (options instanceof Array ? options : options.split('\n')) : []
   const { placeholder='' } = props;
@@ -22,13 +24,29 @@ export default function AppLink(props: ILinkProps) {
   const [data, set_data] = useState([]);
   const doctype = props.field.options;
   const db = new DocTypeService(doctype); 
+
+  /**
+   * Get doctype definition
+   */
+  const getDocTypeTitleField = async() => {
+    const formDef = await new DocTypeService('DocType').get_doc(doctype); 
+    setTitleField(formDef.title_field || 'name');
+    return formDef.title_field;
+  }
+
   const get_all_docs = async (val = '') => {
-    //loading.value = true
+    const title_field = await getDocTypeTitleField() || 'name';
     let cfg = {} as IDBReadParam     
     cfg.doctype = doctype
-    cfg.fields = ['name']
+    cfg.fields = [...new Set(["name", title_field])];
     // cfg.limit_page_length = 20
-    cfg.filters = val === '' ? [] : [['name', 'like', val]];
+    cfg.or_filters =
+      val === ""
+        ? []
+        : [
+            ["name", "like", val],
+            [title_field, "like", val],
+          ];
     
     const filters = new Array<[[]]>();
     Object.keys(props.filters ? props.filters : {}).forEach((filter) => {
@@ -79,7 +97,7 @@ export default function AppLink(props: ILinkProps) {
 
   useEffect(()=> { 
     // Trigger setting of values in the parent component
-    props.on_change_value(value); 
+    props.on_change(value); 
   }, [value]);
 
   useEffect(() => {
@@ -91,7 +109,15 @@ export default function AppLink(props: ILinkProps) {
     <View>
       <FieldLabel label={props.label} reqd={props.reqd} hidden={props.hidden} />
       <Dropdown
-        style={[GlobalStyles.form_field, GlobalStyles.select, props?.style, { borderColor: props.reqd && !value ? theme.colors.error : theme.colors.primary }]}
+        style={[
+          GlobalStyles.form_field,
+          GlobalStyles.select,
+          props?.style,
+          {
+            borderColor:
+              props.reqd && !value ? theme.colors.error : theme.colors.primary,
+          },
+        ]}
         placeholderStyle={SelectStyles.placeholderStyle}
         selectedTextStyle={SelectStyles.selectedTextStyle}
         inputSearchStyle={SelectStyles.inputSearchStyle}
@@ -99,29 +125,29 @@ export default function AppLink(props: ILinkProps) {
         iconStyle={SelectStyles.iconStyle}
         data={data}
         search
-        labelField='name'
-        valueField='name'
+        labelField={titleField}
+        valueField="name"
         value={value}
         disable={props.readonly}
         // placeholder={!focus? 'Select item' : '...'}
-        placeholder2={!focus? place_holder : '...'}
-        placeholder={''}
-        searchPlaceholder='Search...'
-        onFocus={()=>set_focus(true)}
-        onBlur={()=>set_focus(false)}
-        onChange={item => { 
+        placeholder2={!focus ? place_holder : "..."}
+        placeholder={""}
+        searchPlaceholder="Search..."
+        onFocus={() => set_focus(true)}
+        onBlur={() => set_focus(false)}
+        onChange={(item) => {
           set_value(item.name);
           set_focus(false);
           props.on_blur?.();
         }}
         renderLeftIcon={() => {
           <AntDesign
-            color={focus ? 'blue': 'black'}
-            name='Safety'
+            color={focus ? "blue" : "black"}
+            name="Safety"
             size={20}
-          />
+          />;
         }}
-      /> 
+      />
     </View>
-  )
+  );
 }

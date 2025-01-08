@@ -2,7 +2,7 @@ import { View, Text, StyleSheet } from 'react-native'
 import React from 'react' 
 import { TimePicker } from 'react-native-paper-dates'; 
 import { en, registerTranslation } from 'react-native-paper-dates';
-import FieldLabel from './field_label';
+import FieldLabel from './field-label';
 registerTranslation('en', en)
 
 export default function AppTime(props) {
@@ -11,29 +11,28 @@ export default function AppTime(props) {
     //<View style={[GlobalStyles.form_field, GlobalStyles.date_picker]}>
     <View>
       <FieldLabel label={props.label} reqd={props.reqd} hidden={props.hidden} />
-      <View style={{justifyContent: 'center', flex: 1, alignItems: 'center'}}>
+      <View style={{ justifyContent: "center", flex: 1, alignItems: "center" }}>
         <TimePicker
           // style={[GlobalStyles.form_field, GlobalStyles.date_picker]}
           style={props?.style}
-          locale='en-GB'
+          locale="en-GB"
           // label={props.field.label}
           disabled={props.readonly}
           value={input_time}
-          inputMode='start'
+          inputMode="start"
           onChange={(d) => {
-            set_input_time(d); 
-            //props.on_change_value(d);
+            set_input_time(d);
+            //props.on_change(d);
             props.on_blur?.();
-          }} 
-          
-        /> 
+          }}
+        />
       </View>
     </View>
     //</View>
     // <SafeAreaProvider>
     //   <Text>{date ? date.toString(): ''}</Text>
     //     <View style={styles.container}>
-          
+
     //        <DatePickerInput
     //          locale='en'
     //          label={props.field.label}
@@ -41,12 +40,12 @@ export default function AppTime(props) {
     //          inputMode='start'
     //          onChange={(d) => {
     //             set_date(d);
-    //             //props.on_change_value(d);
+    //             //props.on_change(d);
     //          }}
-    //        /> 
+    //        />
     //     </View>
-    // </SafeAreaProvider> 
-  )
+    // </SafeAreaProvider>
+  );
 }
 
 // const styles = StyleSheet.create({

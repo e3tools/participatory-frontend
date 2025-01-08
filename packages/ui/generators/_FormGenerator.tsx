@@ -10,10 +10,10 @@ import { IDateProps, ISelectProps, INumericProps, ICheckBoxProps, IDataProps,
           ILinkedFieldProps} 
       from "../interfaces/inputs";
 import { APP } from "common";
-import { AppButton } from "../components/shared/app_button";
+import { AppButton } from "../components/shared/app-button";
 import { UIUtil } from "../utils/ui";  
 import { Card, SegmentedButtons, Text } from "react-native-paper"; 
-import AppFileUploader from "../components/shared/app_file_uploader"; 
+import AppFileUploader from "../components/shared/app-file-uploader"; 
 import { 
     AppCurrency,
     AppData,
@@ -35,16 +35,16 @@ import {
 
 import { DocTypeService } from "data-layer/services/doctype";
 import { RuleBuilder } from "../rule_builder";
-import { format_date, parse_date } from "common/utils/date"; 
+import { formatDate, parseDate } from "common/utils/date"; 
 import { form_store_exists, get_field_store_value, get_form_store, update_field_store_value, set_form_store } from "../utils/state";
 import { FormStore } from "../store/form";  
 import { IDocFormProps } from "../interfaces/ui";
 import * as CONFIG from "../config";
-import KeyboardAvoidingWrapper from "../components/shared/keyboard_avoiding_wrapper";
+import KeyboardAvoidingWrapper from "../components/shared/keyboard-avoiding-wrapper";
 import { useNavigation } from "expo-router";
-import AppLoader from "../components/shared/app_loader";
+import AppLoader from "../components/shared/app-loader";
 import Attach from "../components/form/controls/attach";
-import SectionBreak from "../components/form/controls/section_break";
+import SectionBreak from "../components/form/controls/section-break"; 
 
 const GLOBALS = CONFIG.GLOBALS;
 
@@ -52,42 +52,41 @@ const NON_FORM_FIELDS = [
     'Tab Break',
     // 'Section Break',
     'Column Break'
-]
+] 
 
-// const FormGenerator = ( { form_config, initial_values, on_submit }) => {  
-const FormGenerator = (form_props: IDocFormProps, ref) => {  
+const FormGenerator = (formProps: IDocFormProps, ref) => {  
     // See advanced https://github.com/fateh999/react-native-paper-form-builder/blob/master/src/Inputs/InputSelect.tsx 
-    // const { navigation } = form_props;
-    const navigation = useNavigation();
-    const { on_submit, show_save_button = true, fields=[], ...rest } = form_props; 
-    const initial_doc = form_props.doc;
+    const navigation = useNavigation(); 
+    const { onSubmit, showSaveButton = true, fields=[], ...rest } = formProps; 
+    const initial_doc = formProps.doc;
     const formik_ref = useRef(null);//ref;// useRef(null); 
-    const [tabs, set_tabs] = useState([]);
-    const [form_tabs, set_form_tabs] = useState({});
-    const [active_tab, set_active_tab] = useState(null);
-    const [form_fields, set_form_fields] = useState([]); 
-    const [doc, set_doc] = useState(form_props.doc || {}); 
-    const db = new DocTypeService(form_props.doctype);
-    const [initial_values, set_initial_values] = useState<object>(form_props.initial_values) ;//({ name: '' });
-    const [form_config, set_form_config] = useState({'fields': [], 'validation_schema': {}}); //form_props.form_config
-    const [segment, set_segment] = useState('');// set segment for the navigation buttons 
-    const [loading, set_loading] = useState(true);
+    const [tabs, setTabs] = useState([]);
+    const [form_tabs, setFormTabs] = useState({});
+    const [active_tab, setActiveTab] = useState(null);
+    const [form_fields, setFormFields] = useState([]); 
+    const [doc, setDoc] = useState(formProps.doc || {});
+    const db = new DocTypeService(formProps.doctype);
+    const [initialValues, setInitialValues] = useState<object>(formProps.initialValues) ;//({ name: '' });
+    const [form_config, setFormConfig] = useState({'fields': [], 'validation_schema': {}}); //formProps.form_config
+    const [segment, setSegment] = useState('');// set segment for the navigation buttons 
+    const [loading, setLoading] = useState(true);
 
     const forms = FormStore.useState(s=>s.forms);
     const { width, height } = Dimensions.get('window');
 
 
     useEffect(()=> { 
-    }, [formik_ref.current?.values])
-    /**
+    }, [formik_ref.current?.values]);
+
+  /**
    * Get form record
-   */
-  const get_doc = async () => {
+  */
+  const getDoc = async () => {
     let stored_doc = null;
-    if(form_store_exists(form_props.doctype, forms)){ 
-      stored_doc = get_form_store(form_props.doctype, forms); 
+    if(form_store_exists(formProps.doctype, forms)){ 
+      stored_doc = get_form_store(formProps.doctype, forms); 
       if(stored_doc){
-        set_doc(stored_doc);
+        setDoc(stored_doc);
       }
     }
     else {
@@ -95,17 +94,17 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
     }
     if(stored_doc == null) 
     {  
-      const docname = form_props.docname;
-      if (docname && docname !== undefined && !UIUtil.is_new_record(docname)){ 
+      const docname = formProps.docname;
+      if (docname && docname !== undefined && !UIUtil.isNewRecord(docname)){ 
         const fdoc = await db.get_doc(docname); 
-        set_doc(fdoc); 
-        set_form_store(form_props.doctype, fdoc);
+        setDoc(fdoc); 
+        set_form_store(formProps.doctype, fdoc);
       } else { 
         let fdoc = await db.new_doc(null);
         // update with initial values 
-        fdoc = APP.update_dict(initial_values);
-        set_doc(fdoc); 
-        set_form_store(form_props.doctype, fdoc);
+        fdoc = APP.update_dict(initialValues);
+        setDoc(fdoc); 
+        set_form_store(formProps.doctype, fdoc);
       } 
     }
   }
@@ -147,7 +146,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
             }
             return !NON_FORM_FIELDS.includes(df.fieldtype)
         })
-        set_form_fields(flds);
+        setFormFields(flds);
         // return flds;
     }
 
@@ -167,8 +166,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
       }
 
       let exp = '1=0';
-      //check if visibility is based on another field
-      console.log("Evaluating depends on 2: ", form_values)
+      //check if visibility is based on another field 
       if (expression) {
         console.log("Expression: ", expression, " for field: ", field.fieldname)
         console.log("Formik valus:", form_values)
@@ -222,7 +220,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
       for(const fld of date_fields){
         let dt = values[fld.fieldname];
         if(dt){
-          values[fld.fieldname] = format_date(dt);
+          values[fld.fieldname] = formatDate(dt);
         }
       }
     }    
@@ -246,7 +244,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
             return null;
         },
         get_doc_type: () => {  
-            return form_props.doctype;
+            return formProps.doctype;
         }
     }), []);
 
@@ -258,10 +256,10 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
               // only retrieve if original doc was not provided 
               await get_doc();
             } else {
-              set_doc(initial_doc);
+              setDoc(initial_doc);
             }*/
-            await get_doc();
-            set_loading(false)
+            await getDoc();
+            setLoading(false)
             //make_form_config();
         } 
         load_initials();
@@ -272,8 +270,8 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
     }, [doc])
 
     useEffect(() => {
-      get_form_fields(initial_values);
-    }, [initial_values])
+      get_form_fields(initialValues);
+    }, [initialValues])
     // // Grab values and submitForm from context
     // const { values, submitForm } = useFormikContext();
     // React.useEffect(() => {
@@ -303,9 +301,9 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
         }
       }
     }  
-    set_tabs(tbs); 
+    setTabs(tbs); 
     if(tbs.length > 0){
-        set_active_tab(tbs[0].fieldname);
+        setActiveTab(tbs[0].fieldname);
     }
   }
 
@@ -353,7 +351,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
       let content = generate_tab_content(tb.fieldname);
       screens[tb.fieldname] = content;
     } 
-    set_form_tabs(screens);
+    setFormTabs(screens);
   }
 
   useEffect(() => {
@@ -361,40 +359,44 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
   }, [tabs])
 
   useEffect(() => {
-  }, [initial_values]); 
+  }, [initialValues]); 
   
   const parse_val = (val, fld) => {
     /*Get value from formStore. */
-    let state_exists = form_store_exists(form_props.doctype, forms);
-    let state_val = get_field_store_value(form_props.doctype, fld.fieldname, forms);
+    let state_exists = form_store_exists(formProps.doctype, forms);
+    let state_val = get_field_store_value(
+      formProps.doctype,
+      fld.fieldname,
+      forms
+    );
 
-    if(state_exists){
-      //if val is null, try retrieve from the formstore 
-      if(form_props.is_child_table){
-        //if child table, do not retrieve state as the state is stored for all rows not specific row field 
-        if(doc){
+    if (state_exists) {
+      //if val is null, try retrieve from the formstore
+      if (formProps.isChildTable) {
+        //if child table, do not retrieve state as the state is stored for all rows not specific row field
+        if (doc) {
           // If a Child table row is being edited
           val = doc[fld.fieldname];
         } else {
-          val = initial_values[fld.fieldname];
+          val = initialValues[fld.fieldname];
         }
       } else {
         val = state_val; // set to state value to allow for preservation of state on form navigation
       }
     }
     // if(!val) {
-    //     //if val is null, try retrieve from the formstore 
-    //     if(form_props.is_child_table){
-    //       //if child table, do not retrieve state as the state is stored for all rows not specific row field 
-    //       val = initial_values[fld.fieldname];
+    //     //if val is null, try retrieve from the formstore
+    //     if(formProps.isChildTable){
+    //       //if child table, do not retrieve state as the state is stored for all rows not specific row field
+    //       val = initialValues[fld.fieldname];
     //     }
     //     else {
-    //       val = get_field_store_value(form_props.doctype, fld.fieldname, forms); 
+    //       val = get_field_store_value(formProps.doctype, fld.fieldname, forms);
     //     }
     // }
-    if(!val) return val;
-    if(fld.fieldtype == FIELD_TYPE.DATE){
-        return parse_date(val);
+    if (!val) return val;
+    if (fld.fieldtype == FIELD_TYPE.DATE) {
+      return parseDate(val);
     }
     return val;
   }
@@ -402,53 +404,53 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
   const make_form_config = (/*fields: Array<object> = []*/) => {
     // const _parse_val = (val, fld) => {
     //     if(!val) {
-    //         //if val is null, try retrieve from the formstore 
-    //         if(form_props.is_child_table){
-    //           //if child table, do not retrieve state as the state is stored for all rows not specific row field 
-    //           val = initial_values[fld.fieldname];
+    //         //if val is null, try retrieve from the formstore
+    //         if(formProps.isChildTable){
+    //           //if child table, do not retrieve state as the state is stored for all rows not specific row field
+    //           val = initialValues[fld.fieldname];
     //         }
     //         else {
-    //           val = get_field_store_value(form_props.doctype, fld.fieldname, forms); 
+    //           val = get_field_store_value(formProps.doctype, fld.fieldname, forms);
     //         }
     //     }
     //     if(!val) return val;
     //     if(fld.fieldtype == FIELD_TYPE.DATE){
-    //         return parse_date(val);
+    //         return parseDate(val);
     //     }
     //     return val;
     // }
-    
- 
-    let data_obj = { doctype: form_props.doctype, docname: form_props.docname };
-    let form_cfg = {'fields': [], 'validation_schema': {}};
+
+    let data_obj = { doctype: formProps.doctype, docname: formProps.docname };
+    let form_cfg = { fields: [], validation_schema: {} };
     let validation_rules = {};
-    let frm_fields = fields;// fields?.length > 0 ? fields : form_fields;
- 
-    frm_fields?.map((field, idx) => { 
-      let key = field.fieldname;   
+    let frm_fields = fields; // fields?.length > 0 ? fields : form_fields;
+
+    frm_fields?.map((field, idx) => {
+      let key = field.fieldname;
 
       /* Transform into generic props*/
       let clone_field = Transformer.transform_field(field);
-      form_cfg.fields.push(clone_field); 
+      form_cfg.fields.push(clone_field);
 
-      /* Get value of field from retrieved or created doc */ 
+      /* Get value of field from retrieved or created doc */
       // data_obj[key] = doc?.[key];// doc?.key ? doc.key : ( _parse_val(doc?.key || null, field)); //doc[key] == null || doc[key] == undefined ? null : _parse_val(doc[key], field);
-      data_obj[key] = doc?.key ? (parse_val(doc?.key || null, field)) : doc.key; //doc[key] == null || doc[key] == undefined ? null : _parse_val(doc[key], field);
+      data_obj[key] = doc?.key ? parse_val(doc?.key || null, field) : doc.key; //doc[key] == null || doc[key] == undefined ? null : _parse_val(doc[key], field);
       // data_obj[key] = doc?.key;
       // data_obj[fld.fieldname] = doc[fld.fieldname];//  get_default_value(fld);
 
       /* Make validation schema */
       validation_rules[key] = RuleBuilder.build(clone_field);
-    
-    }); 
+    });
 
-    const form_key = form_props.doctype;
+    const form_key = formProps.doctype;
 
     // get stored form values. IF they exist, use them, else use the normal initialized values
-    const store_values = null;// FormStore.useState((s)=>{ return form_key in s ? s[form_key]: null})
-    set_initial_values(vals => store_values == null ? data_obj : store_values); 
+    const store_values = null; // FormStore.useState((s)=>{ return form_key in s ? s[form_key]: null})
+    setInitialValues((vals) =>
+      store_values == null ? data_obj : store_values
+    );
     form_cfg.validation_schema = validation_rules;
-    set_form_config(cfg => form_cfg); 
+    setFormConfig((cfg) => form_cfg);
     return form_cfg;
   } 
 
@@ -456,10 +458,10 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
 
       const _transform = (fld: object) => {
         let prps = Transformer.transform_field(fld);
-        //prps.value = initial_values[fld.fieldname];
+        //prps.value = initialValues[fld.fieldname];
         // doc?.key ? (parse_val(doc?.key || null, field)) : doc.key
-        // prps.value = initial_values[fld.fieldname]; 
-        prps['value'] = parse_val(initial_values[fld.fieldname], fld); // initial_values[fld.fieldname];
+        // prps.value = initialValues[fld.fieldname]; 
+        prps['value'] = parse_val(initialValues[fld.fieldname], fld); // initialValues[fld.fieldname];
         prps['form_state'] = formik_props; 
         return prps;
       }
@@ -483,309 +485,291 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
         const field_type = field.fieldtype; 
         let el = null;
         let props = null; 
-        switch (field_type){
-            /**
-             * Input fields of normal text upto a max of 140 characters
-             */
-            case FIELD_TYPE.DATA:
-            case FIELD_TYPE.PHONE:
-                props = _transform(field) as IDataProps;  
-                //const EnhancedAppData = withStore(AppData)
-                //props.on_change_value=formik_props.handleChange(field.fieldname);
-                el = (
-                    <AppData 
-                        {...props}
-                        doctype={form_props.doctype}
-                        docname={form_props.docname}
-                        on_change_value={(val) => {
-                            //formik_props.handleChange(props.field_name); 
-                            //formik_props.values[props.field_name] = val; 
-                            _set_field_value(field, val);
-                          }
-                        } 
-                        on_blur={_trigger_depends_on_evaluation}
-                    />
-                );  
+        switch (field_type) {
+          /**
+           * Input fields of normal text upto a max of 140 characters
+           */
+          case FIELD_TYPE.DATA:
+          case FIELD_TYPE.PHONE:
+            props = _transform(field) as IDataProps;
+            //const EnhancedAppData = withStore(AppData)
+            //props.on_change=formik_props.handleChange(field.fieldname);
+            el = (
+              <AppData
+                {...props}
+                doctype={formProps.doctype}
+                docname={formProps.docname}
+                on_change={(val) => {
+                  //formik_props.handleChange(props.field_name);
+                  //formik_props.values[props.field_name] = val;
+                  _set_field_value(field, val);
+                }}
+                on_blur={_trigger_depends_on_evaluation}
+              />
+            );
             break;
 
-            case FIELD_TYPE.PASSWORD:
-                props = _transform(field) as IDataProps;   
-                el = (
-                    <AppPassword 
-                        {...props}  
-                        on_change_value={val => {
-                            // formik_props.handleChange(props.field_name);
-                            //formik_props.values[props.field_name] = val;  
-                            _set_field_value(field, val);
-                          }
-                        }    
-                    />
-                );                
+          case FIELD_TYPE.PASSWORD:
+            props = _transform(field) as IDataProps;
+            el = (
+              <AppPassword
+                {...props}
+                on_change={(val) => {
+                  // formik_props.handleChange(props.field_name);
+                  //formik_props.values[props.field_name] = val;
+                  _set_field_value(field, val);
+                }}
+              />
+            );
             break;
 
-            case FIELD_TYPE.DATE:
-                props = _transform(field) as IDateProps; 
-                el = (
-                    <AppDate 
-                        {...props} 
-                        on_change_value={val => { 
-                            //formik_props.values[props.field_name] = val;  
-                            _set_field_value(field, val);
-                          }
-                        }  
-                    />
-                );                
+          case FIELD_TYPE.DATE:
+            props = _transform(field) as IDateProps;
+            el = (
+              <AppDate
+                {...props}
+                on_change={(val) => {
+                  //formik_props.values[props.field_name] = val;
+                  _set_field_value(field, val);
+                }}
+              />
+            );
             break;
 
-            /**
-             * Dropdown list
-             */
-            case FIELD_TYPE.SELECT:
-                props = _transform(field) as ISelectProps;   
-                el = (
-                        <AppSelect 
-                            {...props}  
-                            on_change_value={val => {
-                                //formik_props.values[props.field_name] = val;  
-                                _set_field_value(field, val);
-                              }
-                            }  
-                        />
-                    ); 
+          /**
+           * Dropdown list
+           */
+          case FIELD_TYPE.SELECT:
+            props = _transform(field) as ISelectProps;
+            el = (
+              <AppSelect
+                {...props}
+                on_change={(val) => {
+                  //formik_props.values[props.field_name] = val;
+                  _set_field_value(field, val);
+                }}
+              />
+            );
             break;
 
-            case FIELD_TYPE.LINK:
-                props = _transform(field) as ILinkProps;    
-                el = (
-                        <AppLink 
-                            {...props} 
-                            filters={props.field_filters}
-                            doc={formik_props.values}
-                            on_change_value={val => {
-                                //formik_props.values[props.field_name] = val;  
-                                _set_field_value(field, val);
-                              }
-                            }  
-                        />
-                    ); 
+          case FIELD_TYPE.LINK:
+            props = _transform(field) as ILinkProps;
+            el = (
+              <AppLink
+                {...props}
+                filters={props.field_filters}
+                doc={formik_props.values}
+                on_change={(val) => {
+                  //formik_props.values[props.field_name] = val;
+                  _set_field_value(field, val);
+                }}
+              />
+            );
             break;
 
-            case FIELD_TYPE.LINKED_FIELD:
-                props = _transform(field) as ILinkedFieldProps;
-                //const EnhancedAppData = withStore(AppData)
-                //props.on_change_value=formik_props.handleChange(field.fieldname);
-                el = (
-                    <AppLinkedField
-                        {...props}
-                        doctype={form_props.doctype}
-                        docname={form_props.docname}
-                        on_change_value={(val) => {
-                            //formik_props.handleChange(props.field_name); 
-                            //formik_props.values[props.field_name] = val; 
-                            _set_field_value(field, val);
-                          }
-                        } 
-                        on_blur={_trigger_depends_on_evaluation}
-                    />
-                );  
-            break;
-            
-            case FIELD_TYPE.INT:
-                props = _transform(field) as INumericProps;   
-                el = (
-                        <AppInt 
-                            {...props} 
-                            on_change_value={val => {
-                                //formik_props.values[props.field_name] = val;  
-                                _set_field_value(field, val);
-                              }
-                            } 
-                            on_blur={_trigger_depends_on_evaluation} 
-                        />
-                    );
+          case FIELD_TYPE.LINKED_FIELD:
+            props = _transform(field) as ILinkedFieldProps;
+            //const EnhancedAppData = withStore(AppData)
+            //props.on_change=formik_props.handleChange(field.fieldname);
+            el = (
+              <AppLinkedField
+                {...props}
+                doctype={formProps.doctype}
+                docname={formProps.docname}
+                on_change={(val) => {
+                  //formik_props.handleChange(props.field_name);
+                  //formik_props.values[props.field_name] = val;
+                  _set_field_value(field, val);
+                }}
+                on_blur={_trigger_depends_on_evaluation}
+              />
+            );
             break;
 
-            case FIELD_TYPE.FLOAT:
-                props = _transform(field) as INumericProps;   
-                el = (
-                        <AppFloat 
-                            {...props} 
-                            on_change_value={val => {
-                                //formik_props.values[props.field_name] = val;  
-                                _set_field_value(field, val);
-                              }
-                            }
-                            on_blur={_trigger_depends_on_evaluation}  
-                        />
-                    );
+          case FIELD_TYPE.INT:
+            props = _transform(field) as INumericProps;
+            el = (
+              <AppInt
+                {...props}
+                on_change={(val) => {
+                  //formik_props.values[props.field_name] = val;
+                  _set_field_value(field, val);
+                }}
+                on_blur={_trigger_depends_on_evaluation}
+              />
+            );
             break;
 
-            case FIELD_TYPE.CURRENCY: 
-                props = _transform(field) as INumericProps;   
-                el = (
-                        <AppCurrency 
-                            {...props} 
-                            on_change_value={val => {
-                                //formik_props.values[props.field_name] = val;  
-                                _set_field_value(field, val);
-                              }
-                            }
-                            on_blur={_trigger_depends_on_evaluation} 
-                        />
-                    );
+          case FIELD_TYPE.FLOAT:
+            props = _transform(field) as INumericProps;
+            el = (
+              <AppFloat
+                {...props}
+                on_change={(val) => {
+                  //formik_props.values[props.field_name] = val;
+                  _set_field_value(field, val);
+                }}
+                on_blur={_trigger_depends_on_evaluation}
+              />
+            );
             break;
 
-            case FIELD_TYPE.CHECKBOX: 
-                props = _transform(field) as ICheckBoxProps;   
-                el = (
-                        <AppCheckBox 
-                            {...props} 
-                            on_change_value={val => {
-                                //formik_props.values[props.field_name] = val;  
-                                _set_field_value(field, val);
-                              }
-                            }
-                            on_blur={_trigger_depends_on_evaluation} 
-                        />
-                    );
-                break;
-            case FIELD_TYPE.SMALL_TEXT:
-                props = _transform(field) as IDataProps;   
-                el = (
-                    <AppSmallText   
-                        {...props}
-                        on_change_value={val => { 
-                            _set_field_value(field, val);
-                          }
-                        }
-                        on_blur={_trigger_depends_on_evaluation}   
-                    />
-                );  
-            break;
-            case FIELD_TYPE.TEXT: case FIELD_TYPE.LONG_TEXT:
-                props = _transform(field) as IDataProps;   
-                el = (
-                    <AppLongText  
-                        {...props}
-                        on_change_value={val => {
-                            //formik_props.values[props.field_name] = val;  
-                            _set_field_value(field, val);
-                          }
-                        }
-                        on_blur={_trigger_depends_on_evaluation}  
-                    />
-                );  
-            break;
-            case FIELD_TYPE.ATTACH || FIELD_TYPE.ATTACH_IMAGE:
-                props = _transform(field) as IDataProps;   
-                el = (
-                    <AppFileUploader 
-                        {...props}
-                        type={field_type == FIELD_TYPE.ATTACH ? ["*/*"] : ["image/*"]}
-                        multiple={false}  
-                        on_change_value={val => {
-                            //formik_props.values[props.field_name] = val;  
-                            _set_field_value(field, val);
-                          }
-                        }
-                        on_blur={_trigger_depends_on_evaluation}   
-                    />
-                );  
-                el = (<Attach 
-                        {...props}
-                        type={field_type == FIELD_TYPE.ATTACH ? ["*/*"] : ["image/*"]}
-                        multiple={false}  
-                        on_change={val => { 
-                            //formik_props.values[props.field_name] = val;
-                            _set_field_value(field, val);
-                          }
-                        } 
-                        on_blur={_trigger_depends_on_evaluation}  
-                      />)
-            break;
-            case FIELD_TYPE.TABLE:
-                props = _transform(field) as IChildTableProps;   
-                const table_ref = createRef(null);
-                el = (
-                    <ChildTable
-                        {...props}  
-                        //navigation={navigation}
-                        ref={table_ref}
-                        // doctype={props.doctype}
-                        parent={form_props.docname}
-                        parenttype={form_props.doctype}
-                        parentfield={props.field_name}
-                        // name={props.field_name}  
-                        // field={props} 
-                        // value={initial_values[props.field_name]} 
-                        on_change={(rows) => {                            
-                            //formik_props.values[props.field_name] = rows; 
-                            _set_field_value(field, rows);
-                          }
-                        }
-                        on_blur={_trigger_depends_on_evaluation} 
-                    />
-                );  
-            break;
-            case FIELD_TYPE.MULTI_SELECT_TABLE:
-                props = _transform(field) as ITableMultiSelectProps;   
-                const multi_table_ref = createRef(null);
-                el = (
-                    <MultiSelectChildTable
-                        {...props}  
-                        parent={form_props.docname}
-                        parenttype={form_props.doctype}
-                        parentfield={props.field_name}
-                        // name={props.field_name}
-                        // field={props} 
-                        // value={initial_values[props.field_name]} 
-                        on_change_value={(rows, link_field) => {                            
-                            // const rows = table_ref?.current?.get_rows();   
-                            // For multitable select, convert them into a Table format, so set doctype and the value of the link field
-                            const docs = [];
-                            rows?.map((row, idx) => {
-                              const new_doc = {
-                                'doctype': field.options,
-                              }
-                              if(link_field){
-                                new_doc[link_field.fieldname] = row;
-                              }
-                              docs.push(new_doc)
-                            })  
-                            //formik_props.values[props.field_name] = docs; 
-                            _set_field_value(field, docs);
-                          }
-                        }
-                        on_blur={_trigger_depends_on_evaluation} 
-                    />
-                );  
+          case FIELD_TYPE.CURRENCY:
+            props = _transform(field) as INumericProps;
+            el = (
+              <AppCurrency
+                {...props}
+                on_change={(val) => {
+                  //formik_props.values[props.field_name] = val;
+                  _set_field_value(field, val);
+                }}
+                on_blur={_trigger_depends_on_evaluation}
+              />
+            );
             break;
 
-            case FIELD_TYPE.SECTION_BREAK:
-                props = _transform(field) as ISectionBreakProps;   
-                el = (
-                    <SectionBreak 
-                        {...props}
-                    />
-                );                
+          case FIELD_TYPE.CHECKBOX:
+            props = _transform(field) as ICheckBoxProps;
+            el = (
+              <AppCheckBox
+                {...props}
+                on_change={(val) => {
+                  //formik_props.values[props.field_name] = val;
+                  _set_field_value(field, val);
+                }}
+                on_blur={_trigger_depends_on_evaluation}
+              />
+            );
+            break;
+          case FIELD_TYPE.SMALL_TEXT:
+            props = _transform(field) as IDataProps;
+            el = (
+              <AppSmallText
+                {...props}
+                on_change={(val) => {
+                  _set_field_value(field, val);
+                }}
+                on_blur={_trigger_depends_on_evaluation}
+              />
+            );
+            break;
+          case FIELD_TYPE.TEXT:
+          case FIELD_TYPE.LONG_TEXT:
+            props = _transform(field) as IDataProps;
+            el = (
+              <AppLongText
+                {...props}
+                on_change={(val) => {
+                  //formik_props.values[props.field_name] = val;
+                  _set_field_value(field, val);
+                }}
+                on_blur={_trigger_depends_on_evaluation}
+              />
+            );
+            break;
+          case FIELD_TYPE.ATTACH || FIELD_TYPE.ATTACH_IMAGE:
+            props = _transform(field) as IDataProps;
+            el = (
+              <AppFileUploader
+                {...props}
+                type={field_type == FIELD_TYPE.ATTACH ? ["*/*"] : ["image/*"]}
+                multiple={false}
+                on_change={(val) => {
+                  //formik_props.values[props.field_name] = val;
+                  _set_field_value(field, val);
+                }}
+                on_blur={_trigger_depends_on_evaluation}
+              />
+            );
+            el = (
+              <Attach
+                {...props}
+                type={field_type == FIELD_TYPE.ATTACH ? ["*/*"] : ["image/*"]}
+                multiple={false}
+                on_change={(val) => {
+                  //formik_props.values[props.field_name] = val;
+                  _set_field_value(field, val);
+                }}
+                on_blur={_trigger_depends_on_evaluation}
+              />
+            );
+            break;
+          case FIELD_TYPE.TABLE:
+            props = _transform(field) as IChildTableProps;
+            const table_ref = createRef(null);
+            el = (
+              <ChildTable
+                {...props}
+                //navigation={navigation}
+                ref={table_ref}
+                // doctype={props.doctype}
+                parent={formProps.docname}
+                parenttype={formProps.doctype}
+                parentfield={props.field_name}
+                // name={props.field_name}
+                // field={props}
+                // value={initialValues[props.field_name]}
+                on_change={(rows) => {
+                  //formik_props.values[props.field_name] = rows;
+                  _set_field_value(field, rows);
+                }}
+                on_blur={_trigger_depends_on_evaluation}
+              />
+            );
+            break;
+          case FIELD_TYPE.MULTI_SELECT_TABLE:
+            props = _transform(field) as ITableMultiSelectProps;
+            const multi_table_ref = createRef(null);
+            el = (
+              <MultiSelectChildTable
+                {...props}
+                parent={formProps.docname}
+                parenttype={formProps.doctype}
+                parentfield={props.field_name}
+                // name={props.field_name}
+                // field={props}
+                // value={initialValues[props.field_name]}
+                on_change={(rows, link_field) => {
+                  // const rows = table_ref?.current?.get_rows();
+                  // For multitable select, convert them into a Table format, so set doctype and the value of the link field
+                  const docs = [];
+                  rows?.map((row, idx) => {
+                    const new_doc = {
+                      doctype: field.options,
+                    };
+                    if (link_field) {
+                      new_doc[link_field.fieldname] = row;
+                    }
+                    docs.push(new_doc);
+                  });
+                  //formik_props.values[props.field_name] = docs;
+                  _set_field_value(field, docs);
+                }}
+                on_blur={_trigger_depends_on_evaluation}
+              />
+            );
             break;
 
-            case FIELD_TYPE.GEOLOCATION:
-                props = _transform(field) as IDataProps;   
-                el = (
-                    <GeoLocation   
-                        {...props}
-                        initial_bounds={CONFIG.KENYA_BOUNDING_BOX}
-                        on_change_value={val => { 
-                            _set_field_value(field, val);
-                          }
-                        }
-                        on_blur={_trigger_depends_on_evaluation}   
-                    />
-                );  
+          case FIELD_TYPE.SECTION_BREAK:
+            props = _transform(field) as ISectionBreakProps;
+            el = <SectionBreak {...props} />;
             break;
 
-            default: 
+          case FIELD_TYPE.GEOLOCATION:
+            props = _transform(field) as IDataProps;
+            el = (
+              <GeoLocation
+                {...props}
+                initial_bounds={CONFIG.KENYA_BOUNDING_BOX}
+                on_change={(val) => {
+                  _set_field_value(field, val);
+                }}
+                on_blur={_trigger_depends_on_evaluation}
+              />
+            );
+            break;
+
+          default:
             break;
         }
 
@@ -808,7 +792,7 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                     <SegmentedButtons
                       key={tab.fieldname}
                       value={segment}
-                      onValueChange={set_segment}  
+                      onValueChange={setSegment}  
                       style={{ alignItems: 'center', justifyContent: 'center'}}
                       buttons={[
                         {
@@ -819,9 +803,9 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
                             //persist the values in the store before switching tabs
                             get_form_fields(formik_props)?.map((field, idx) => { 
                               // only update store if the active tab is about to change
-                              update_field_store_value(form_props.doctype, field.fieldname, formik_props.values[field.fieldname]);
+                              update_field_store_value(formProps.doctype, field.fieldname, formik_props.values[field.fieldname]);
                             });
-                            set_active_tab(tab.fieldname);                           
+                            setActiveTab(tab.fieldname);                           
                           },
                           style: { flex: 1, alignSelf:'center', flexGrow: 1, borderRadius: 0, borderColor: 'white', display: tabs.length > 1 ? 'flex': 'none' }
                         }, 
@@ -839,69 +823,86 @@ const FormGenerator = (form_props: IDocFormProps, ref) => {
      * @returns 
      */
     const get_form_title = () => { 
-      return UIUtil.is_new_record(form_props.docname) ? `${GLOBALS.NEW_RECORD_ID} ${form_props.doctype}` : `${form_props.docname}`;
+      return UIUtil.isNewRecord(formProps.docname) ? `${GLOBALS.NEW_RECORD_ID} ${formProps.doctype}` : `${formProps.docname}`;
     }
-      return ( 
-          loading ? <AppLoader /> : 
-          <KeyboardAvoidingWrapper> 
-              <Formik 
-                  innerRef={formik_ref /*ref*//*(f) => (ref.current = f)*/}
-                  initialValues={initial_values}
-                  validationSchema={Yup.object().shape(form_config.validation_schema)} 
-                  onSubmit={(values, actions) => {  
-                    on_submit(values);
-                      //actions.resetForm();
-                  }}
-              >
-                  { 
-                      (formik_props) => ( 
-                          <Card style={styles.form_container}> 
-                              {
-                                  show_save_button && !form_props.is_child_table 
-                                  && <Card.Actions style={styles.actions}>
-                                      <Text variant='titleSmall' style={styles.title_text}>{get_form_title()}</Text>
-                                      <AppButton 
-                                          icon='content-save' 
-                                          mode='contained'
-                                          style={{ width: 100 }}
-                                          compact
-                                          label={APP._("BUTTON.SAVE")} 
-                                          on_press={()=> {    
-                                              formik_props.validateForm().then((res) => { 
-                                              })
-                                              formik_props.handleSubmit();
-                                            } 
-                                          }
-                                      />  
-                                  </Card.Actions>
-                              } 
-                              <Card.Content>
-                                  <ScrollView style={{ flexGrow: 1, maxHeight: height * 0.70 }}>
-                                      {
-                                          tabs?.length > 0 && render_tabs(formik_props)
-                                      }
-                                      <View>
-                                        {/* Doc specific fields */}                                
-                                        <AppData hidden={true} name='doctype' field={{ name:'doctype', fieldtype:'Data', fieldname:'doctype', hidden: 1 }} style={{ display: 'none'}} value={form_props.doctype} />
-                                        <AppData hidden={true} name='docname' field={{ name:'doctype', fieldtype:'Data', fieldname:'doctype', hidden: 1 }} style={{ display: 'none'}} value={form_props.docname} />
-                                        {       
-                                            // get_form_fields(formik_props)?.map((field, idx) => { 
-                                            form_fields?.map((field, idx) => { 
-                                                return render_layout(field, formik_props);
-                                            })                            
-                                            // form_config.fields.map((field, idx) => { 
-                                            //     return render_layout(field, formik_props);
-                                            // })
-                                        }        
-                                      </View>     
-                                  </ScrollView>
-                              </Card.Content>    
-                          </Card>
-                      )
-                  }
-              </Formik> 
-          </KeyboardAvoidingWrapper>   
-    )
+      return loading ? (
+        <AppLoader />
+      ) : (
+        <KeyboardAvoidingWrapper>
+          <Formik
+            innerRef={formik_ref /*ref*/ /*(f) => (ref.current = f)*/}
+            initialValues={initialValues}
+            validationSchema={Yup.object().shape(form_config.validation_schema)}
+            onSubmit={(values, actions) => {
+              onSubmit?.(values);
+              //actions.resetForm();
+            }}
+          >
+            {(formik_props) => (
+              <Card style={styles.form_container}>
+                {showSaveButton && !formProps.isChildTable && (
+                  <Card.Actions style={styles.actions}>
+                    <Text variant="titleSmall" style={styles.title_text}>
+                      {get_form_title()}
+                    </Text>
+                    <AppButton
+                      icon="content-save"
+                      mode="contained"
+                      style={{ width: 100 }}
+                      compact
+                      label={APP._("BUTTON.SAVE")}
+                      onPress={() => {
+                        formik_props.validateForm().then((res) => {});
+                        formik_props.handleSubmit();
+                      }}
+                    />
+                  </Card.Actions>
+                )}
+                <Card.Content>
+                  <ScrollView style={{ flexGrow: 1, maxHeight: height * 0.7 }}>
+                    {tabs?.length > 0 && render_tabs(formik_props)}
+                    <View>
+                      {/* Doc specific fields */}
+                      <AppData
+                        hidden={true}
+                        name="doctype"
+                        field={{
+                          name: "doctype",
+                          fieldtype: "Data",
+                          fieldname: "doctype",
+                          hidden: 1,
+                        }}
+                        style={{ display: "none" }}
+                        value={formProps.doctype}
+                      />
+                      <AppData
+                        hidden={true}
+                        name="docname"
+                        field={{
+                          name: "doctype",
+                          fieldtype: "Data",
+                          fieldname: "doctype",
+                          hidden: 1,
+                        }}
+                        style={{ display: "none" }}
+                        value={formProps.docname}
+                      />
+                      {// get_form_fields(formik_props)?.map((field, idx) => {
+                      form_fields?.map((field, idx) => {
+                        return render_layout(field, formik_props);
+                      })
+                      // form_config.fields.map((field, idx) => {
+                      //     return render_layout(field, formik_props);
+                      // })
+                      }
+                    </View>
+                  </ScrollView>
+                </Card.Content>
+              </Card>
+            )}
+          </Formik>
+        </KeyboardAvoidingWrapper>
+      );
 }
 
 export default forwardRef(FormGenerator)

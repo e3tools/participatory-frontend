@@ -27,9 +27,11 @@ const userSlice = createSlice({
     reducers: {
         clearLoggedInUser: (state)=> {
             state.loggedInUser = null;
+            state.isAuthenticated = false;
         },
         logout: (state) => {
             state.loggedInUser = null;
+            state.isAuthenticated = false;
         },
     },
     extraReducers: (builder) => {
@@ -37,6 +39,7 @@ const userSlice = createSlice({
         builder
         .addCase(getUsers.pending, state => {
             state.loading = true;
+            console.log("Getting 1...")
         })
         .addCase(getUsers.fulfilled, (state, action) => {
             state.loading = false;
@@ -49,6 +52,7 @@ const userSlice = createSlice({
         // get user
         .addCase(getUser.pending, state => {
             state.loading = true;
+            console.log("Getting 2...")
         })
         .addCase(getUser.fulfilled, (state, action) => {
             state.loading = false;
@@ -63,12 +67,13 @@ const userSlice = createSlice({
             state.loading = true;
             state.loggedInUser = null;
             state.isAuthenticated = false;
+            console.log("Getting 3...")
         })
         .addCase(logIn.fulfilled, (state, action) => {
             state.loading = false;
-            state.loggedInUser = action.payload.loggedIn ? action.payload.result as User : null;
-            state.isAuthenticated = action.payload.loggedIn;
-            state.loginError = action.payload.loggedIn === false ? action.payload.result as string : '';
+            state.loggedInUser = action.payload?.loggedIn ? action.payload.user as User : null;
+            state.isAuthenticated = action.payload?.loggedIn;
+            state.loginError = action.payload?.loggedIn === false ? action.payload?.error as string : '';
         })
         .addCase(logIn.rejected, (state, action) => { 
             state.loading = false;
@@ -77,10 +82,12 @@ const userSlice = createSlice({
         // update user
         .addCase(updateUser.pending, state => {
             state.loading = true;
+            console.log("Getting 4...")
         })
         .addCase(updateUser.fulfilled, (state, action) => {
             state.loading = false;
             state.loggedInUser = action.payload;
+            console.log("Loading: ", false)
         })
         .addCase(updateUser.rejected, state => {
             state.loading = false;

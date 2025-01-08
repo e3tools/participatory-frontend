@@ -8,7 +8,7 @@ import {
 
 import { make_request } from 'common/utils/api'; 
 import * as CONFIG from '../config'; 
-import { LocalDB } from './localDB'; 
+import { LocalDB } from './local-db'; 
 
 const GLOBALS = CONFIG.GLOBALS;
 /**
@@ -28,18 +28,25 @@ const Frappe = class Frappe {
     this.frappe_custom_app = CONFIG.APPS.FRAPPE_CUSTOM_APP;
     this.api_url = `${this.url}/api/method/${this.frappe_custom_app}.api`;
   }
-  async login(data) {
-    const response = await this.call_api_endpoint('login', data);   
+  async login(data): Promise<LoginResult> {
+    const response = await this.callApiEndpoint('login', data);   
+    const result = {} as LoginResult;
     if(response && response.status_code == 200){
       this.headers['Authorization'] = `token ${response.token}`
-      const user = await this._makeRequest(
-                                `${this.resource_url}/User/${response.name}`,
-                                'GET');//   
-      delete this.headers['Authorization']               
-      return await [true, { ...user, token: response.token }];
+      // const user = await this._makeRequest(
+      //                           `${this.resource_url}/User/${response.name}`,
+      //                           'GET');//   
+      delete this.headers['Authorization']        
+      
+      result.loggedIn = true;
+      result.user = response.user;
+      // return await [true, { user: response.user, error: response.error }];
     } else {
-      return [false, response?.text || 'Error occurred'];
+       result.loggedIn = false;
+       result.error = response?.error || 'Error occurred';
+      // return [false, {user: null, error: response?.error || 'Error occurred'}];
     } 
+    return result;
   }
 
   async login_deprecated(data) {
@@ -73,7 +80,7 @@ const Frappe = class Frappe {
    * @param endpoint. API Endpoint name without prefix i.e non-fully qualified
    * @param method. Either GET/POST/PUT/DELETE
    */
-  async call_api_endpoint(endpoint: string, data: object = {}, method: string = 'POST', is_upload: boolean = false, is_export: boolean = false, timeout: number = GLOBALS.BACKEND_TIMEOUT) {
+  async callApiEndpoint(endpoint: string, data: object = {}, method: string = 'POST', is_upload: boolean = false, is_export: boolean = false, timeout: number = GLOBALS.BACKEND_TIMEOUT) {
     return await this._makeRequest(
       `${this.url}/api/method/${this.frappe_custom_app}.api.${endpoint}`,
       method,
@@ -134,7 +141,7 @@ const Frappe = class Frappe {
     // );
     const data = {'doctype': doctype, 'docname': docname};
     if(await this.is_online()){
-      return await this.call_api_endpoint("get_doc", data, 'POST');
+      return await this.callApiEndpoint("get_doc", data, 'POST');
     } else {
       return await LocalDB.get_doc(doctype, docname);
     }
@@ -148,11 +155,11 @@ const Frappe = class Frappe {
    * @returns
    */
   async update_doc(doctype: string, docname: string, data: object) {
-    // Replace api/resource/doctype/docname call with call_api_endpoint so that we can intercept handling of files
+    // Replace api/resource/doctype/docname call with callApiEndpoint so that we can intercept handling of files
     data['doctype'] = doctype
     data['docname'] = docname
     if(await this.is_online()){
-      return await this.call_api_endpoint("upsert_doc", data, 'POST')
+      return await this.callApiEndpoint("upsert_doc", data, 'POST')
     } else {
       return await LocalDB.upsert(doctype, data);
     }
@@ -227,11 +234,11 @@ const Frappe = class Frappe {
    * @returns
    */
   async create_doc(doctype: string, data: object) {
-    // Replace api/resource/doctype/docname call with call_api_endpoint so that we can intercept handling of files
+    // Replace api/resource/doctype/docname call with callApiEndpoint so that we can intercept handling of files
     data['doctype'] = doctype
     data['docname'] = null
     if(await this.is_online()) {
-      return await this.call_api_endpoint("upsert_doc", data, 'POST');
+      return await this.callApiEndpoint("upsert_doc", data, 'POST');
     } else {
       return await LocalDB.upsert(doctype, data);
     }
@@ -347,7 +354,7 @@ const Frappe = class Frappe {
       const docs = await this._makeRequest(`${url}`, 'GET'); 
       let total_count = docs?.length || 0;
       if(get_global_count){
-        total_count = await this.call_api_endpoint('get_count', { filters, doctype: config.doctype, fields: ['name'] }, 'POST');
+        total_count = await this.callApiEndpoint('get_count', { filters, doctype: config.doctype, fields: ['name'] }, 'POST');
       }
       return get_global_count ? [docs, total_count] : docs
     } else {
@@ -374,7 +381,7 @@ const Frappe = class Frappe {
       filters = JSON.stringify(config.or_filters); 
     }  
     if(await this.is_online()){
-      let count = await this.call_api_endpoint('get_count', { filters, doctype: config.doctype, fields: fields }, 'POST'); 
+      let count = await this.callApiEndpoint('get_count', { filters, doctype: config.doctype, fields: fields }, 'POST'); 
       return count || 0;
     } else {
       // @TODO implement LocalDB filters
@@ -398,7 +405,7 @@ const Frappe = class Frappe {
    */
   async ping() {
     try {
-      const res = await this.call_api_endpoint("ping", {}, "POST", false, false, 30000); 
+      const res = await this.callApiEndpoint("ping", {}, "POST", false, false, 30000); 
       return res;
     } catch (error) {
       console.log("Server error", error)

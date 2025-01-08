@@ -6,8 +6,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { GlobalStyles } from '../../styles/global'; 
 import { en, enGB, registerTranslation } from 'react-native-paper-dates';
 import { IDateProps } from '../../../interfaces/inputs';
-import { parse_date } from 'common/utils/date';
-import FieldLabel from './field_label';
+import { parseDate } from "common/utils/date";
+import FieldLabel from './field-label';
 import { theme } from '../../theme/theme';
 registerTranslation('en-GB', enGB)
 // registerTranslation('en', en)
@@ -16,7 +16,7 @@ export default function AppDate(props: IDateProps) {
   const [input_date, set_input_date] = React.useState(undefined); //new Date() 
 
   useEffect(() => {
-    let parsed_date = props.value ? parse_date(props.value) : undefined;
+    let parsed_date = props.value ? parseDate(props.value) : undefined;
     set_input_date(parsed_date);
   }, [props.value]);
 
@@ -24,31 +24,47 @@ export default function AppDate(props: IDateProps) {
     //<View style={[GlobalStyles.form_field, GlobalStyles.date_picker]}>
     <View>
       <FieldLabel label={props.label} reqd={props.reqd} hidden={props.hidden} />
-      <View style={[ GlobalStyles.form_field, GlobalStyles.date_picker, {justifyContent: 'center', flex: 1, alignItems: 'center'}]}>        
+      <View
+        style={[
+          GlobalStyles.form_field,
+          GlobalStyles.date_picker,
+          { justifyContent: "center", flex: 1, alignItems: "center" },
+        ]}
+      >
         <DatePickerInput
-          style={[GlobalStyles.form_field, GlobalStyles.date_picker, props?.style, { borderColor: props.reqd && !input_date ? theme.colors.error : theme.colors.primary }]}
-          locale='en-GB'
+          style={[
+            GlobalStyles.form_field,
+            GlobalStyles.date_picker,
+            props?.style,
+            {
+              borderColor:
+                props.reqd && !input_date
+                  ? theme.colors.error
+                  : theme.colors.primary,
+            },
+          ]}
+          locale="en-GB"
           withModal={true}
           withDateFormatInLabel={false}
-          mode='outlined' 
-          label={''}
+          mode="outlined"
+          label={""}
           value={input_date}
-          disabled={props.readonly} 
-          placeholder={''}
-          inputMode='start'
+          disabled={props.readonly}
+          placeholder={""}
+          inputMode="start"
           onChange={(d) => {
             set_input_date(d);
-            props.on_change_value(d);
+            props.on_change(d);
             props.on_blur?.();
           }}
-        /> 
+        />
       </View>
-    </View> 
+    </View>
     //</View>
     // <SafeAreaProvider>
     //   <Text>{date ? date.toString(): ''}</Text>
     //     <View style={styles.container}>
-          
+
     //        <DatePickerInput
     //          locale='en'
     //          label={props.field.label}
@@ -56,12 +72,12 @@ export default function AppDate(props: IDateProps) {
     //          inputMode='start'
     //          onChange={(d) => {
     //             set_date(d);
-    //             //props.on_change_value(d);
+    //             //props.on_change(d);
     //          }}
-    //        /> 
+    //        />
     //     </View>
-    // </SafeAreaProvider> 
-  )
+    // </SafeAreaProvider>
+  );
 }
 
 // const styles = StyleSheet.create({

@@ -1,4 +1,3 @@
-
 ### Important links
 
 https://starter.obytes.com/getting-started/project-structure/
@@ -95,7 +94,6 @@ Building APK
 https://www.youtube.com/watch?v=fUS_BjOHi-c
 https://www.youtube.com/watch?v=EBFodDiGLN8
 
-
 Login
 https://www.youtube.com/watch?v=BQ-kHwLlhrg&list=PLk8gdrb2DmCicLTZJWC2cCTFXloTBMBCt
 https://medium.com/the-react-native-log/building-an-authentication-flow-with-react-navigation-fb5de2203b5c
@@ -148,3 +146,10 @@ https://dev.to/varnitj178/expo-with-redux-toolkit-file-system-and-redux-persist-
 https://medium.com/@varnitj178/mastering-expo-with-redux-toolkit-file-system-and-redux-persist-a-comprehensive-guide-da70b3066c89
 
 https://blog.logrocket.com/persist-state-redux-persist-redux-toolkit-react/
+
+Finance App
+https://www.youtube.com/watch?v=MLVxvof54KA
+
+Public participation systems
+https://github.com/consuldemocracy/consuldemocracy
+https://go.engagementhq.com/

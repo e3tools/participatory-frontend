@@ -37,7 +37,7 @@ const Sync = class Sync {
     sync_up = async () => {
         this.TABLES_TO_UP_SYNC.forEach(async (el, idx)=> { 
             let records = await LocalDB.get_all(el); 
-            const res = await DB.call_api_endpoint('sync_records', {
+            const res = await DB.callApiEndpoint('sync_records', {
                 docs: records,
                 doctype: el 
             });
@@ -118,7 +118,7 @@ const Sync = class Sync {
 
             // If there are records to push to the server, push
             if(finalServerDocs.length > 0) { 
-                const res = await DB.call_api_endpoint('sync_records', {
+                const res = await DB.callApiEndpoint('sync_records', {
                     docs: finalServerDocs,
                     doctype: doctype 
                 });

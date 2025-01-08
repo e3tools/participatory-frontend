@@ -1,9 +1,10 @@
 import { APP } from 'common';
-import { UserStore } from '../stores/user_store';
+import { UserStore } from '../stores/user-store';
 import { Frappe } from 'data-layer/backends/frappe'; 
 import * as CONFIG from '../config'; 
 import { clearUser } from '../state/user/userSlice';
 import { LoginResponse } from '../types';
+import { string } from 'yup';
 // import { useAuthDispatch } from '../state/hooks';
 
 const URLS = CONFIG.URLS;
@@ -25,15 +26,16 @@ const AuthService = class AuthService {
       usr: username,
       pwd: password,
     };   
-    const [success, user] = await new Frappe(URLS.BACKEND).login(auth);   
-    const resp = { loggedIn: success, result: user } as LoginResponse;
-    if(success){
-      // await this._on_login_success(user);  
-      return resp; // [success, user];
-    } else {
-      // await this._on_login_failure(user); 
-    }
-    return resp; // [success, user];
+    const loginResp = await new Frappe(URLS.BACKEND).login(auth);   
+    const resp = { loggedIn: loginResp.loggedIn, user: loginResp.user, error: loginResp?.error } as LoginResponse;
+    // if(resp.loggedIn){
+    //   // await this._on_login_success(user);  
+    //   return resp; // [success, user];
+    // } else {
+    //   // await this._on_login_failure(user); 
+    // }
+    // return resp; // [success, user];
+    return resp;
   }
 
   /**
@@ -113,7 +115,7 @@ const AuthService = class AuthService {
    * @param password 
    */
   static change_password = async(user: string, password: string) => {
-    return await this.backend.call_api_endpoint("change_password", {user, password});
+    return await this.backend.callApiEndpoint("change_password", {user, password});
   }
   /**
    * Logout.

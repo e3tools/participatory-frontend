@@ -1,142 +1,151 @@
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Drawer } from "expo-router/drawer";
-import Ionicons from '@expo/vector-icons/Ionicons'; 
-import DrawerMenu from "./components/navigation/drawer_menu";
-import { Button, IconButton, PaperProvider } from 'react-native-paper'; 
-import { useContext, /*SafeAreaView*/ useEffect, useLayoutEffect, useState } from "react"; 
-import { theme } from "./core/theme";
-import { Image, Text, TouchableOpacity } from "react-native";  
-import { useNavigation } from 'expo-router'; 
-import { AuthProvider, useAuth } from "auth/contexts/auth"; 
-import { ping } from "data-layer/utils/db";
+import {
+  DarkTheme as NavigationDarkTheme,
+  DefaultTheme as NavigationDefaultTheme,
+} from '@react-navigation/native';
+import { useFonts } from 'expo-font';
+import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import 'react-native-reanimated';
 
-import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite'
+// import { useColorScheme } from '@/hooks/useColorScheme';
+import {
+  adaptNavigationTheme,
+  MD3DarkTheme,
+  MD3LightTheme,
+  PaperProvider,
+} from 'react-native-paper';
+import Colors from './constants/Colors';
+import { useCustomTheme } from './hooks/useCustomTheme';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { persistor, store } from './state/store';
+// import AppStack from './navigation/AppStack';
+// import AuthStack from './navigation/AuthStack';
+import ConnectivityProvider from './providers/connectivity-provider';
+import AuthProvider from './providers/auth-provider';
+import AppThemeProvider from './providers/app-theme-provider';
 
-import schema from "./model/schema";
-import migrations from "./model/migrations";
-import AppHeader from "./components/navigation/app_header";
-import { APP } from "common";
-import ParentComponent from "./components/parentComponent";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { Provider } from "react-redux";
-import { store, persistor } from "./state/store";
-import { useAuthSelector } from "auth/state/hooks";
-import { PersistGate } from "redux-persist/integration/react";
+// Prevent the splash screen from auto-hiding before asset loading is complete.
+SplashScreen.preventAutoHideAsync();
 
-// // First, create the adapter to the underlying database:
-// const adapter = new SQLiteAdapter({
-//   schema,
-//   // (You might want to comment it out for development purposes -- see Migrations documentation)
-//   migrations,
-//   // (optional database name or file system path)
-//   // dbName: 'myapp',
-//   // (recommended option, should work flawlessly out of the box on iOS. On Android,
-//   // additional installation steps have to be taken - disable if you run into issues...)
-//   jsi: false, // true, /* Platform.OS === 'ios' */
-//   // (optional, but you should implement this method)
-//   onSetUpError: error => {
-//     // Database failed to load -- offer the user to reload the app or log out
-//     console.warn(error)
-//   }
-// })
+// import our colors
+// overwrite it on the current theme
+const customDarkTheme = { ...MD3DarkTheme, colors: Colors.dark.colors };
+const customLightTheme = { ...MD3LightTheme, colors: Colors.light.colors };
 
-// // Then, make a Watermelon database from it!
-// const database = new Database({
-//   adapter,
-//   modelClasses: [
-//     // Post, // ⬅️ You'll add Models to Watermelon here
-//   ],
-// })
+const { LightTheme, DarkTheme } = adaptNavigationTheme({
+  reactNavigationLight: NavigationDefaultTheme,
+  reactNavigationDark: NavigationDarkTheme,
+});
 
-export default function Layout() {
-  const auth = useAuth();
-  const [header_shown, set_header_shown] = useState(false);
-  const navigation = useNavigation();
-  const [root_key, set_root_key] = useState(APP.generate_random_string());
-  // const isAuthenticated = useAuthSelector(
-  //   (state) => state.user.isAuthenticated,
-  // );
+// const CombinedLightTheme = merge(LightTheme, customLightTheme);
+//const CombinedDarkTheme = merge(DarkTheme, customDarkThene);
+
+const CombinedLightTheme = {
+  ...MD3LightTheme,
+  ...LightTheme,
+  colors: {
+    ...MD3LightTheme.colors,
+    ...LightTheme.colors,
+    ...Colors.light,
+  },
+};
+
+const CombinedDarkTheme = {
+  ...MD3DarkTheme,
+  ...DarkTheme,
+  colors: {
+    ...MD3DarkTheme.colors,
+    ...DarkTheme.colors,
+    ...Colors.dark,
+  },
+};
+
+export default function RootLayout() {
+  //   const colorScheme = useColorScheme();
+  const { colorScheme } = useCustomTheme();
+  const paperTheme =
+    colorScheme === 'dark' ? CombinedDarkTheme : CombinedLightTheme;
+
+  const [loaded] = useFonts({
+    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+  });
 
   useEffect(() => {
-    set_header_shown(auth.is_authenticated);
-  }, [auth.is_authenticated]);
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded]);
 
   useEffect(() => {
-    ping();
-  }, []);
+    console.log('Colorscheme:', colorScheme);
+  }, [colorScheme]);
 
-  /**
-   * This will reset the root component key to force a re-render of all components
-   * when the language has been switched
-   */
-  const reset_root_key = () => {
-    const key = APP.generate_random_string();
-    set_root_key(key);
-  };
+  if (!loaded) {
+    return null;
+  }
 
-  // return (
-  //   <SafeAreaProvider>
-  //      <ParentComponent>
-  //       <Text>Sample test</Text>
-  //      </ParentComponent>
-  // </SafeAreaProvider>
-  // )LNE191657
   return (
-    <PaperProvider theme={theme}>
+    // <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <AppThemeProvider>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <SafeAreaView style={{ flex: 1 }}>
-              <ParentComponent>
-                <AuthProvider>
-                  <Drawer
-                    key={root_key}
-                    screenOptions={{
-                      headerShown: header_shown, // authenticated,
-                      headerStyle: {
-                        // backgroundColor: theme.colors.primary,
-                        // height: 60
-                      },
-                      headerTitleStyle: {
-                        fontSize: 20,
-                        // color: '#fff',
-                        fontWeight: '700',
-                        alignContent: 'center',
-                        textAlign: 'center',
-                      },
-                      drawerLabelStyle: {
-                        marginLeft: -50,
-                        textAlign: 'center',
-                        fontSize: 40,
-                      },
-                      // headerRight: () => <IconButton icon='camera' />
-                      headerRight: () => (
-                        <Provider store={store}>
-                        <AppHeader
-                          reset_root_key_func={reset_root_key}
-                        ></AppHeader></Provider>
-                      ),
-                    }}
-                    drawerContent={(props) => <DrawerMenu {...props} />}
-                    initialRouteName="modules/engage/screens/engage_index_screen"
-                  >
-                    <Drawer.Screen
-                      name="index"
-                      options={{
-                        drawerLabel: 'Home',
-                        title: `Engage${String.fromCodePoint(8482)}`, // 'Engage&trade;',
-                        drawerIcon: ({ size, color }) => (
-                          <Ionicons name="home" size={size} color={color} />
-                        ),
-                      }}
-                    />
-                  </Drawer>
-                </AuthProvider>
-              </ParentComponent>
-            </SafeAreaView>
-          </GestureHandlerRootView>
+          <AuthProvider>
+            {/* <ConnectivityProvider> */}
+            {/* <AppStack /> */}
+            {/* <AuthStack />  */}
+            {/* <Stack
+            screenOptions={
+              {
+                // headerStyle: {
+                //   backgroundColor: 'red',
+                // },
+                // headerTintColor: 'white',
+              }
+            }
+          >
+            <Stack.Screen
+              name="index"
+              options={{
+                headerShown: false,
+                title: 'Home',
+              }}
+            />
+            <Stack.Screen name="+not-found" />
+          </Stack> */}
+            <Stack
+              screenOptions={{
+                headerStyle: {
+                  // backgroundColor: 'red',
+                },
+                headerTintColor: 'white',
+                headerShown: true,
+              }}
+            >
+              <Stack.Screen
+                name="index"
+                options={{
+                  headerShown: false,
+                  title: 'Engage Home',
+                }}
+              />
+              <Stack.Screen
+                name="(drawer)"
+                options={{
+                  headerShown: false,
+                  title: 'Drawer Home',
+                }}
+              />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+            <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+            {/* </ConnectivityProvider> */}
+          </AuthProvider>
         </PersistGate>
       </Provider>
-    </PaperProvider>
+    </AppThemeProvider>
+    // </ThemeProvider>
   );
 }

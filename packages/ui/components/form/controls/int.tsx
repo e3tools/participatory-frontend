@@ -1,6 +1,6 @@
 import React from 'react' 
 import { INumericProps } from '../../../interfaces/inputs';
-import BaseNumeric from './base_numeric';
+import BaseNumeric from './base-numeric';
 
 export default function AppInt(props: INumericProps) {
   return (

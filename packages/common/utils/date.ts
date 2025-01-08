@@ -5,7 +5,7 @@ import { APP } from "./app";
  * @param dt 
  * @returns formatted date string
  */
-export const format_date = (dt: Date) : string => {
+export const formatDate = (dt: Date) : string => {
     if(!dt) return ''; 
     if(typeof dt == 'string') return dt;
     const _pad = (val, length=2) => {
@@ -20,11 +20,22 @@ export const format_date = (dt: Date) : string => {
  * @param dt 
  * @returns 
  */
-export const parse_date = (dt: string): Date => {
-    try{
-        return new Date(Date.parse(dt));
+export const parseDate = (dt: string | Date): Date | undefined => {
+    try {
+        return new Date(Date.parse(dt.toString()));
     } catch {
         console.warn('Date conversion error: ', dt);
     }
-    return null;
+    return undefined;
+}
+
+export const getDaysBetweenDates = (startDate: Date, endDate: Date) : number | undefined => {
+    const start = parseDate(startDate.toString());
+    const end = parseDate(endDate?.toString())
+    if (!start || !end) {
+        return undefined;
+    }
+    let diffTime = end.getTime() - start.getTime();
+    let diffDays = Math.round(diffTime / (1000 * 3600 * 24)); 
+    return diffDays;
 }

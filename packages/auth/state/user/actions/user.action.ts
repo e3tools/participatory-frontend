@@ -3,6 +3,7 @@ import { useAuth } from "auth/contexts/auth";
 import { DocTypeService } from "data-layer/services/doctype";
 import { AuthService } from "../../../services/auth";
 import { LoginCredentials, User } from "../../state.types";
+import { LoginResponse } from "../../../types";
 
 export const getUsers = createAsyncThunk(
     'user/getUsers',
@@ -22,10 +23,10 @@ export const getUser = createAsyncThunk(
 
 export const logIn = createAsyncThunk(
     'user/logIn',
-    async(data: LoginCredentials) => { 
+    async(data: LoginCredentials) : Promise<LoginResponse> => { 
         const { username, password } = data; 
         const response = await AuthService.login(username, password)
-        return response; // returns <boolean, user>
+        return response;
     }
 );
 

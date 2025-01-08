@@ -11,9 +11,9 @@ interface IDBReadSingleParam {
  */
 interface IDBReadParam {
   doctype: string;
-  filters: Array<[]>;
-  or_filters: Array<[]>;
-  fields: Array<string>;
+  filters: [][];
+  or_filters: [][];
+  fields: string[];
   order_by: string;
   limit_start: number;
   limit_page_length: number;
@@ -41,7 +41,7 @@ interface IDBDeleteParam {
   doctype: string;
   docname: string;
 }
- 
+
 export {
   IDBReadParam,
   IDBReadSingleParam,
