@@ -312,6 +312,7 @@ const FrappeUIGenerator = (props: IDocFormProps, ref) => {
           showSaveButton={showSaveButton}
           ref={ref}
           navigation={navigation}
+          extraData={props.extraData}
         />
       ) : (
         <AppLoader />

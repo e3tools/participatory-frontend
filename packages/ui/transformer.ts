@@ -80,7 +80,7 @@ class Transformer {
         dst.on_change = () => {};
         let opts = field_cfg.options;
         dst.options = opts ? (opts instanceof Array ? opts : opts.split('\n')) : [];
-        dst.filters = field_cfg.field_filters;    
+        dst.filters = field_cfg.filters;    
         return dst;
     }
 

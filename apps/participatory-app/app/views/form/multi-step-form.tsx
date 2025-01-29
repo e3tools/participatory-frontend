@@ -16,7 +16,7 @@ import { useAppSelector, useAppDispatch } from '../../state/hooks';
 import { getEngagement } from '../../state/engagement/actions/engagement.action';
 import {
   addCapturedData,
-  CapturedEntry, 
+  CapturedEntry,
   clearCapturedData,
 } from '../../state/capturedData/capturedDataSlice';
 import { ENGAGEMENT_TYPES } from '@/app/constants/enums';
@@ -29,6 +29,7 @@ import { DocTypeService } from 'data-layer/services/doctype';
 import { EngagementFormService } from '@/app/services/engagement-form';
 import ProtectedRoute from '@/app/components/protected-route';
 import { setEngagementEntryLoading } from '@/app/state/engagementEntry/engagementEntrySlice';
+import { EngagementForm } from '@/app/types';
 
 const DOCTYPES = CONFIG.DOCTYPES;
 
@@ -299,7 +300,10 @@ export default function MultiStepForm(props: Props) {
 
       if (form) {
         const engagement_form =
-          await EngagementFormService.get_engagement_form(form);
+          (await EngagementFormService.get_engagement_form(
+            form,
+          )) as EngagementForm;
+
         if (!engagement_form.anonymous) {
           contents.push(
             <ProtectedRoute>
@@ -312,6 +316,9 @@ export default function MultiStepForm(props: Props) {
                 showSaveButton={false}
                 // ref={(el) => (form_refs['form'+form.idx] = el)}
                 ref={setRef(`form${1}`)}
+                extraData={{
+                  fields: engagement_form.form_fields,
+                }}
               />
             </ProtectedRoute>,
           );
@@ -326,6 +333,9 @@ export default function MultiStepForm(props: Props) {
               showSaveButton={false}
               // ref={(el) => (form_refs['form'+form.idx] = el)}
               ref={setRef(`form${1}`)}
+              extraData={{
+                fields: engagement_form.form_fields,
+              }}
             />,
           );
         }

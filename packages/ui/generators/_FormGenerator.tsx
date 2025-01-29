@@ -1,7 +1,7 @@
 import React, { createRef, forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Formik, Form, Field, ErrorMessage, useFormikContext } from "formik";
 import * as Yup from 'yup'; 
-import { FIELD_TYPE, SPECIAL_TEXT_FIELD_TYPE } from "../constants/enums";
+import { EXTRA_DATA_FIELD_KEY, FIELD_TYPE, SPECIAL_TEXT_FIELD_TYPE } from "../constants/enums";
 import { Dimensions, Keyboard, ScrollView, StyleSheet, View } from "react-native";
 import { Transformer } from "../transformer";
 import { IDateProps, ISelectProps, INumericProps, ICheckBoxProps, IDataProps, 
@@ -45,6 +45,7 @@ import { useNavigation } from "expo-router";
 import AppLoader from "../components/shared/app-loader";
 import Attach from "../components/form/controls/attach";
 import SectionBreak from "../components/form/controls/section-break"; 
+import { DocField } from "data-layer/types";
 
 const GLOBALS = CONFIG.GLOBALS;
 
@@ -143,6 +144,13 @@ const FormGenerator = (formProps: IDocFormProps, ref) => {
                     let res = evaluate_depends_on(df, df.mandatory_depends_on,  /*selected_value,*/ formik_props)
                     df.reqd = res
                 } 
+
+                // evaluate dependencies of link fields where a link field may depend on values of other fields
+                // if(df.field_filters_plain) {
+                //   let filterParts = JSON.parse(df.field_filters_plain);
+                //   for
+                // }
+
             }
             return !NON_FORM_FIELDS.includes(df.fieldtype)
         })
@@ -189,7 +197,7 @@ const FormGenerator = (formProps: IDocFormProps, ref) => {
             exp = exp.replace(re, val);
         }) 
         console.log("Exp: ", exp);
-        _eval(exp);
+        // _eval(exp);
         // exp_str = 'var res = ' + exp;
         // console.log("Exp str: ", exp_str);
 
@@ -454,7 +462,7 @@ const FormGenerator = (formProps: IDocFormProps, ref) => {
     return form_cfg;
   } 
 
-    const render_layout = (field: object, formik_props: object) => {
+    const render_layout = (field: DocField, formik_props: object) => {
 
       const _transform = (fld: object) => {
         let prps = Transformer.transform_field(fld);
@@ -471,7 +479,7 @@ const FormGenerator = (formProps: IDocFormProps, ref) => {
        * @param field_name 
        * @param new_field_val 
        */
-      const _set_field_value = (field: object, new_field_val: object) => {
+      const _set_field_value = (field: DocField, new_field_val: object) => {
           formik_props.values[field.fieldname] = new_field_val; 
           // get_form_fields(formik_props.values); //trigger this so that evaluation of depends_on happens as form_fields state will change
       }
@@ -514,6 +522,7 @@ const FormGenerator = (formProps: IDocFormProps, ref) => {
             el = (
               <AppPassword
                 {...props}
+                visible
                 on_change={(val) => {
                   // formik_props.handleChange(props.field_name);
                   //formik_props.values[props.field_name] = val;
@@ -552,12 +561,34 @@ const FormGenerator = (formProps: IDocFormProps, ref) => {
             );
             break;
 
-          case FIELD_TYPE.LINK:
-            props = _transform(field) as ILinkProps;
+          case FIELD_TYPE.LINK: 
+            props = _transform(field) as ILinkProps; 
+            // check if rawFields has a field_filters set
+            if (
+              formProps.extraData &&
+              Object.keys(formProps.extraData).includes(EXTRA_DATA_FIELD_KEY)
+            ) {
+              const fld = formProps.extraData.fields.filter((el) => el.field_name == field.fieldname);
+              if(fld.length > 0) {   
+                const fldFilters = fld[0].field_filters_plain;         
+                if (fldFilters) {
+                  const finalFilters = JSON.parse(fldFilters).map((el: any[]) => {
+                    if (el.length >= 4) {
+                      // if the filter is in this form  [["Admin 2","parent_admin","in",["Makueni",doc.test_field_one]]], then remove the doctype
+                      return el.slice(1);
+                    } else {
+                      return el;
+                    } 
+                  }); 
+                  props.filters = finalFilters;
+                }
+              }
+            }
+            
             el = (
               <AppLink
                 {...props}
-                filters={props.field_filters}
+                filters={props.filters}
                 doc={formik_props.values}
                 on_change={(val) => {
                   //formik_props.values[props.field_name] = val;

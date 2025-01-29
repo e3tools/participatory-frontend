@@ -25,6 +25,12 @@ export interface IGridButtonProps {
     is_report?: boolean,
     navigation?: object, // navigation object
   }
+ 
+
+  interface ExtraFieldDef<T> {
+    // [key: string]: any;
+    fields: any[]
+  }
 
   export interface IDocFormProps {
     title?: string, 
@@ -38,6 +44,7 @@ export interface IGridButtonProps {
     onInsertChildRow?: (row: object)=>void, //function to call when a child table record is inserted if this is a child table
     onSubmit?:(values?: any)=>void, // function to call when form is submitted when this is not a child table
     navigation?: object, //navigation object
+    extraData?: ExtraFieldDef<any>;
   }
  
 export interface IDocDialogProps extends IDocFormProps { 

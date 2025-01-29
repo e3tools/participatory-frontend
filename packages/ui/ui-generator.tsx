@@ -22,6 +22,7 @@ function UIGenerator(props: IDocFormProps, ref) {
       showSaveButton={showSaveButton}
       ref={ref}
       navigation={navigation}
+      {...rest}
     />
   );
 }

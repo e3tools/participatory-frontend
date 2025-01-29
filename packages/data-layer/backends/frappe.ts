@@ -9,6 +9,7 @@ import {
 import { make_request } from 'common/utils/api'; 
 import * as CONFIG from '../config'; 
 import { LocalDB } from './local-db'; 
+import { DocType } from '../types';
 
 const GLOBALS = CONFIG.GLOBALS;
 /**
@@ -191,7 +192,7 @@ const Frappe = class Frappe {
    * @param data JSON object to initialize record with
    * @returns
    */
-  async get_doctype(doctype: string) {
+  async get_doctype(doctype: string) : Promise<DocType>{
     if(await this.is_online()){
       const url = `${this.api_url}.get_doctype`;
       const args = { doctype: doctype, with_parent: 1, cached_timestamp: null };
@@ -321,15 +322,14 @@ const Frappe = class Frappe {
    * @returns
    */
   async get_list(config: IDBReadParam, get_global_count=false) {
-    console.log("Doctype: ", config.doctype)
     let url = `${this.resource_url}/${config.doctype}`;
     const fields = config.fields || 'name';
     let filters = {} 
     if (fields) {
       // url = url + '?fields=' + fields
       url = url + '?fields=' + JSON.stringify(fields);
-    }
-    if (config.filters) {
+    } 
+    if (config.filters) { 
       filters = JSON.stringify(config.filters);
       url = url + '&filters=' + JSON.stringify(config.filters);
     }

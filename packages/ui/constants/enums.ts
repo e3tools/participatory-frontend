@@ -36,3 +36,5 @@ export interface IMenuItemProps {
   onPress?: () => void, //function to call onPress
   is_divider?: boolean, //is it a divider
 }
+
+export const EXTRA_DATA_FIELD_KEY = 'fields';

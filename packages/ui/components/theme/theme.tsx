@@ -48,7 +48,18 @@ const light_theme = {
   }
 }
 
-export const theme = {
+const theme = {
   ...DefaultTheme,
   colors: light_theme.colors, // Copy it from the color codes scheme and then use it here
 };
+ 
+// Get the color entries
+const themeColorsArray: string[] = [];
+for (const color of Object.keys(theme.colors)) {
+  const colorVal = theme.colors[color];
+  if (typeof colorVal === 'string') {
+    themeColorsArray.push(colorVal);
+  }
+} 
+
+export { theme, themeColorsArray };

@@ -23,6 +23,7 @@ const DocForm = (props: IDocFormProps, ref) => {
       isChildTable={isChildTable}
       showSaveButton={showSaveButton}
       ref={ref}
+      {...rest}
     />
   ) : (
     <UIGenerator
@@ -33,6 +34,7 @@ const DocForm = (props: IDocFormProps, ref) => {
       isChildTable={isChildTable}
       showSaveButton={showSaveButton}
       ref={ref}
+      {...rest}
     />
   );
 }

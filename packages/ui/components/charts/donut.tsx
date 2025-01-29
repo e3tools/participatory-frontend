@@ -3,16 +3,17 @@ import React, { useEffect, useState } from 'react'
 //import { VictoryPie } from 'victory-pie';
 import { VictoryPie } from 'victory-native';
 import AppLoader from '../shared/app-loader';
-import { barDataItem, PieChart as PieGraph } from "react-native-gifted-charts";
+import { barDataItem, pieDataItem, PieChart as PieGraph } from "react-native-gifted-charts";
+import { theme, themeColorsArray } from '../theme/theme';
 
 interface Props {
-  data: barDataItem[];
+  data: pieDataItem[];
   showLegend?: boolean;
   showTotalInCenter?: boolean;
-  title?: string
+  title?: string;
 }
 
-export default function PieChart(props: Props/*{ data: []}*/) {
+export default function Donut(props: Props/*{ data: []}*/) {
     //See https://medium.com/wolox/how-to-animate-a-pie-chart-with-victory-in-react-native-db5997b991a5 on how to animate
     //See https://commerce.nearform.com/open-source/victory/docs
     /*
@@ -45,6 +46,23 @@ export default function PieChart(props: Props/*{ data: []}*/) {
   return ( 
       <PieGraph data={props.data} showText /> 
   );*/
+  
+  const [transformedData, setTransformedData] = useState<pieDataItem[]>([]);
+
+  useEffect(() => {
+    const data: pieDataItem[] = [];
+    props.data.map((d, idx) => {
+      const color = themeColorsArray[themeColorsArray.length - idx - 1] 
+      // d.color = color;
+      data.push(d)
+    });
+    setTransformedData(data);
+  }, []);
+
+  // console.log("Colors array: ", themeColorsArray)
+  const COLORS = {
+    mainBackground: theme.colors.primary,// themeColorsArray[0],
+  };
   const renderLegend = (text: string, color: string) => {
         return (
           <View style={{flexDirection: 'row', marginBottom: 12}}>
@@ -57,7 +75,7 @@ export default function PieChart(props: Props/*{ data: []}*/) {
                 backgroundColor: color || 'white',
               }}
             />
-            <Text style={{color: 'white', fontSize: 16}}>{text || ''}</Text>
+            <Text style={{color: color || 'white', fontSize: 16}}>{text || ''}</Text>
           </View>
         );
       };
@@ -70,7 +88,7 @@ export default function PieChart(props: Props/*{ data: []}*/) {
               marginHorizontal: 10,
               borderRadius: 10,
               paddingVertical: 10,
-              backgroundColor: '#414141',
+              // backgroundColor: COLORS.mainBackground,// '#414141',
               justifyContent: 'center',
               alignItems: 'center',
             }}>
@@ -79,13 +97,13 @@ export default function PieChart(props: Props/*{ data: []}*/) {
             {/*********************    Custom Header component      ********************/}
             <Text
               style={{
-                color: 'white',
+                color: theme.colors.primary,// 'white',
                 fontSize: 18,
                 fontWeight: 'bold',
                 marginBottom: 12,
               }}>
               {props.title}
-            </Text>
+            </Text> 
             {/****************************************************************************/}
 
 
@@ -93,10 +111,11 @@ export default function PieChart(props: Props/*{ data: []}*/) {
               strokeColor="white"
               strokeWidth={4}
               donut
-              data={props.data}
-              innerCircleColor="#414141"
+              data={transformedData}
+              // innerCircleColor="#414141"
+              // innerCircleColor={COLORS.mainBackground}
               innerCircleBorderWidth={4}
-              innerCircleBorderColor={'white'}
+              // innerCircleBorderColor={'white'}
               showValuesAsLabels={true}
               showText
               textSize={12}
@@ -120,9 +139,15 @@ export default function PieChart(props: Props/*{ data: []}*/) {
                     justifyContent: 'space-evenly',
                     marginTop: 20,
                   }}>
-                  {renderLegend('Jan', 'rgb(84,219,234)')}
+                    {
+                      transformedData.map((d, idx) => {
+                        const color = themeColorsArray[themeColorsArray.length - idx - 1]; 
+                        return renderLegend(d.text || '', d.color || color);
+                      })
+                    }
+                  {/* {renderLegend('Jan', 'rgb(84,219,234)')}
                   {renderLegend('Feb', 'lightgreen')}
-                  {renderLegend('Mar', 'orange')}
+                  {renderLegend('Mar', 'orange')} */}
                 </View>
               )
             }
