@@ -890,7 +890,7 @@ const FormGenerator = (formProps: IDocFormProps, ref) => {
                   </Card.Actions>
                 )}
                 <Card.Content>
-                  <ScrollView style={{ flexGrow: 1, maxHeight: height * 0.7 }}>
+                  <ScrollView style={{ flexGrow: 1 /*, maxHeight: height * 0.7*/ }}>
                     {tabs?.length > 0 && render_tabs(formik_props)}
                     <View>
                       {/* Doc specific fields */}

@@ -457,8 +457,10 @@ export default function MultiStepForm(props: Props) {
   }, [dispatch]);
 
   return (
-    <View key={key}>
-      <Stepper
+    <>
+     <Text style={{ fontWeight: 'bold', alignSelf: 'center', marginBottom: 2, fontSize: 20}}>{engagement?.name}</Text>
+      <View key={key}>
+     <Stepper
         active={step}
         buttonStyle={styles.buttons}
         stepStyle={styles.step}
@@ -480,7 +482,7 @@ export default function MultiStepForm(props: Props) {
           // APP.alert("Finish");
         }}
       />
-    </View>
+    </View></>
   );
 }
 

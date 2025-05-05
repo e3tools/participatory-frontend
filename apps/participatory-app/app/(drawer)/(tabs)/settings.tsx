@@ -9,7 +9,7 @@ const Settingss = () => {
   return (
     <View>
       <Card>
-        <Card.Title title="Settings" subtitle="Modify settings" />
+        {/* <Card.Title title="Settings" subtitle="Modify settings" /> */}
         <Card.Content>
           <View style={styles.container}>
             <View style={styles.switchContainer}>

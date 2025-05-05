@@ -34,7 +34,7 @@ const PageIntro = ({
   return (
     <View
       style={{
-        marginVertical: 3,
+        // marginVertical: 3,
         marginHorizontal: 5,
         borderColor: theme.colors.error,
         borderWidth: 1,

@@ -44,7 +44,7 @@ const EngagementList = () => {
 
   useEffect(() => {
     if (!searchQuery) {
-      setFilteredEngagements([...engagements]);
+      setFilteredEngagements(engagements ? [...engagements] : []);
     } else {
       const filtered = engagements?.filter((el: Engagement) =>
         el.engagement_name.toLowerCase().includes(searchQuery.toLowerCase()),

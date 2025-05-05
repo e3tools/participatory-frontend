@@ -300,7 +300,7 @@ const FrappeUIGenerator = (props: IDocFormProps, ref) => {
         // tabs?.length > 0 && render_tabs()
       }
       {doctype && doctype.fields?.length > 0 ? (
-        <FormGenerator
+        <FormGenerator 
           doctype={doctype_name}
           docname={docname}
           doc={doc}

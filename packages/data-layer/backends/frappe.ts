@@ -30,7 +30,7 @@ const Frappe = class Frappe {
     this.api_url = `${this.url}/api/method/${this.frappe_custom_app}.api`;
   }
   async login(data): Promise<LoginResult> {
-    const response = await this.callApiEndpoint('login', data);   
+    const response = await this.callApiEndpoint('login', data); 
     const result = {} as LoginResult;
     if(response && response.status_code == 200){
       this.headers['Authorization'] = `token ${response.token}`

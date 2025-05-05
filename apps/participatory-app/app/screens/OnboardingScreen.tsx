@@ -10,6 +10,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, useNavigation } from 'expo-router';
 import { APP } from 'common';
 import AppLoader from 'ui/components/shared/app-loader';
+import { logIn } from 'auth/state/user/actions/user.action';
 
 const OnboardingScreen = (/*{ navigation }*/) => {
   const navigation = useNavigation();
@@ -19,11 +20,11 @@ const OnboardingScreen = (/*{ navigation }*/) => {
   const isAuthenticated = useAppSelector(
     (state) => state.user?.isAuthenticated,
   );
-
-  useEffect(() => {
+ 
+  useEffect(() => { 
     dispatch(getSettings());
   }, [dispatch]);
-
+    
   useEffect(() => {
     if (settings?.logo) {
       const url = `${process.env.EXPO_PUBLIC_BACKEND}${settings.logo}`;
@@ -34,14 +35,19 @@ const OnboardingScreen = (/*{ navigation }*/) => {
   useLayoutEffect(() => {
     navigation.setOptions({ title: '' });
   }, [navigation]);
+  
+  useEffect(() => {
+    dispatch(logIn({ username: 'administrator', password: '123' }));
+    // attempt to login
+  }, [dispatch, logIn]);
 
-  if (loading) {
-    return (
-      <SafeAreaView style={{ flex: 1, alignItems: 'center' }}>
-        <AppLoader />
-      </SafeAreaView>
-    );
-  }
+  // if (loading === true) {
+  //   return (
+  //     <SafeAreaView style={{ flex: 1, alignItems: 'center' }}>
+  //       <AppLoader />
+  //     </SafeAreaView>
+  //   );
+  // }
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -96,7 +102,8 @@ const OnboardingScreen = (/*{ navigation }*/) => {
               // );
             } else {
               APP.route_to_path(
-                'modules/auth/screens/LoginScreen',
+                // 'modules/auth/screens/LoginScreen',
+                'modules/engage/screens/EngageIndexScreen',
                 {
                   app_name: settings?.app_name,
                   logo_path: '../assets/images/pp4.jpg',

@@ -47,7 +47,7 @@ const customizationSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getSettings.pending, (state) => {
-        state.loading = true;
+        state.loading = true; 
       })
       .addCase(
         getSettings.fulfilled,

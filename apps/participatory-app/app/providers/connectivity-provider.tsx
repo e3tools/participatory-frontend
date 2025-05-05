@@ -39,6 +39,10 @@ const ConnectivityProvider = ({ children }: { children: React.ReactNode }) => {
     dispatch(setIsBackendConnected(!isOffline));
   }, [dispatch, isOffline]);
 
+  return (
+    <>{children}</>
+  )
+
   if (!isOffline) {
     return (
       <SafeAreaView
@@ -47,7 +51,7 @@ const ConnectivityProvider = ({ children }: { children: React.ReactNode }) => {
           backgroundColor: 'orange',
         }}
       >
-        <NoInternetBanner />
+        {/* <NoInternetBanner /> */}
         {children}
       </SafeAreaView>
     );

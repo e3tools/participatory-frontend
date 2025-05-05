@@ -856,7 +856,7 @@ export default AppMap;
 const styles = StyleSheet.create({
   map: {
     flex: 1,
-    minHeight: 400,
+    minHeight: 250,
     //display: 'none'
   },
   legend: {

@@ -25,7 +25,7 @@ const AuthService = class AuthService {
     const auth = {
       usr: username,
       pwd: password,
-    };   
+    };
     const loginResp = await new Frappe(URLS.BACKEND).login(auth);   
     const resp = { loggedIn: loginResp.loggedIn, user: loginResp.user, error: loginResp?.error } as LoginResponse;
     // if(resp.loggedIn){
