@@ -1,12 +1,50 @@
 {
   "expo": {
+    "name": "participatory-frontend-new",
+    "slug": "participatory-frontend-new",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "myapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
     "extra": {
       "eas": {
         "projectId": "93b696d3-6ecb-44e5-a103-d74184c9b2a4"
       }
     },
     "android": {
-      "package": "com.stevenyaga.participatoryfrontend"
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.wb.engage"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      "expo-localization",
+      "expo-secure-store",
+      "expo-sqlite"
+    ],
+    "experiments": {
+      "typedRoutes": true
     }
   }
 }
